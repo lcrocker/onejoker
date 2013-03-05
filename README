@@ -1,0 +1,15 @@
+2013-02-27
+Lee Daniel Crocker <lee@piclab.com>
+
+OneJoker is a general-purpose card game and simulation library
+created by Lee Daniel Crocker in 2013. To the extent possible under
+law, I waive all copyright and related or neighboring rights to
+this work. Where I have included the work of others, this is noted
+and such work may be licensed under different terms.
+
+It is written in C using cmake <www.cmake.org>. Though it could
+certainly be used directly in C or C++ programs, it is designed with
+the goal of higher-level language bindings in mind. For example, it
+never allocates memory, but relies on the client for that. I try
+to write portably, but I'm sure there are some Linuxisms here that
+porters will have to smooth over.

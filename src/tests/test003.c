@@ -1,7 +1,7 @@
-/* Build the lookup table for direct-hash poker hand evaluator. The version
- * here is the final one that actually builds the table from the given hash
- * functions and seeds. A hacked-up version of this program was also used to
- * test various hash functions and find good seeds.
+/* This obsolete code builds an 8MB lookup table for a sort-and-hash hand
+ * evaluator I was experimenting with. Turns out to be about half as fast as
+ * the Suffecool-Senzee one. But it was a great way to test parts of the code
+ * and learn some tricks, so it's left here for posterity.
  */
 
 #include <stdlib.h>
@@ -13,76 +13,50 @@
 
 #include "onejoker.h"
 
-/* On some machines the table lookup will be faster, but on most modern
- * 64-bit machines just doing the shifts should be better.  Uncomment
- * whichever is faster on your machine.
- */
-
-#define MB(c) (1ull<<(c))
-/*
-_static uint64_t _masks[] = { 0,
-	1ull <<  1, 1ull <<  2, 1ull <<  3, 1ull <<  4,
-	1ull <<  5, 1ull <<  6, 1ull <<  7, 1ull <<  8,
-	1ull <<  9, 1ull << 10, 1ull << 11, 1ull << 12,
-	1ull << 13, 1ull << 14, 1ull << 15, 1ull << 16,
-	1ull << 17, 1ull << 18, 1ull << 19, 1ull << 20,
-	1ull << 21, 1ull << 22, 1ull << 23, 1ull << 24,
-	1ull << 25, 1ull << 26, 1ull << 27, 1ull << 28,
-	1ull << 29, 1ull << 30, 1ull << 31, 1ull << 32,
-	1ull << 33, 1ull << 34, 1ull << 35, 1ull << 36,
-	1ull << 37, 1ull << 38, 1ull << 39, 1ull << 40,
-	1ull << 41, 1ull << 42, 1ull << 43, 1ull << 44,
-	1ull << 45, 1ull << 46, 1ull << 47, 1ull << 48,
-	1ull << 49, 1ull << 50, 1ull << 51, 1ull << 52,
-	1ull << 53, 1ull << 54
-};
-#define MB(c) (_masks[c])
-*/
-#define MAKEMASK(a,b,c,d,e) (MB(a)|MB(b)|MB(c)|MB(d)|MB(e))
-
 #define UNIQUEHANDS 2598960
 #define TABLESIZE 0x400000
-#define MODTABLESIZE(x) ((x>>10)&0x3FFFFF)
+/* 0x20000000 */
+#define MODTABLESIZE(x) ((x)&(TABLESIZE-1))
 #define MAXDEPTH 20
 
 typedef struct _bucket {
+	uint32_t key;
 	int next;
 	short depth;
 	short val;
-	uint64_t mask;
-	/*
-	uint32_t hash1;
-	uint32_t hash2;
-	*/
 } bucket_t;
 
 bucket_t g_buckets[UNIQUEHANDS];
-int g_chains[TABLESIZE];
+int32_t g_chains[TABLESIZE];
 
-/* Seed variables.
+/* Given an array of exactly 5 ints with card numbers (1..52),
+ * sort and pack them into a 32-bit integer key.
  */
-uint32_t g_h = 0, g_a = 0, g_b = 0, g_c = 0;
+#define SWAP(a,b) do{if(h[a]>h[b]){t=h[a];h[a]=h[b];h[b]=t;}}while(0)
 
-/* Primary hash function. Hash 64-bit mask down to 22-bit table size.
- */
-uint32_t hf1(uint64_t *mask) {
-	uint32_t u = g_h;
-
-	u ^= *((uint32_t *)mask);
-	u *= (g_a ^ ((uint32_t *)mask)[1]);
-	u += g_b;
-	return MODTABLESIZE(u);
+uint32_t build_key(int *h) {
+	register int t;
+	SWAP(0,1);  SWAP(3,4);  SWAP(2,4);
+	SWAP(2,3);  SWAP(1,4);  SWAP(0,3);
+	SWAP(0,2);  SWAP(1,3);  SWAP(1,2);
+	return (h[0]<<24)|(h[1]<<18)|(h[2]<<12)|(h[3]<<6)|(h[4]);
 }
 
-/* Secondary hash.
+/* Hash functions.
  */
-uint32_t hf2(uint64_t *mask, uint32_t h1, uint16_t sk) {
-	uint32_t u = h1;
 
-	u ^= *((uint32_t *)mask);
-	u *= (g_c ^ ((uint32_t *)mask)[1]);
-	u += (sk << 16);
-	return MODTABLESIZE(u);
+static uint32_t g_x = 0x76b24ce9, g_y = 0x5e2a572d, g_z = 0x99c52d8c;
+
+uint32_t hf1(uint32_t key) {
+	key *= g_x;
+	key += g_y;
+	return MODTABLESIZE(key>>8);
+}
+
+uint32_t hf2(uint32_t key, uint16_t sk) {
+	key *= (g_y + sk);
+	key += g_z;
+	return MODTABLESIZE(key>>8);
 }
 
 /* Verify the bucket and chain structures.
@@ -90,23 +64,16 @@ uint32_t hf2(uint64_t *mask, uint32_t h1, uint16_t sk) {
 int buckets_are_valid(void) {
 	int b, h, d, n, groups[10];
 	long t;
-	uint64_t mask1, mask2;
 
 	/* Bucket table should be full, with one entry for each hand.
 	 */
-	mask1 = mask2 = 0ull;
 	memset(groups, 0, sizeof(groups));
-
 	for (b = 0; b < UNIQUEHANDS; ++b) {
 		if (g_buckets[b].val < 1 || g_buckets[b].val > 7462) return 0;
 		if (g_buckets[b].depth > MAXDEPTH) return 0;
-		if (0ull == g_buckets[b].mask) return 0;
-		mask1 |= g_buckets[b].mask;
-		mask2 ^= g_buckets[b].mask;
+		if (0 == g_buckets[b].key) return 0;
 		++groups[oj_poker_handgroup(g_buckets[b].val)];
 	}
-	assert(0x1FFFFFFFFFFFFEull == mask1);
-	assert(0ull == mask2);
 	assert(1302540 == groups[1]);
 	assert(1098240 == groups[2]);
 	assert(123552 == groups[3]);
@@ -118,7 +85,6 @@ int buckets_are_valid(void) {
 	assert(40 == groups[9]);
 
 	t = 0;
-	mask1 = mask2 = 0ull;
 	for (h = 0; h < TABLESIZE; ++h) {
 		b = g_chains[h];
 		if (b <= 0) continue;
@@ -129,8 +95,6 @@ int buckets_are_valid(void) {
 		assert(d > 0 && d <= MAXDEPTH);
 
 		while (d > 1) {
-			mask1 |= g_buckets[b].mask;
-			mask2 ^= g_buckets[b].mask;
 			++t;
 
 			n = g_buckets[b].next;
@@ -140,14 +104,9 @@ int buckets_are_valid(void) {
 			--d;
 		}
 		assert(-1 == g_buckets[b].next);
-		mask1 |= g_buckets[b].mask;
-		mask2 ^= g_buckets[b].mask;
 		++t;
 	}
 	assert(UNIQUEHANDS == t);
-	assert(0x1FFFFFFFFFFFFEull == mask1);
-	assert(0ull == mask2);
-
 	return 1;
 }
 
@@ -156,33 +115,32 @@ int buckets_are_valid(void) {
 int g_depth;
 
 long enumerate_hands(void) {
-	int c1, c2, c3, c4, c5, d, b;
+	int h[8], d, b;
 	long totalhands = 0;
 	int collisions = 0;
-	uint64_t cardmask;
-	uint32_t hash1;
+	uint32_t key, hash1;
 
 	memset(g_chains, 0, sizeof(g_chains));
 	memset(g_buckets, 0, sizeof(g_buckets));
 	g_depth = b = 0;
 
-	for (c1 = 1; c1 <= 48; ++c1) {
-		for (c2 = c1 + 1; c2 <= 49; ++c2) {
-			for (c3 = c2 + 1; c3 <= 50; ++c3) {
-				for (c4 = c3 + 1; c4 <= 51; ++c4) {
-					for (c5 = c4 + 1; c5 <= 52; ++c5) {
+	for (h[0] = 1; h[0] <= 48; ++h[0]) {
+		for (h[1] = h[0] + 1; h[1] <= 49; ++h[1]) {
+			for (h[2] = h[1] + 1; h[2] <= 50; ++h[2]) {
+				for (h[3] = h[2] + 1; h[3] <= 51; ++h[3]) {
+					for (h[4] = h[3] + 1; h[4] <= 52; ++h[4]) {
 						++totalhands;
 						if (0 == (totalhands & 0x3FFFF)) {
 							fprintf(stderr, "%ld\r", totalhands);
 							fflush(stderr);
 						}
-						cardmask = MAKEMASK(c1, c2, c3, c4, c5);
-						hash1 = hf1(&cardmask);
+						key = build_key(h);
+						hash1 = hf1(key);
 
 						g_buckets[b].next = -1;
 						g_buckets[b].depth = 1;
-						g_buckets[b].val = oj_poker_eval5(c1, c2, c3, c4, c5);
-						g_buckets[b].mask = cardmask;
+						g_buckets[b].val = oj_poker_eval5(h[0], h[1], h[2], h[3], h[4]);
+						g_buckets[b].key = key;
 
 						if (g_chains[hash1]) {
 							++collisions;
@@ -209,12 +167,6 @@ long enumerate_hands(void) {
 	return totalhands;
 }
 
-/* Search for a secondary key that will rehash the given chain to empty
- * (and different! -- that was a fun bug to find) buckets. I arbitrarily
- * throw away the first 128 sks to make the hashes better (and therefore
- * presumably likely to succeed earlier), but there's really no reason not
- * to try them all.
- */
 void _debug(uint32_t h1) {
 	int b, d, i, sk, newhashes[MAXDEPTH];
 	uint32_t h2;
@@ -224,7 +176,7 @@ void _debug(uint32_t h1) {
 		d = 0;
 
 		do {
-			h2 = hf2(&g_buckets[b].mask, h1, sk);
+			h2 = hf2(g_buckets[b].key, sk);
 			newhashes[d++] = h2;
 			b = g_buckets[b].next;
 		} while (-1 != b);
@@ -238,6 +190,12 @@ void _debug(uint32_t h1) {
 	}
 }
 
+/* Search for a secondary key that will rehash the given chain to empty
+ * (and different! -- that was a fun bug to find) buckets. I arbitrarily
+ * throw away the first 128 sks to make the hashes better (and therefore
+ * presumably likely to succeed earlier), but there's really no reason not
+ * to try them all.
+ */
 uint16_t find_sk(uint32_t h1) {
 	int h2, sk, b, d, i, j, dup, newhashes[MAXDEPTH];
 
@@ -247,7 +205,7 @@ uint16_t find_sk(uint32_t h1) {
 
 		do {
 			assert(d < MAXDEPTH);
-			h2 = hf2(&g_buckets[b].mask, h1, sk);
+			h2 = hf2(g_buckets[b].key, sk);
 			if (0 != g_chains[h2]) break;
 
 			dup = 0;
@@ -276,7 +234,7 @@ void rehash(int h1, uint16_t sk) {
 		--d;
 		assert(d >= 0);
 
-		h2 = hf2(&g_buckets[b].mask, h1, sk);
+		h2 = hf2(g_buckets[b].key, sk);
 		assert(0 == g_chains[h2]);
 		g_chains[h2] = b + 1;
 
@@ -316,11 +274,9 @@ int rehash_all(void) {
 	}
 	fprintf(stderr, "\nPass 2: %d chains, %d collisions resolved.\n",
 		chains, collisions);
+	return 1;
 }
 
-/* Starting with the deepest buckets, make multiple passes over the
- * chains attempting to rehash.
- */
 int build_table(void) {
 	int b, c;
 	long totalhands = 0, pointers = 0, empties = 0;
@@ -341,10 +297,10 @@ int build_table(void) {
 			v = 0x8000 | (-c);
 			++pointers;
 		} else {
-			v = c;
+			v = g_buckets[c - 1].val;
 			++totalhands;
 		}
-		printf("0x%04x, ", v);
+		printf("%5u, ", v);
 	}
 	printf("\n};\n");
 
@@ -356,14 +312,8 @@ int build_table(void) {
 int main(int argc, char *argv[]) {
 	int i, r;
 	long t;
-	uint32_t u;
 
-	g_h = 0x76b24ce9;
-	g_a = 0x5e2a572f;
-	g_b = 0x99c52d8c;
-	g_c = 0xbea51fe5;
-
-	fprintf(stderr, "Keys: h=%08x a=%08x b=%08x c=%08x\n", g_h, g_a, g_b, g_c);
+	fprintf(stderr, "Keys: x=%08x y=%08x z=%08x\n", g_x, g_y, g_z);
 
 	t = enumerate_hands();
 	assert(UNIQUEHANDS == t);

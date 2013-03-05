@@ -59,4 +59,6 @@ int main(int argc, char *argv[]) {
 	for (i = 1; i < 10; ++i) {
 		fprintf(stderr, "%ld %s\n", groups[i], oj_poker_handname(i));
 	}
+
+	return EXIT_SUCCESS;
 }

@@ -14,3 +14,13 @@ the goal of higher-level language bindings in mind. For example, it
 never allocates memory, but relies on the client for that. I try
 to write portably, but I'm sure there are some Linuxisms here that
 porters will have to smooth over.
+
+To build on Linux, create a build directory parallel to "src",
+change to it, then use:
+
+  cmake -g 'Unix Makefiles' ../src
+
+to make the build tree. You should then be able to "make" from
+the build directory. If you use Eclipse, replace 'Unix Makefiles'
+with 'Eclipse CDT4 - Unix Makefiles'.
+

@@ -10,7 +10,7 @@
 #include "pokertables.h"
 
 #if 0
-#include "lctable"
+#include "lctables"
 #endif
 
 static unsigned _ps_find(unsigned u) {
@@ -41,31 +41,13 @@ int oj_poker_eval5(int c1, int c2, int c3, int c4, int c5) {
 }
 
 #if 0
-#define MODTABLESIZE(x) ((x)&0x3FFFFF)
-#define SWAP(a,b) do{if(a>b){t=a;a=b;b=t;}}while(0)
-static uint32_t g_x = 0x76b24ce9, g_y = 0x5e2a572f, g_z = 0x99c52d8c;
-
 int _oj_poker_eval5(int c1, int c2, int c3, int c4, int c5) {
 	int t;
-	uint32_t k1, k2;
-	unsigned short v, sk;
 
-	SWAP(c1,c2); SWAP(c4,c5); SWAP(c3,c5);
-	SWAP(c3,c4); SWAP(c2,c5); SWAP(c1,c4);
-	SWAP(c1,c3); SWAP(c2,c4); SWAP(c2,c3);
-
-	k1 = (c1<<24)|(c2<<18)|(c3<<12)|(c4<<6)|c5;
-	k2 = k1 * g_x;
-	k2 += g_y;
-	k2 = MODTABLESIZE(k2>>8);
-	v = _oj_lc_table1[k2];
-	if (0 == (0x8000 & v)) return v;
-
-	sk = v & 0x7FFF;
-	k2 = k1 * (g_y + sk);
-	k2 += g_z;
-	k2 = MODTABLESIZE(k2>>8);
-	return _oj_lc_table1[k2];
+	t = _oj_lc_table1[53*c1 + c2];
+	t = _oj_lc_table2[t + c3];
+	t = _oj_lc_table3[t + c3];
+	return _oj_lc_table4[t + c4];
 }
 #endif
 

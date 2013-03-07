@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "Spread: %g\n", (double)(max - min) / (double)TOTAL_RANDS);
     fprintf(stderr, "Feeding dieharder tests...\n");
 
-	while (1) {
+	while (0) {
 		for (i = 0; i < 100; ++i) {
 			buf[i] = oj_prng_next16();
 		}

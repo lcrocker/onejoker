@@ -1,1 +1,0 @@
-/usr/bin/gcc      CMakeFiles/test001.dir/test001.c.o  -o test001 -rdynamic -L/home/lee/Projects/OneJoker/lib ../../lib/libonejoker.so -Wl,-rpath,/home/lee/Projects/OneJoker/lib 

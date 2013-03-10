@@ -9,10 +9,11 @@
 #include "onejoker.h"
 #include "pokertables.h"
 
-#if 0
+#ifdef _LC_EVAL
 #include "lctable"
 #endif
 
+#ifndef _LC_EVAL
 static unsigned _ps_find(unsigned u) {
     unsigned a, b, r;
 
@@ -39,14 +40,15 @@ int oj_poker_eval5(int c1, int c2, int c3, int c4, int c5) {
     return _ps_eval5( _ck_cardvals[c1], _ck_cardvals[c2],
         _ck_cardvals[c3], _ck_cardvals[c4], _ck_cardvals[c5] );
 }
+#endif
 
-#if 0
+#ifdef _LC_EVAL
 #define MODTABLESIZE(x) ((x)&0x3FFFFF)
 #define SWAP(a,b) do{if(a>b){t=a;a=b;b=t;}}while(0)
 static uint32_t g_x = 0x76b24ce9, g_y = 0x5e2a572f, g_z = 0x99c52d8c;
 
-int _oj_poker_eval5(int c1, int c2, int c3, int c4, int c5) {
-	int t;
+int oj_poker_eval5(int c1, int c2, int c3, int c4, int c5) {
+	int s, d;
 	uint32_t k1, k2;
 	unsigned short v, sk;
 

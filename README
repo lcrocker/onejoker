@@ -2,25 +2,50 @@
 Lee Daniel Crocker <lee@piclab.com>
 https://github.com/lcrocker/OneJoker.git
 
-OneJoker is a general-purpose card game and simulation library
-created by Lee Daniel Crocker in 2013. To the extent possible under
-law, I waive all copyright and related or neighboring rights to
+OneJoker is a general-purpose card game and simulation library for
+Python created by Lee Daniel Crocker in 2013. To the extent possible
+under law, I waive all copyright and related or neighboring rights to
 this work. Where I have included the work of others, this is noted
 and such work may be licensed under different terms.
 
-It is written in C using cmake <www.cmake.org>. Though it could
-certainly be used directly in C or C++ programs, it is designed with
-the goal of higher-level language bindings in mind. For example, it
-never allocates memory, but relies on the client for that. I try
-to write portably, but I'm sure there are some Linuxisms here that
+It is written in C and Python using cmake <www.cmake.org>. Though it
+could certainly be used directly in C or C++ programs, it is designed
+with the goal of higher-level language bindings in mind. For example,
+the C code never allocates memory, but relies on the client (in this
+case the Python language binding is the client) for that. I try to
+write portably, but I'm sure there are some Linuxisms here that
 porters will have to smooth over.
 
-To build on Linux, create a build directory parallel to "src",
-change to it, then use:
+To build on Linux, either create a build directory parallel to "src",
+change to it, and type
 
   cmake -g 'Unix Makefiles' ../src
 
-to make the build tree. You should then be able to "make" from
-the build directory. If you use Eclipse, replace 'Unix Makefiles'
-with 'Eclipse CDT4 - Unix Makefiles'.
+or else type
 
+  cmake -g 'Unix Makefiles' src
+
+from the top-level directory itself. The former is cleaner, the latter
+seems to work better for Eclipse. You should then be able to "make"
+from the build directory.
+
+========
+Overview
+========
+
+The two design choices to understand are card numbers and sequences. A
+card is represented by an integer from 1 to 54. "0" is usually used for
+error returns and such. 1 is the deuce of clubs, followed by the deuce
+of diamonds, hearts, and spades; 5 is the trey of clubs, 6 the trey of
+diamonds, etc., up to 52, the Ace of spades. 53 is the joker, and 54 is
+the "colored" joker for games that distinguish between the two.
+
+When cards are represented as text for input and output, each is two
+characters, for rank and suit, e.g., "2c", "5d", "Qh", "As". Tens use
+the letter T, so the 10 of diamonds is "Td". The joker is "JK" and the
+colored joker is "J2".
+
+The second important structure in this library is called a "sequence"
+which is simply an ordered list of cards. This may represent a whole
+deck or stub (or even a multi-deck shoe), a single hand, a community
+board, or anything else needed for a particular game.

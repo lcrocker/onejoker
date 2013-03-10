@@ -8,7 +8,7 @@
 
 typedef enum _oj_decktype {
 	oj_dt_standard, oj_dt_1joker, oj_dt_2jokers,
-    oj_dt_stripped32, oj_dt_stripped40, oj_dt_stripped40j
+    oj_dt_stripped32, oj_dt_stripped40, oj_dt_stripped40j,
 } oj_decktype_t;
 
 typedef enum _oj_cardstyle {
@@ -32,21 +32,32 @@ extern int _oj_johnnymoss;
 
 extern int oj_init_library(int seed);
 
-/* Sequences */
+/* PRNG functions */
 
-int oj_seq_new(oj_seq_t *sp, int size, int *buf);
-int oj_seq_fill(oj_decktype_t dt);
-int oj_seq_shuffle(oj_sequence_t *sp);
-int oj_seq_deal_from(oj_sequence_t *sp);
-int oj_seq_deal_to(oj_sequence_t *sp, int card);
-int oj_seq_copy(oj_sequence_t *destp, oj_sequence_t *srcp, int count);
+extern int oj_seed_prng(int seed);
+extern uint16_t oj_prng_next16(void);
+extern uint32_t oj_prng_next32(void);
+extern int oj_rand(int limit);
 
 /* Card names */
 
-int oj_card_from_name(char *name, char *next);
-char *oj_name_of_card(int card, oj_cardstyle_t style);
-int oj_seq_name(oj_seq_t *sp, char *name, int size);
-int oj_add_by_name(oj_seq_t *sp, char *names);
+extern int oj_card_from_name(char *name, char **next);
+extern char *oj_name_of_card(int card, oj_cardstyle_t style);
+extern int oj_seq_name(oj_sequence_t *sp, char *name, int size, char sep);
+extern int oj_add_by_name(oj_sequence_t *sp, char *names);
+
+/* Sequences */
+
+extern int oj_seq_new(oj_sequence_t *sp, int size, int *buf);
+extern int oj_seq_deal_from_end(oj_sequence_t *sp);
+extern int oj_seq_deal_to_end(oj_sequence_t *sp, int card);
+extern int oj_seq_deal_from_head(oj_sequence_t *sp);
+extern int oj_seq_deal_to_head(oj_sequence_t *sp, int card);
+extern int oj_pick(oj_sequence_t *sp, int card);
+extern int oj_seq_move(oj_sequence_t *destp, oj_sequence_t *srcp, int count);
+extern int oj_seq_copy(oj_sequence_t *destp, oj_sequence_t *srcp);
+extern int oj_seq_fill(oj_sequence_t *sp, int count, oj_decktype_t dt);
+extern int oj_seq_shuffle(oj_sequence_t *sp);
 
 /* Various combinatorics */
 
@@ -57,13 +68,6 @@ long oj_iter_next(oj_iterator_t *iter);
 long oj_iter_count(oj_iterator_t *iter);
 long oj_colex_rank(oj_sequence_t *hand, oj_sequence_t *deck);
 long oj_hand_at_colex_rank(long r, int length, oj_sequence_t *deck);
-
-/* PRNG functions */
-
-extern int oj_seed_prng(int seed);
-extern uint16_t oj_prng_next16(void);
-extern uint32_t oj_prng_next32(void);
-extern int oj_rand(int limit);
 
 /* Poker functions */
 

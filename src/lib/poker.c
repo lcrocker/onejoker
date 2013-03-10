@@ -31,9 +31,14 @@ int _ps_eval5(int c1, int c2, int c3, int c4, int c5) {
     	(c3 & 0xff) * (c4 & 0xff) * (c5 & 0xff))];
 }
 
+/*
 int oj_poker_eval5(int c1, int c2, int c3, int c4, int c5) {
     return _ps_eval5( _ck_cardvals[c1], _ck_cardvals[c2],
         _ck_cardvals[c3], _ck_cardvals[c4], _ck_cardvals[c5] );
+}
+*/
+int oj_poker_eval5(oj_sequence_t *sp) {
+    return 0;
 }
 
 static char *_oj_handgroup_names[] = {

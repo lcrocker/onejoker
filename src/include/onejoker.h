@@ -31,6 +31,7 @@ extern int _oj_johnnymoss;
 /* General library functions */
 
 extern int oj_init_library(int seed);
+extern int *oj_deck_info(oj_decktype_t dt);
 
 /* PRNG functions */
 

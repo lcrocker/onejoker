@@ -6,15 +6,20 @@
 
 #include <stdint.h>
 
-typedef enum _oj_decktype {
+typedef enum _oj_deck_type {
 	oj_dt_standard, oj_dt_1joker, oj_dt_2jokers,
     oj_dt_stripped32, oj_dt_stripped40, oj_dt_stripped40j,
-} oj_decktype_t;
+} oj_deck_type_t;
 
-typedef enum _oj_cardstyle {
+typedef enum _oj_card_style {
     oj_cs_ascii2, oj_cs_ascii3, oj_cs_unicode2, oj_cs_unicode3,
     oj_cs_fulltext, oj_cs_html, oj_cs_htmlcolor,
-} oj_cardstyle_t;
+} oj_card_style_t;
+
+typedef struct _oj_deck_info {
+    int size;
+    int *cards;
+} oj_deck_info_t;
 
 typedef struct _oj_sequence {
 	int _johnnymoss;
@@ -31,7 +36,7 @@ extern int _oj_johnnymoss;
 /* General library functions */
 
 extern int oj_init_library(int seed);
-extern int *oj_deck_info(oj_decktype_t dt);
+extern oj_deck_info_t *oj_deck_info(oj_deck_type_t dt);
 
 /* PRNG functions */
 
@@ -43,7 +48,7 @@ extern int oj_rand(int limit);
 /* Card names */
 
 extern int oj_card_from_name(char *name, char **next);
-extern char *oj_name_of_card(int card, oj_cardstyle_t style);
+extern char *oj_name_of_card(int card, oj_card_style_t style);
 extern int oj_seq_name(oj_sequence_t *sp, char *name, int size, char sep);
 extern int oj_add_by_name(oj_sequence_t *sp, char *names);
 
@@ -57,7 +62,7 @@ extern int oj_seq_deal_to_head(oj_sequence_t *sp, int card);
 extern int oj_pick(oj_sequence_t *sp, int card);
 extern int oj_seq_move(oj_sequence_t *destp, oj_sequence_t *srcp, int count);
 extern int oj_seq_copy(oj_sequence_t *destp, oj_sequence_t *srcp);
-extern int oj_seq_fill(oj_sequence_t *sp, int count, oj_decktype_t dt);
+extern int oj_seq_fill(oj_sequence_t *sp, int count, oj_deck_type_t dt);
 extern int oj_seq_shuffle(oj_sequence_t *sp);
 
 /* Various combinatorics */

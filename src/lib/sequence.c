@@ -125,18 +125,27 @@ int oj_seq_copy(oj_sequence_t *destp, oj_sequence_t *srcp) {
     return destp->length = count;
 }
 
-int oj_seq_fill(oj_sequence_t *sp, int count, oj_decktype_t dt) {
-    int i, dsize, *deck, *cp = sp->cards;
-    int inremaining = count, outremaining = sp->allocation;
+/* Fill a sequence with fresh cards based on deck type. Can be used to
+ * fill multi-deck shoes as well.
+ */
+int oj_seq_fill(oj_sequence_t *sp, int count, oj_deck_type_t dt) {
+    oj_deck_info_t *di = oj_deck_info(dt);
+    int c, remaining;
     assert(0 != sp);
     assert(0x10ACE0FF == sp->_johnnymoss);
 
-    deck = oj_deck_info(dt);
-    dsize = *deck++;
-
     sp->length = 0;
+    remaining = count;
+    if (remaining > sp->allocation) remaining = sp->allocation;
+
     do {
-    } while (inremaining && outremaining);
+        c = remaining;
+        if (c > di->size) c = di->size;
+        memmove(sp->cards + sp->length, di->cards, c * sizeof(int));
+
+        sp->length += c;
+        remaining -= c;
+    } while (remaining);
 }
 
 int oj_seq_shuffle(oj_sequence_t *sp) {

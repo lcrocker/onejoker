@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/lee/Projects/OneJoker/src/tests/test001/test001.c
+stdlib.h
+-
+stdio.h
+-
+unistd.h
+-
+string.h
+-
+assert.h
+-
+onejoker.h
+/home/lee/Projects/OneJoker/src/tests/test001/onejoker.h
+
+src/include/onejoker.h
+stdint.h
+-
+

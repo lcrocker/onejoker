@@ -1,1 +1,0 @@
-/usr/bin/gcc  -fPIC  -nostartfiles -shared -Wl,-soname,libonejoker.so -o libonejoker.so CMakeFiles/onejoker.dir/onejoker.c.o CMakeFiles/onejoker.dir/prng.c.o CMakeFiles/onejoker.dir/sequence.c.o CMakeFiles/onejoker.dir/combinatorics.c.o CMakeFiles/onejoker.dir/cardnames.c.o CMakeFiles/onejoker.dir/poker.c.o -L/home/lee/Projects/OneJoker/lib 

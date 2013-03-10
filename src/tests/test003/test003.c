@@ -13,11 +13,10 @@
 
 #include "onejoker.h"
 
+#define MAXDEPTH 20
 #define UNIQUEHANDS 2598960
 #define TABLESIZE 0x400000
-/* 0x20000000 */
-#define MODTABLESIZE(x) ((x)&(TABLESIZE-1))
-#define MAXDEPTH 20
+#define MODTABLESIZE(x) ((x)&0x3FFFFF)
 
 typedef struct _bucket {
 	uint32_t key;
@@ -32,10 +31,11 @@ int32_t g_chains[TABLESIZE];
 /* Given an array of exactly 5 ints with card numbers (1..52),
  * sort and pack them into a 32-bit integer key.
  */
-#define SWAP(a,b) do{if(h[a]>h[b]){t=h[a];h[a]=h[b];h[b]=t;}}while(0)
+/* #define SWAP(a,b) do{if(h[a]>h[b]){s=h[a];h[a]=h[b];h[b]=s;}}while(0) */
+#define SWAP(a,b) do{s=h[a]+h[b];d=abs(h[b]-h[a]);h[a]=(s+d)/2;h[b]=(s-d)/2;}while(0)
 
 uint32_t build_key(int *h) {
-	register int t;
+	register int s, d;
 	SWAP(0,1);  SWAP(3,4);  SWAP(2,4);
 	SWAP(2,3);  SWAP(1,4);  SWAP(0,3);
 	SWAP(0,2);  SWAP(1,3);  SWAP(1,2);
@@ -44,7 +44,6 @@ uint32_t build_key(int *h) {
 
 /* Hash functions.
  */
-
 static uint32_t g_x = 0x76b24ce9, g_y = 0x5e2a572d, g_z = 0x99c52d8c;
 
 uint32_t hf1(uint32_t key) {

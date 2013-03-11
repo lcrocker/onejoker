@@ -164,11 +164,11 @@ int oj_seq_fill(oj_sequence_t *sp, int count, oj_deck_type_t dt) {
 
 #define CMP(a,b) (cp[a] < cp[b])
 /* Branchless compare-and-swap */
-#define CSWP(a,b) do{s=cp[a]+cp[b];d=abs(cp[a]-cp[b]);cp[a]=(s+d)/2;cp[b]=(s-d)/2;}while(0)
+#define CSWP(a,b) do{s=cp[a]+cp[b];d=abs(cp[a]-cp[b]);cp[a]=(s+d)>>1;cp[b]=(s-d)>>1;}while(0)
 
 #if 0 /* To change sort order to ascending, use these */
 #define CMP(a,b) (cp[a] > cp[b])
-#define CSWP(a,b) do{s=cp[a]+cp[b];d=abs(cp[a]-cp[b]);cp[a]=(s-d)/2;cp[b]=(s+d)/2;}while(0)
+#define CSWP(a,b) do{s=cp[a]+cp[b];d=abs(cp[a]-cp[b]);cp[a]=(s-d)>>1;cp[b]=(s+d)>>1;}while(0)
 #endif
 
 #define SWAP(a,b) do{t=cp[a];cp[a]=cp[b];cp[b]=t;}while(0)
@@ -220,7 +220,7 @@ void oj_seq_sort(oj_sequence_t *sp) {
         break;
         /* Fall back to in-place heapsort */
     }
-    for (i = (n - 1) / 2; i >= 0; --i) heapify(cp, n - 1, i);
+    for (i = (n - 1) >> 1; i >= 0; --i) heapify(cp, n - 1, i);
     for (i = n - 1; i > 0; --i) {
         SWAP(0, i);
         heapify(cp, i - 1, 0);

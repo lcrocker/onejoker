@@ -7,7 +7,7 @@
 #include <stdint.h>
 
 typedef enum _oj_deck_type {
-	oj_dt_standard, oj_dt_1joker, oj_dt_2jokers,
+    oj_dt_standard, oj_dt_1joker, oj_dt_2jokers,
     oj_dt_stripped32, oj_dt_stripped40, oj_dt_stripped40j,
 } oj_deck_type_t;
 
@@ -22,9 +22,9 @@ typedef struct _oj_deck_info {
 } oj_deck_info_t;
 
 typedef struct _oj_sequence {
-	int _johnnymoss;
-	int allocation, length;
-	int *cards;
+    int _johnnymoss;
+    int allocation, length;
+    int *cards;
 } oj_sequence_t;
 
 typedef struct _oj_iterator {

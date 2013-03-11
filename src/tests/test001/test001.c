@@ -71,12 +71,12 @@ void feed_dieharder(void) {
     uint32_t buf[100];
 
     fprintf(stderr, "Feeding dieharder tests...\n");
-	while (1) {
-		for (i = 0; i < 100; ++i) {
-			buf[i] = oj_prng_next32();
-		}
-		write(STDOUT_FILENO, buf, sizeof(buf));
-	}
+    while (1) {
+        for (i = 0; i < 100; ++i) {
+            buf[i] = oj_prng_next32();
+        }
+        write(STDOUT_FILENO, buf, sizeof(buf));
+    }
 }
 
 int main(int argc, char *argv[]) {

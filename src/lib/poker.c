@@ -1,5 +1,4 @@
-/*
- * Fast 5-card evaluator by "Cactus" Kevin Suffecool and Paul Senzee.
+/* Fast 5-card evaluator by "Cactus" Kevin Suffecool and Paul Senzee.
  */
 
 #include <stdlib.h>
@@ -28,7 +27,7 @@ int _ps_eval5(int c1, int c2, int c3, int c4, int c5) {
     if (c1 & c2 & c3 & c4 & c5 & 0xf000) return _ck_flushes[q];
     if ((s = _ck_unique5[q])) return s;
     return _ps_hash_values[_ps_find((c1 & 0xff) * (c2 & 0xff) *
-    	(c3 & 0xff) * (c4 & 0xff) * (c5 & 0xff))];
+        (c3 & 0xff) * (c4 & 0xff) * (c5 & 0xff))];
 }
 
 /*
@@ -42,24 +41,24 @@ int oj_poker_eval5(oj_sequence_t *sp) {
 }
 
 static char *handgroup_names[] = {
-	NULL, "No Pair", "One Pair", "Two Pair", "Three of a Kind",	"Straight",
-	"Flush", "Full House", "Four of a Kind", "Straight Flush"
+    NULL, "No Pair", "One Pair", "Two Pair", "Three of a Kind", "Straight",
+    "Flush", "Full House", "Four of a Kind", "Straight Flush"
 };
 
 char *oj_poker_handname(int cat) {
-	assert(cat > 0);
-	assert(cat < 10);
-	return handgroup_names[cat];
+    assert(cat > 0);
+    assert(cat < 10);
+    return handgroup_names[cat];
 }
 
 int oj_poker_handgroup(int val) {
-	if (val > 6185) return 1;
-	if (val > 3325) return 2;
-	if (val > 2467) return 3;
-	if (val > 1609) return 4;
-	if (val > 1599) return 5;
-	if (val > 322) return 6;
-	if (val > 166) return 7;
-	if (val > 10) return 8;
-	return 9;
+    if (val > 6185) return 1;
+    if (val > 3325) return 2;
+    if (val > 2467) return 3;
+    if (val > 1609) return 4;
+    if (val > 1599) return 5;
+    if (val > 322) return 6;
+    if (val > 166) return 7;
+    if (val > 10) return 8;
+    return 9;
 }

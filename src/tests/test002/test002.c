@@ -146,12 +146,12 @@ void move_and_copy(void) {
 }
 
 int main(int argc, char *argv[]) {
-	int r;
+    int r;
     int n, k;
     unsigned long long bc;
 
     initialize();
-	adds();
+    adds();
     removes();
     fills();
     shuffle_and_sort();
@@ -159,6 +159,6 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "Sequence tests passed.\n");
 
 
-	fprintf(stderr, "Done.\n");
-	return EXIT_SUCCESS;
+    fprintf(stderr, "Done.\n");
+    return EXIT_SUCCESS;
 }

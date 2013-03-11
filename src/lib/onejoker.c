@@ -11,17 +11,17 @@ int _oj_johnnymoss = 0;
  * oj_init_library() gets called.
  */
 void _init(void) {
-	int r;
+    int r;
 
-	r = oj_init_library(0);
-	if (r) {
-		exit(EXIT_FAILURE);
-	}
-	return;
+    r = oj_init_library(0);
+    if (r) {
+        exit(EXIT_FAILURE);
+    }
+    return;
 }
 
 void _fini(void) {
-	return;
+    return;
 }
 
 int oj_init_library(int seed) {

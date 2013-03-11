@@ -22,6 +22,12 @@ int oj_seq_new(oj_sequence_t *sp, int size, int *buf) {
     return size;
 }
 
+/* Remove all cards.
+ */
+void oj_seq_clear(oj_sequence_t *sp) {
+    sp->length = 0;
+}
+
 /* Remove and return a card from the end of the sequence.
  */
 int oj_seq_deal_from_end(oj_sequence_t *sp) {
@@ -146,6 +152,8 @@ int oj_seq_fill(oj_sequence_t *sp, int count, oj_deck_type_t dt) {
         sp->length += c;
         remaining -= c;
     } while (remaining);
+
+    return sp->length;
 }
 
 int oj_seq_shuffle(oj_sequence_t *sp) {

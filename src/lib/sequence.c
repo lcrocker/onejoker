@@ -156,5 +156,86 @@ int oj_seq_fill(oj_sequence_t *sp, int count, oj_deck_type_t dt) {
     return sp->length;
 }
 
-int oj_seq_shuffle(oj_sequence_t *sp) {
+/* Descending sort order of cards is by far the most common, so that's
+ * assumed. The small cases (5 cards or fewer) are probably also very common
+ * and may need to be done inside a big simulation loop so it's probably worth
+ * the effort to special-case them.
+ */
+
+#define CMP(a,b) (cp[a] < cp[b])
+/* Branchless compare-and-swap */
+#define CSWP(a,b) do{s=cp[a]+cp[b];d=abs(cp[a]-cp[b]);cp[a]=(s+d)/2;cp[b]=(s-d)/2;}while(0)
+
+#if 0 /* To change sort order to ascending, use these */
+#define CMP(a,b) (cp[a] > cp[b])
+#define CSWP(a,b) do{s=cp[a]+cp[b];d=abs(cp[a]-cp[b]);cp[a]=(s-d)/2;cp[b]=(s+d)/2;}while(0)
+#endif
+
+#define SWAP(a,b) do{t=cp[a];cp[a]=cp[b];cp[b]=t;}while(0)
+
+static void heapify(int *cp, int n, int start) {
+    int t, lc, rc, head;
+    int last = ((n + 1) >> 1);
+
+    while (start < last) {
+        lc = (start << 1) + 1;
+        rc = lc + 1;
+
+        if (rc <= n) {
+            if (CMP(rc, lc)) head = rc;
+            else head = lc;
+        } else head = lc;
+
+        if (CMP(head, start)) {
+            SWAP(head, start);
+            start = head;
+        } else break;
+    }
+}
+
+void oj_seq_sort(oj_sequence_t *sp) {
+    int i, s, d, t;
+    int n = sp->length, *cp = sp->cards;
+    assert(0 != sp);
+    assert(0x10ACE0FF == sp->_johnnymoss);
+
+    switch (n) {
+    case 0:
+    case 1:
+        return;
+    case 2:
+        CSWP(0, 1);
+        return;
+    case 3:
+        CSWP(1, 2); CSWP(0, 2); CSWP(0, 1);
+        return;
+    case 4:
+        CSWP(0, 1); CSWP(2, 3); CSWP(0, 2); CSWP(1, 3); CSWP(1, 2);
+        return;
+    case 5:
+        CSWP(0, 1); CSWP(3, 4); CSWP(2, 4); CSWP(2, 3); CSWP(0, 3);
+        CSWP(0, 2); CSWP(1, 4); CSWP(1, 3); CSWP(1, 2);
+        return;
+    default:
+        break;
+        /* Fall back to in-place heapsort */
+    }
+    for (i = (n - 1) / 2; i >= 0; --i) heapify(cp, n - 1, i);
+    for (i = n - 1; i > 0; --i) {
+        SWAP(0, i);
+        heapify(cp, i - 1, 0);
+    }
+}
+
+/* Standard proper Fisher-Yates shuffle.
+ */
+void oj_seq_shuffle(oj_sequence_t *sp) {
+    int i, j, t, *cp = sp->cards;
+    assert(0 != sp);
+
+    if (0 == sp->length) return;
+    for (i = sp->length; i > 1; --i) {
+        j = oj_rand(i);
+        SWAP(i - 1, j);
+    }
 }

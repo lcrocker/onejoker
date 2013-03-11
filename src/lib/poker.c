@@ -41,7 +41,7 @@ int oj_poker_eval5(oj_sequence_t *sp) {
     return 0;
 }
 
-static char *_oj_handgroup_names[] = {
+static char *handgroup_names[] = {
 	NULL, "No Pair", "One Pair", "Two Pair", "Three of a Kind",	"Straight",
 	"Flush", "Full House", "Four of a Kind", "Straight Flush"
 };
@@ -49,7 +49,7 @@ static char *_oj_handgroup_names[] = {
 char *oj_poker_handname(int cat) {
 	assert(cat > 0);
 	assert(cat < 10);
-	return _oj_handgroup_names[cat];
+	return handgroup_names[cat];
 }
 
 int oj_poker_handgroup(int val) {

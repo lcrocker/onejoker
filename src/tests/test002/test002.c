@@ -87,19 +87,63 @@ void fills(void) {
         33 == g_deck.cards[32] && 52 == g_deck.cards[51]);
 }
 
+void shuffle_and_sort(void) {
+    int s;
+
+    s = oj_seq_fill(&g_deck, 52, oj_dt_standard);
+    assert(52 == s);
+    oj_seq_shuffle(&g_deck);
+    assert(52 == g_deck.length);
+    /* This will fail once in a blue moon. */
+    assert(! (1 == g_deck.cards[0] && 2 == g_deck.cards[1] && 13 == g_deck.cards[12]
+        && 30 == g_deck.cards[29] && 51 == g_deck.cards[50] && 52 == g_deck.cards[51]));
+
+    oj_seq_sort(&g_deck);
+    assert(52 == g_deck.cards[0] && 51 == g_deck.cards[1] && 40 == g_deck.cards[12]
+        && 23 == g_deck.cards[29] && 2 == g_deck.cards[50] && 1 == g_deck.cards[51]);
+
+    oj_seq_fill(&g_deck, 12, oj_dt_standard);
+    oj_seq_fill(&g_hand2, 12, oj_dt_standard);
+    assert(g_deck.cards[0] == g_hand2.cards[0] && g_deck.cards[1] == g_hand2.cards[1]
+        && g_deck.cards[4] == g_hand2.cards[4] && g_deck.cards[7] == g_hand2.cards[7]
+        && g_deck.cards[10] == g_hand2.cards[10] && g_deck.cards[11] == g_hand2.cards[11]);
+
+    oj_seq_shuffle(&g_deck);
+    oj_seq_shuffle(&g_hand2);
+    /* Again, like all tests of randomness, this will sometimes randomly fail. */
+    assert(! (g_deck.cards[0] == g_hand2.cards[0] && g_deck.cards[1] == g_hand2.cards[1]
+        && g_deck.cards[4] == g_hand2.cards[4] && g_deck.cards[7] == g_hand2.cards[7]
+        && g_deck.cards[10] == g_hand2.cards[10] && g_deck.cards[11] == g_hand2.cards[11]));
+
+    oj_seq_sort(&g_deck);
+    oj_seq_sort(&g_hand2);
+    assert(g_deck.cards[0] == g_hand2.cards[0] && g_deck.cards[1] == g_hand2.cards[1]
+        && g_deck.cards[4] == g_hand2.cards[4] && g_deck.cards[7] == g_hand2.cards[7]
+        && g_deck.cards[10] == g_hand2.cards[10] && g_deck.cards[11] == g_hand2.cards[11]);
+
+    oj_seq_shuffle(&g_deck);
+    /* Again, like all tests of randomness, this will sometimes randomly fail. */
+    assert(! (g_deck.cards[0] == g_hand2.cards[0] && g_deck.cards[1] == g_hand2.cards[1]
+        && g_deck.cards[4] == g_hand2.cards[4] && g_deck.cards[7] == g_hand2.cards[7]
+        && g_deck.cards[10] == g_hand2.cards[10] && g_deck.cards[11] == g_hand2.cards[11]));
+
+    oj_seq_sort(&g_deck);
+    assert(g_deck.cards[0] == g_hand2.cards[0] && g_deck.cards[1] == g_hand2.cards[1]
+        && g_deck.cards[4] == g_hand2.cards[4] && g_deck.cards[7] == g_hand2.cards[7]
+        && g_deck.cards[10] == g_hand2.cards[10] && g_deck.cards[11] == g_hand2.cards[11]);
+}
+
 void dump(oj_sequence_t *sp) {
     int i;
-    fprintf(stderr, "%d ", sp->length);
+    fprintf(stderr, "(%2d)", sp->length);
     for (i = 0; i < sp->length; ++i) {
-        fprintf(stderr, "(%d,%d) ", i, sp->cards[i]);
+        fprintf(stderr, " %2d", sp->cards[i]);
     }
     fprintf(stderr, "\n");
 }
 
 void move_and_copy(void) {
 }
-
-unsigned long long binomial_table[53][11];
 
 int main(int argc, char *argv[]) {
 	int r;
@@ -110,28 +154,10 @@ int main(int argc, char *argv[]) {
 	adds();
     removes();
     fills();
+    shuffle_and_sort();
     move_and_copy();
     fprintf(stderr, "Sequence tests passed.\n");
 
-    binomial_table[0][0] = 1;
-    for (n = 3; n <= 54; ++n) {
-        binomial_table[n-2][0] = (n - 1) + binomial_table[n-3][0];
-        for (k = 3; k <= 12; ++k) {
-            binomial_table[n-2][k-2] = binomial_table[n-3][k-3] +
-                binomial_table[n-3][k-2];
-        }
-    }
-    printf("table = {\n");
-    for (n = 2; n <= 54; ++n) {
-        printf("    { %llu", binomial_table[n-2][0]);
-        for (k = 3; k <= 12; ++k) {
-            bc = binomial_table[n-2][k-2];
-            if (bc > ULONG_MAX) printf(", 0");
-            else printf(", %llu", bc);
-        }
-        printf(" },\n");
-    }
-    printf("};\n");
 
 	fprintf(stderr, "Done.\n");
 	return EXIT_SUCCESS;

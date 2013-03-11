@@ -9,7 +9,7 @@
 
 #include "onejoker.h"
 
-static char *_oj_card_names_ascii2[] = { "XX",
+static char *card_names_ascii2[] = { "XX",
     "2c", "2d", "2h", "2s", "3c", "3d", "3h", "3s",
     "4c", "4d", "4h", "4s", "5c", "5d", "5h", "5s",
     "6c", "6d", "6h", "6s", "7c", "7d", "7h", "7s",
@@ -25,7 +25,7 @@ char *oj_name_of_card(int card, oj_card_style_t style) {
     assert(card > 0 && card <= 54);
     assert(oj_cs_ascii2 == style);
 
-    return _oj_card_names_ascii2[card];
+    return card_names_ascii2[card];
 }
 
 /* Given name of card, parse and return integer (or 0 to fail).
@@ -107,7 +107,7 @@ int oj_seq_name(oj_sequence_t *sp, char *name, int size, char sep) {
     assert(0 != name);
 
     for (i = 0; i < sp->length; ++i) {
-        np = _oj_card_names_ascii2[sp->cards[i]];
+        np = card_names_ascii2[sp->cards[i]];
         len = strlen(np);
         needed = len + 1;
         if (size < needed) break;

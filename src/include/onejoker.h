@@ -64,11 +64,11 @@ extern int oj_seq_pick(oj_sequence_t *sp, int card);
 extern int oj_seq_move(oj_sequence_t *destp, oj_sequence_t *srcp, int count);
 extern int oj_seq_copy(oj_sequence_t *destp, oj_sequence_t *srcp);
 extern int oj_seq_fill(oj_sequence_t *sp, int count, oj_deck_type_t dt);
-extern int oj_seq_shuffle(oj_sequence_t *sp);
+extern void oj_seq_sort(oj_sequence_t *sp);
+extern void oj_seq_shuffle(oj_sequence_t *sp);
 
 /* Various combinatorics */
 
-extern void oj_seq_sort(oj_sequence_t *sp);
 extern unsigned long oj_binomial(int n, int k);
 extern unsigned long oj_iter_combinations(oj_iterator_t *iter, int length, oj_sequence_t *deck);
 extern unsigned long oj_iter_montecarlo(oj_iterator_t *iter, int length, oj_sequence_t *deck, long max);

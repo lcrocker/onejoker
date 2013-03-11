@@ -67,7 +67,7 @@ int oj_seed_prng(int seed) {
     return 0;
 }
 
-static void _oj_prng_reload(void) {
+static void reload(void) {
 	int i;
 	uint64_t t;
 
@@ -87,13 +87,13 @@ static void _oj_prng_reload(void) {
 
 uint16_t oj_prng_next16(void) {
     assert(_seeded);
-	if (sptr == state) _oj_prng_reload();
+	if (sptr == state) reload();
 	return *--sptr;
 }
 
 uint32_t oj_prng_next32(void) {
     assert(_seeded);
-	if (sptr < (state + 2)) _oj_prng_reload();
+	if (sptr < (state + 2)) reload();
 	sptr -= 2;
 	return *((uint32_t *)sptr);
 }

@@ -7,72 +7,12 @@
 
 #include "onejoker.h"
 
-/* Descending sort order of cards is by far the most common, so that's
- * assumed. The small cases (5 cards or fewer) are probably also common and
- * may need to be done inside a big simulation loop so it's probably worth
- * the effort to special-case them. Also, the compare-and-swap function
- * below is inlined and branchless.
- */
-
-#define CMP(a,b) do{s=cp[a]+cp[b];d=abs(cp[a]-cp[b]);cp[a]=(s+d)/2;cp[b]=(s-d)/2;}while(0)
-#define SWAP(a,b) do{t=cp[a];cp[a]=cp[b];cp[b]=t;}while(0)
-
-static void _sift_down(int *cp, int root, int bottom) {
-    int t, other, min = 2 * root + 1;
-
-    if (min < bottom) {
-        other = min + 1;
-        min = (cp[other] > cp[min]) ? other : min;
-    } else {
-        if (min > bottom) return;
-    }
-
-    if (cp[root] <= cp[min]) return;
-    SWAP(root,min);
-    _sift_down(cp, min, bottom);
-}
-
-void oj_seq_sort(oj_sequence_t *sp) {
-    int s, d, i, t, *cp = sp->cards;
-    assert(0 != sp);
-    assert(0x10ACE0FF == sp->_johnnymoss);
-
-    switch (sp->length) {
-    case 0:
-    case 1:
-        return;
-    case 2:
-        CMP(0,1);
-        return;
-    case 3:
-        CMP(1,2); CMP(0,2); CMP(0,1);
-        return;
-    case 4:
-        CMP(0,1); CMP(2,3); CMP(0,2); CMP(1,3); CMP(1,2);
-        return;
-    case 5:
-        CMP(0,1); CMP(3,4); CMP(2,4); CMP(2,3); CMP(0,3);
-        CMP(0,2); CMP(1,4); CMP(1,3); CMP(1,2);
-        return;
-    default:
-        /* Fall back to in-place heapsort */
-        break;
-    }
-    for (i = sp->length / 2; i >= 0; --i) {
-        _sift_down(cp, i, sp->length - 1);
-    }
-    for (i = sp->length - 1; i >= 1; --i) {
-        SWAP(0,i);
-        _sift_down(cp, 0, i - 1);
-    }
-}
-
 /* For our purposes, we only need to consider combinations of a few cards out
  * of a deck, so rather than calculating arbitrary binomial coefficients for
  * large numbers which takes a lot of time, we just store a table for up to
  * (54 choose 12), for all values that fit into an unsigned long.
  */
-static unsigned long _oj_bc_table[53][11] = {
+static unsigned long bc_table[53][11] = {
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
     { 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
     { 6, 4, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -168,7 +108,7 @@ unsigned long oj_binomial(int n, int k) {
     if (n < 1 || k < 1 || n < k || n > 54 || k > 12) return 0;
     if (k == 1) return n;
     assert(n >= 2 && n <= 54 && k >= 2 && k <= 12);
-    return _oj_bc_table[n-2][k-2];
+    return bc_table[n-2][k-2];
 }
 
 unsigned long oj_iter_new(oj_iterator_t *iter, int length, oj_sequence_t *deck) {

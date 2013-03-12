@@ -1,7 +1,4 @@
-/* This obsolete code builds an 8MB lookup table for a sort-and-hash hand
- * evaluator I was experimenting with. Turns out to be about half as fast as
- * the Suffecool-Senzee one. But it was a great way to test parts of the code
- * and learn some tricks, so it's left here for posterity.
+/*
  */
 
 #include <stdlib.h>
@@ -14,6 +11,15 @@
 #include "onejoker.h"
 
 int main(int argc, char *argv[]) {
+    int n, k;
+    long long b;
+
+    for (n = 0; n <= 54; ++n) {
+        for (k = 0; k <= 54; ++k) {
+            b = oj_binomial(n, k);
+            printf("(%d, %d) = %lld\n", n, k, b);
+        }
+    }
 
     return EXIT_SUCCESS;
 }

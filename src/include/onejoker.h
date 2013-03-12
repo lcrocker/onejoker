@@ -61,21 +61,22 @@ extern int oj_seq_deal_to_end(oj_sequence_t *sp, int card);
 extern int oj_seq_deal_from_head(oj_sequence_t *sp);
 extern int oj_seq_deal_to_head(oj_sequence_t *sp, int card);
 extern int oj_seq_pick(oj_sequence_t *sp, int card);
+extern int oj_seq_copy(oj_sequence_t *destp, oj_sequence_t *srcp, int count);
 extern int oj_seq_move(oj_sequence_t *destp, oj_sequence_t *srcp, int count);
-extern int oj_seq_copy(oj_sequence_t *destp, oj_sequence_t *srcp);
+extern int oj_seq_copy_all(oj_sequence_t *destp, oj_sequence_t *srcp);
 extern int oj_seq_fill(oj_sequence_t *sp, int count, oj_deck_type_t dt);
 extern void oj_seq_sort(oj_sequence_t *sp);
 extern void oj_seq_shuffle(oj_sequence_t *sp);
 
 /* Various combinatorics */
 
-extern unsigned long oj_binomial(int n, int k);
-extern unsigned long oj_iter_combinations(oj_iterator_t *iter, int length, oj_sequence_t *deck);
-extern unsigned long oj_iter_montecarlo(oj_iterator_t *iter, int length, oj_sequence_t *deck, long max);
-extern unsigned long oj_iter_next(oj_iterator_t *iter);
-extern unsigned long oj_iter_count(oj_iterator_t *iter);
-extern unsigned long oj_colex_rank(oj_sequence_t *hand, oj_sequence_t *deck);
-extern unsigned long oj_hand_at_colex_rank(unsigned long r, int length, oj_sequence_t *deck);
+long long oj_binomial(int n, int k);
+long long oj_iter_combinations(oj_iterator_t *iter, int length, oj_sequence_t *deck);
+long long oj_iter_montecarlo(oj_iterator_t *iter, int length, oj_sequence_t *deck, long max);
+long long oj_iter_next(oj_iterator_t *iter);
+long long oj_iter_count(oj_iterator_t *iter);
+long long oj_colex_rank(oj_sequence_t *hand, oj_sequence_t *deck);
+long long oj_hand_at_colex_rank(long long r, int length, oj_sequence_t *deck);
 
 /* Poker functions */
 

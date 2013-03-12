@@ -95,10 +95,11 @@ int oj_seq_pick(oj_sequence_t *sp, int card) {
     return 0;
 }
 
-/* Move <count> cards from end of source sequence to the end of dest
- * sequence. Return the number of cards actually moved.
+/* Copy <count> cards from end of source sequence to the end of dest
+ * sequence without removing them from source. Return the number of cards
+ * actually moved.
  */
-int oj_seq_move(oj_sequence_t *destp, oj_sequence_t *srcp, int count) {
+int oj_seq_copy(oj_sequence_t *destp, oj_sequence_t *srcp, int count) {
     assert(0 != srcp);
     assert(0 != destp);
     assert(0x10ACE0FF == srcp->_johnnymoss);
@@ -111,16 +112,24 @@ int oj_seq_move(oj_sequence_t *destp, oj_sequence_t *srcp, int count) {
     memmove( destp->cards + destp->length,
         srcp->cards + (srcp->length - count),
         count * sizeof(int) );
-    srcp->length -= count;
     destp->length += count;
     return count;
+}
+
+/* Move <count> cards from end of source sequence to the end of dest
+ * sequence. Return the number of cards actually moved.
+ */
+int oj_seq_move(oj_sequence_t *destp, oj_sequence_t *srcp, int count) {
+    int c = oj_seq_copy(destp, srcp, count);
+    srcp->length -= c;
+    return c;
 }
 
 /* Copy the whole <srcp> sequence to <destp>, which is overwritten.
  * Return the number of cards moved (which will be less than the
  * length of <srcp> if <destp> doesn't have enough room).
  */
-int oj_seq_copy(oj_sequence_t *destp, oj_sequence_t *srcp) {
+int oj_seq_copy_all(oj_sequence_t *destp, oj_sequence_t *srcp) {
     int count = srcp->length;
     assert(0 != srcp);
     assert(0 != destp);

@@ -105,10 +105,41 @@ static unsigned long bc_table[53][11] = {
 };
 
 unsigned long oj_binomial(int n, int k) {
-    if (n < 1 || k < 1 || n < k || n > 54 || k > 12) return 0;
-    if (k == 1) return n;
-    assert(n >= 2 && n <= 54 && k >= 2 && k <= 12);
-    return bc_table[n-2][k-2];
+    if (k > n) return 0;
+    if ((n - k) < k) k = n - k;
+
+    if (n < 1 || k < 0 || n > 54 || k > 12) return 0;
+    else if (0 == k) return 1;
+    else if (1 == k) return n;
+    else return bc_table[n-2][k-2];
+}
+
+/* Given a <k>-length 0-based array <a> of integers in the range
+ * 0..<n>-1, assumed to be in ascending order, modify the array to
+ * next in colexicographical order. Return 1 if we did in fact
+ * modify it, or 0 if it was already at the end. This is so we can
+ * do "do { ... } while (colex_next( ... ));"
+ */
+int colex_next(int *a, int n, int k) {
+    int i, j;
+
+    for (i = 0; i < k; ++i) {
+        if ( ((i < k - 1) && (a[i] < (a[i + 1] - 1))) ||
+             ((i == k - 1) && (a[i] < n - 1)) ) {
+            ++a[i];
+            for (j = 0; j < i; ++j) a[j] = j;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+unsigned long colex_rank(int *a, int k) {
+    int i;
+    unsigned long r = 0;
+
+    for (i = 0; i < k; ++i) r += oj_binomial(a[i], i + 1);
+    return r;
 }
 
 unsigned long oj_iter_new(oj_iterator_t *iter, int length, oj_sequence_t *deck) {

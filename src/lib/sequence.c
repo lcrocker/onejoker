@@ -95,24 +95,25 @@ int oj_seq_pick(oj_sequence_t *sp, int card) {
     return 0;
 }
 
-/* Move <count> cards from source sequence to the end of dest sequence.
- * Return the number of cards actually moved.
+/* Move <count> cards from end of source sequence to the end of dest
+ * sequence. Return the number of cards actually moved.
  */
 int oj_seq_move(oj_sequence_t *destp, oj_sequence_t *srcp, int count) {
-    int i, c, moved = 0;
     assert(0 != srcp);
     assert(0 != destp);
     assert(0x10ACE0FF == srcp->_johnnymoss);
     assert(0x10ACE0FF == destp->_johnnymoss);
 
     if (count > srcp->length) count = srcp->length;
-    for (i = 0; i < count; ++i) {
-        if (destp->length == destp->allocation) return moved;
-        c = oj_seq_deal_from_end(srcp);
-        oj_seq_deal_to_end(destp, c);
-        ++moved;
-    }
-    return moved;
+    if (count > (destp->allocation - destp->length))
+        count = (destp->allocation - destp->length);
+
+    memmove( destp->cards + destp->length,
+        srcp->cards + (srcp->length - count),
+        count * sizeof(int) );
+    srcp->length -= count;
+    destp->length += count;
+    return count;
 }
 
 /* Copy the whole <srcp> sequence to <destp>, which is overwritten.
@@ -127,7 +128,7 @@ int oj_seq_copy(oj_sequence_t *destp, oj_sequence_t *srcp) {
     assert(0x10ACE0FF == destp->_johnnymoss);
 
     if (count > destp->allocation) count = destp->allocation;
-    memmove(destp->cards, srcp->cards, count);
+    memmove(destp->cards, srcp->cards, count * sizeof(int));
     return destp->length = count;
 }
 
@@ -227,7 +228,7 @@ void oj_seq_sort(oj_sequence_t *sp) {
     }
 }
 
-/* Standard proper Fisher-Yates shuffle.
+/* Standard Fisher-Yates shuffle.
  */
 void oj_seq_shuffle(oj_sequence_t *sp) {
     int i, j, t, *cp = sp->cards;

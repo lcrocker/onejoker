@@ -14,13 +14,15 @@
 
 /* Seed variables */
 static uint32_t x, y, z, c;
-static short _seeded = 0;
+static int _seeded = 0;
 
-/* State vector and pointer */
+/* State vector and pointer. We calculate a bufferfull of random bits
+ * at a time, and fetch them from the buffer, refilling when needed.
+ */
 #define STATE_SIZE 512
 static uint16_t *sptr, state[2 * STATE_SIZE];
 
-int oj_seed_prng(int seed) {
+int ojr_seed(int seed) {
     int fn;
     uint32_t s;
     time_t t;
@@ -33,12 +35,17 @@ int oj_seed_prng(int seed) {
     z = 43219876;
     c = 6543217;
 
+    /* If we were passed a nonzero seed, mix those bits in with the
+     * defaults to get a repeatable sequence.
+     */
     if (0 != seed) {
         x ^= (0x5A5A5A5A & seed);
         z ^= (0xA5A5A5A5 & seed);
         _seeded = 1;
         return 0;
     }
+    /* Fetch all 128 bits of seed from system randomness.
+     */
     fn = open("/dev/urandom", O_RDONLY);
     do {
         if (-1 == fn) break;
@@ -56,14 +63,18 @@ int oj_seed_prng(int seed) {
         return 0;
     } while (0);
 
-    /* Fall back to using time() */
+    /* Fall back to using time()
+     */
     time(&t);
     x ^= (0x5A5A5A5A & t);
     z ^= (0xA5A5A5A5 & t);
+
     _seeded = 1;
     return 0;
 }
 
+/* Need more random bits.
+ */
 static void reload(void) {
     int i;
     uint64_t t;
@@ -82,13 +93,17 @@ static void reload(void) {
     sptr = state + 2 * STATE_SIZE;
 }
 
-uint16_t oj_prng_next16(void) {
+/* Return next 16 random bits from buffer.
+ */
+uint16_t ojr_next16(void) {
     assert(_seeded);
     if (sptr == state) reload();
     return *--sptr;
 }
 
-uint32_t oj_prng_next32(void) {
+/* Return next 32 random bits from buffer.
+ */
+uint32_t ojr_next32(void) {
     assert(_seeded);
     if (sptr < (state + 2)) reload();
     sptr -= 2;
@@ -98,7 +113,7 @@ uint32_t oj_prng_next32(void) {
 /* Return a well-balanced random integer from 0 to limit-1.
  * Limited to 16 bits!
  */
-int oj_rand(int limit) {
+int ojr_rand(int limit) {
     int v, m = limit - 1;
     assert(_seeded);
     assert(limit > 1);
@@ -110,7 +125,7 @@ int oj_rand(int limit) {
     m |= m >> 8;
 
     do {
-        v = oj_prng_next16() & m;
+        v = ojr_next16() & m;
     } while (v >= limit);
     return v;
 }

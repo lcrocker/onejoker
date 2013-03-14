@@ -14,11 +14,9 @@ int main(int argc, char *argv[]) {
     int n, k;
     long long b;
 
-    for (n = 0; n <= 54; ++n) {
-        for (k = 0; k <= 54; ++k) {
-            b = oj_binomial(n, k);
-            printf("(%d, %d) = %lld\n", n, k, b);
-        }
+    for (n = 54; n <= 200; ++n) {
+        b = ojc_binomial(n, 26);
+        printf("(%d, %d) = %lld\n", n, 26, b);
     }
 
     return EXIT_SUCCESS;

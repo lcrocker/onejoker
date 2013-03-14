@@ -21,23 +21,15 @@ static unsigned _ps_find(unsigned u) {
     return r;
 }
 
-int _ps_eval5(int c1, int c2, int c3, int c4, int c5) {
-    int s, q = (c1 | c2 | c3 | c4 | c5) >> 16;
+int ojp_eval5(oj_sequence_t *sp) {
+    int s, q, *cp = sp->cards;
+    assert(5 == sp->length);
 
-    if (c1 & c2 & c3 & c4 & c5 & 0xf000) return _ck_flushes[q];
+    q = (cp[0] | cp[1] | cp[2] | cp[3] | cp[4]) >> 16;
+    if (cp[0] & cp[1] & cp[2] & cp[3] & cp[4] & 0xf000) return _ck_flushes[q];
     if ((s = _ck_unique5[q])) return s;
-    return _ps_hash_values[_ps_find((c1 & 0xff) * (c2 & 0xff) *
-        (c3 & 0xff) * (c4 & 0xff) * (c5 & 0xff))];
-}
-
-/*
-int oj_poker_eval5(int c1, int c2, int c3, int c4, int c5) {
-    return _ps_eval5( _ck_cardvals[c1], _ck_cardvals[c2],
-        _ck_cardvals[c3], _ck_cardvals[c4], _ck_cardvals[c5] );
-}
-*/
-int oj_poker_eval5(oj_sequence_t *sp) {
-    return 0;
+    return _ps_hash_values[_ps_find((cp[0] & 0xff) * (cp[1] & 0xff) *
+        (cp[2] & 0xff) * (cp[3] & 0xff) * (cp[4] & 0xff))];
 }
 
 static char *handgroup_names[] = {
@@ -45,13 +37,7 @@ static char *handgroup_names[] = {
     "Flush", "Full House", "Four of a Kind", "Straight Flush"
 };
 
-char *oj_poker_handname(int cat) {
-    assert(cat > 0);
-    assert(cat < 10);
-    return handgroup_names[cat];
-}
-
-int oj_poker_handgroup(int val) {
+int ojp_handgroup(int val) {
     if (val > 6185) return 1;
     if (val > 3325) return 2;
     if (val > 2467) return 3;
@@ -61,4 +47,10 @@ int oj_poker_handgroup(int val) {
     if (val > 166) return 7;
     if (val > 10) return 8;
     return 9;
+}
+
+char *ojp_handname(int cat) {
+    assert(cat > 0);
+    assert(cat < 10);
+    return handgroup_names[cat];
 }

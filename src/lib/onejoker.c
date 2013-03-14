@@ -27,7 +27,7 @@ void _fini(void) {
 int oj_init_library(int seed) {
     int r;
 
-    r = oj_seed_prng(seed);
+    r = ojr_seed(seed);
     if (r) return r;
 
     _oj_johnnymoss = 0x10ACE0FF;

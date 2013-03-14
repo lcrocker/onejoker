@@ -19,12 +19,11 @@ static char *card_names_ascii2[] = { "XX",
     "Ac", "Ad", "Ah", "As", "JK", "J2",
 };
 
-/* Return pointer to internal string 2-character name of card.
+/* Return pointer to internal string name of card.
  */
-char *oj_name_of_card(int card, oj_card_style_t style) {
+char *oj_text_of_card(int card, oj_card_style_t style) {
     assert(card > 0 && card <= 54);
     assert(oj_cs_ascii2 == style);
-
     return card_names_ascii2[card];
 }
 
@@ -35,76 +34,76 @@ char *oj_name_of_card(int card, oj_card_style_t style) {
  * immediately before returning, so <next> can be the address of
  * <name> without strange things happening.
  */
-int oj_card_from_name(char *name, char **next) {
+int oj_card_from_text(char *text, char **next) {
     int rank = 0, suit = 0;
 
-    assert(0 != name);
-    if (!*name) return 0;
-    while (isspace(*name)) ++name;
-    if (!*name) return 0;
+    assert(0 != text);
+    if (!*text) return 0;
+    while (isspace(*text)) ++text;
+    if (!*text) return 0;
 
-    if (isdigit(*name)) {
-        if ('1' == *name) {
-            if ('0' == name[1]) {
+    if (isdigit(*text)) {
+        if ('1' == *text) {
+            if ('0' == text[1]) {
                 rank = 8;
-                ++name;
+                ++text;
             }
         } else {
-            rank = *name - '2';
+            rank = *text - '2';
         }
-    } else if ('J' == toupper(*name)) {
-        if ('K' == toupper(name[1])) {
-            if (next) *next = ++name;
+    } else if ('J' == toupper(*text)) {
+        if ('K' == toupper(text[1])) {
+            if (next) *next = ++text;
             return 53;
-        } else if ('2' == name[1]) {
-            if (next) *next = ++name;
+        } else if ('2' == text[1]) {
+            if (next) *next = ++text;
             return 54;
         }
         rank = 9;
-    } else if ('T' == toupper(*name)) {
+    } else if ('T' == toupper(*text)) {
         rank = 8;
-    } else if ('Q' == toupper(*name)) {
+    } else if ('Q' == toupper(*text)) {
         rank = 10;
-    } else if ('K' == toupper(*name)) {
+    } else if ('K' == toupper(*text)) {
         rank = 11;
-    } else if ('A' == toupper(*name)) {
+    } else if ('A' == toupper(*text)) {
         rank = 12;
     }
-    ++name;
+    ++text;
 
-    if (!*name) return 0;
-    while (isspace(*name)) ++name;
-    if (!*name) return 0;
+    if (!*text) return 0;
+    while (isspace(*text)) ++text;
+    if (!*text) return 0;
 
-    if ('c' == tolower(*name)) {
+    if ('c' == tolower(*text)) {
         suit = 0;
-    } else if ('d' == tolower(*name)) {
+    } else if ('d' == tolower(*text)) {
         suit = 1;
-    } else if ('h' == tolower(*name)) {
+    } else if ('h' == tolower(*text)) {
         suit = 2;
-    } else if ('s' == tolower(*name)) {
+    } else if ('s' == tolower(*text)) {
         suit = 3;
     } else {
         return 0;
     }
 
-    if (next) *next = ++name;
+    if (next) *next = ++text;
     return ((rank << 2) + suit) + 1;
 }
 
-/* Fill the character array <name> with the textual representation of
+/* Fill the character array <text> with the textual representation of
  * the given sequence. Don't overflow <size> characters. If <sep> is
  * given, write one after each card but the last. Zero terminate, and
  * return the number of cards actually written (which may be less than
  * the number in the sequence if we run out of room).
  */
-int oj_seq_name(oj_sequence_t *sp, char *name, int size, char sep) {
+int ojs_text(oj_sequence_t *sp, char *text, int size, char sep) {
     int i, len, needed;
     char *np;
 
     assert(0 != sp);
     assert(size >= 1);
-    assert(0 != name);
+    assert(0 != text);
 
     for (i = 0; i < sp->length; ++i) {
         np = card_names_ascii2[sp->cards[i]];
@@ -112,30 +111,30 @@ int oj_seq_name(oj_sequence_t *sp, char *name, int size, char sep) {
         needed = len + 1;
         if (size < needed) break;
 
-        strncpy(name, np, len);
-        name += len;
+        strncpy(text, np, len);
+        text += len;
         size -= len;
 
         if (sep && (i < (sp->length - 1)) && size > 1) {
-            *name++ = sep;
+            *text++ = sep;
             --size;
         }
     }
-    *name = '\0';
+    *text = '\0';
     return i;
 }
 
-/* Add to sequence <sp> all the cards in <names>. Return the number
- * of cards added.
+/* Add to sequence <sp> all the cards in <text>. Return the number
+ * of cards added. Assumes ascii2 card text type.
  */
-int oj_add_by_name(oj_sequence_t *sp, char *names) {
+int ojs_add_by_text(oj_sequence_t *sp, char *names) {
     int i, c, added;
 
     added = 0;
     for (i = 0; i < sp->length; ++i) {
-        c = oj_card_from_name(names, &names);
+        c = oj_card_from_text(names, &names);
         if (!c) break;
-        if (1 != oj_seq_deal_to_end(sp, c)) break;
+        if (1 != ojs_deal_to(sp, c)) break;
         ++added;
     }
     return added;

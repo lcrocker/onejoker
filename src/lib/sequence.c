@@ -10,7 +10,7 @@
 
 /* Initialize an empty sequence object from with the given buffer.
  */
-int oj_seq_new(oj_sequence_t *sp, int size, int *buf) {
+int ojs_new(oj_sequence_t *sp, int size, int *buf) {
     assert(0 != sp);
     assert(0 != size);
     assert(0 != buf);
@@ -24,13 +24,13 @@ int oj_seq_new(oj_sequence_t *sp, int size, int *buf) {
 
 /* Remove all cards.
  */
-void oj_seq_clear(oj_sequence_t *sp) {
+void ojs_clear(oj_sequence_t *sp) {
     sp->length = 0;
 }
 
 /* Remove and return a card from the end of the sequence.
  */
-int oj_seq_deal_from_end(oj_sequence_t *sp) {
+int ojs_deal_from(oj_sequence_t *sp) {
     assert(0 != sp);
     assert(0x10ACE0FF == sp->_johnnymoss);
 
@@ -40,7 +40,7 @@ int oj_seq_deal_from_end(oj_sequence_t *sp) {
 
 /* Add a card to the end of the sequence.
  */
-int oj_seq_deal_to_end(oj_sequence_t *sp, int card) {
+int ojs_deal_to(oj_sequence_t *sp, int card) {
     assert(0 != sp);
     assert(card > 0 && card <= 54);
     assert(0x10ACE0FF == sp->_johnnymoss);
@@ -52,7 +52,7 @@ int oj_seq_deal_to_end(oj_sequence_t *sp, int card) {
 
 /* Remove and return a card from the start of the sequence.
  */
-int oj_seq_deal_from_head(oj_sequence_t *sp) {
+int ojs_deal_from_head(oj_sequence_t *sp) {
     int c;
     assert(0 != sp);
     assert(0x10ACE0FF == sp->_johnnymoss);
@@ -65,7 +65,7 @@ int oj_seq_deal_from_head(oj_sequence_t *sp) {
 
 /* Insert card at the start of the sequence.
  */
-int oj_seq_deal_to_head(oj_sequence_t *sp, int card) {
+int ojs_deal_to_head(oj_sequence_t *sp, int card) {
     assert(0 != sp);
     assert(card > 0 && card <= 54);
     assert(0x10ACE0FF == sp->_johnnymoss);
@@ -79,7 +79,7 @@ int oj_seq_deal_to_head(oj_sequence_t *sp, int card) {
 /* Find the given card in the sequence, remove and return it if
  * found, otherwise return 0.
  */
-int oj_seq_pick(oj_sequence_t *sp, int card) {
+int ojs_pick(oj_sequence_t *sp, int card) {
     int i;
     assert(0 != sp);
     assert(0x10ACE0FF == sp->_johnnymoss);
@@ -99,7 +99,7 @@ int oj_seq_pick(oj_sequence_t *sp, int card) {
  * sequence without removing them from source. Return the number of cards
  * actually moved.
  */
-int oj_seq_copy(oj_sequence_t *destp, oj_sequence_t *srcp, int count) {
+int ojs_copy(oj_sequence_t *destp, oj_sequence_t *srcp, int count) {
     assert(0 != srcp);
     assert(0 != destp);
     assert(0x10ACE0FF == srcp->_johnnymoss);
@@ -119,8 +119,8 @@ int oj_seq_copy(oj_sequence_t *destp, oj_sequence_t *srcp, int count) {
 /* Move <count> cards from end of source sequence to the end of dest
  * sequence. Return the number of cards actually moved.
  */
-int oj_seq_move(oj_sequence_t *destp, oj_sequence_t *srcp, int count) {
-    int c = oj_seq_copy(destp, srcp, count);
+int ojs_move(oj_sequence_t *destp, oj_sequence_t *srcp, int count) {
+    int c = ojs_copy(destp, srcp, count);
     srcp->length -= c;
     return c;
 }
@@ -129,7 +129,7 @@ int oj_seq_move(oj_sequence_t *destp, oj_sequence_t *srcp, int count) {
  * Return the number of cards moved (which will be less than the
  * length of <srcp> if <destp> doesn't have enough room).
  */
-int oj_seq_copy_all(oj_sequence_t *destp, oj_sequence_t *srcp) {
+int ojs_copy_all(oj_sequence_t *destp, oj_sequence_t *srcp) {
     int count = srcp->length;
     assert(0 != srcp);
     assert(0 != destp);
@@ -144,7 +144,7 @@ int oj_seq_copy_all(oj_sequence_t *destp, oj_sequence_t *srcp) {
 /* Fill a sequence with fresh cards based on deck type. Can be used to
  * fill multi-deck shoes as well.
  */
-int oj_seq_fill(oj_sequence_t *sp, int count, oj_deck_type_t dt) {
+int ojs_fill(oj_sequence_t *sp, int count, oj_deck_type_t dt) {
     oj_deck_info_t *di = oj_deck_info(dt);
     int c, remaining;
     assert(0 != sp);
@@ -176,7 +176,7 @@ int oj_seq_fill(oj_sequence_t *sp, int count, oj_deck_type_t dt) {
 /* Branchless compare-and-swap */
 #define CSWP(a,b) do{s=cp[a]+cp[b];d=abs(cp[a]-cp[b]);cp[a]=(s+d)>>1;cp[b]=(s-d)>>1;}while(0)
 
-#if 0 /* To change sort order to ascending, use these */
+#if 0 /* To change sort order to ascending, use these instead */
 #define CMP(a,b) (cp[a] > cp[b])
 #define CSWP(a,b) do{s=cp[a]+cp[b];d=abs(cp[a]-cp[b]);cp[a]=(s-d)>>1;cp[b]=(s+d)>>1;}while(0)
 #endif
@@ -203,7 +203,7 @@ static void heapify(int *cp, int n, int start) {
     }
 }
 
-void oj_seq_sort(oj_sequence_t *sp) {
+void ojs_sort(oj_sequence_t *sp) {
     int i, s, d, t;
     int n = sp->length, *cp = sp->cards;
     assert(0 != sp);
@@ -239,13 +239,23 @@ void oj_seq_sort(oj_sequence_t *sp) {
 
 /* Standard Fisher-Yates shuffle.
  */
-void oj_seq_shuffle(oj_sequence_t *sp) {
+void ojs_shuffle(oj_sequence_t *sp) {
     int i, j, t, *cp = sp->cards;
     assert(0 != sp);
 
     if (0 == sp->length) return;
     for (i = sp->length; i > 1; --i) {
-        j = oj_rand(i);
+        j = ojr_rand(i);
         SWAP(i - 1, j);
     }
+}
+
+int ojs_equal(oj_sequence_t *sp1, oj_sequence_t *sp2) {
+    int i;
+
+    if (sp1->length != sp2->length) return 0;
+    for (i = 0; i < sp1->length; ++i) {
+        if (sp1->cards[i] != sp2->cards[i]) return 0;
+    }
+    return 1;
 }

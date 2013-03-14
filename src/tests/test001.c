@@ -17,8 +17,8 @@ int seed_test(void) {
     uint32_t vals[6];
 
     for (i = 0; i < (sizeof(seeds)/sizeof(int)); ++i) {
-        oj_seed_prng(seeds[i]);
-        vals[i] = oj_prng_next32();
+        ojr_seed(seeds[i]);
+        vals[i] = ojr_next32();
     }
     assert(vals[0] == vals[3]);
     assert(vals[1] == vals[4]);
@@ -31,7 +31,7 @@ int seed_test(void) {
     return 1;
 }
 
-/* oj_rand() should give a balanced random number within limits.
+/* ojr_rand() should give a balanced random number within limits.
  * Fill buckets with a few million of them and measure the fit
  * with the expected value.
  */
@@ -46,7 +46,7 @@ double balance_test(long count) {
 
         for (j = 0; j < n; ++j) buckets[j] = 0;
         for (j = 0; j < count; ++j) {
-            v = oj_rand(n);
+            v = ojr_rand(n);
             assert(v >= 0 && v < n);
             ++buckets[v];
         }
@@ -73,7 +73,7 @@ void feed_dieharder(void) {
     fprintf(stderr, "Feeding dieharder tests...\n");
     while (1) {
         for (i = 0; i < 100; ++i) {
-            buf[i] = oj_prng_next32();
+            buf[i] = ojr_next32();
         }
         write(STDOUT_FILENO, buf, sizeof(buf));
     }

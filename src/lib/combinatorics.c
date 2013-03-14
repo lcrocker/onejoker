@@ -135,15 +135,28 @@ static long long bc_table[] = {
     1683191473897752LL, 1877405874732108LL, 1946939425648112LL
 };
 
-long long oj_binomial(int n, int k) {
-    assert(n >= 0 && k >= 0 && n <= 54 && k <= 54);
+long long ojc_binomial(int n, int k) {
+    int i, j;
+    long long b;
+    assert(n >= 0 && k >= 0);
 
-    if (k > n) return 0LL;
     if (0 == k || n == k) return 1LL;
+    if (k > n) return 0LL;
 
     if (k > (n - k)) k = n - k;
     if (1 == k) return (long long)n;
-    return bc_table[(((n - 3) * (n - 3)) >> 2) + (k - 2)];
+
+    if (n <= 54 && k <= 54) {
+        return bc_table[(((n - 3) * (n - 3)) >> 2) + (k - 2)];
+    }
+    /* Last resort: actually calculate */
+    b = 1LL;
+    for (i = 1; i <= k; ++i) {
+        b *= (n - (k - i));
+        if (b < 0) return -1LL; /* Overflow */
+        b /= i;
+    }
+    return b;
 }
 
 /* Given a <k>-length 0-based array <a> of integers in the range
@@ -170,21 +183,21 @@ long long colex_rank(int *a, int k) {
     int i;
     long long r = 0;
 
-    for (i = 0; i < k; ++i) r += oj_binomial(a[i], i + 1);
+    for (i = 0; i < k; ++i) r += ojc_binomial(a[i], i + 1);
     return r;
 }
 
-long long oj_iter_new(oj_iterator_t *iter, int length, oj_sequence_t *deck) {
+long long ojc_iter_new(oj_iterator_t *iter, int length, oj_sequence_t *deck) {
 }
 
-long long oj_iter_next(oj_iterator_t *iter) {
+long long ojc_iter_next(oj_iterator_t *iter) {
 }
 
-long long oj_iter_count(oj_iterator_t *iter) {
+long long ojc_iter_count(oj_iterator_t *iter) {
 }
 
-long long oj_colex_rank(oj_sequence_t *hand, oj_sequence_t *deck) {
+long long ojc_colex_rank(oj_sequence_t *hand, oj_sequence_t *deck) {
 }
 
-long long oj_hand_at_colex_rank(long long r, int length, oj_sequence_t *deck) {
+long long ojc_hand_at_colex_rank(long long r, int length, oj_sequence_t *deck) {
 }

@@ -34,7 +34,8 @@ typedef enum _oj_card_style {
  */
 typedef struct _oj_sequence {
     int _johnnymoss;  /* Initialization check. */
-    int allocation, length;
+    int allocation;
+    int length;
     int *cards;
 } oj_sequence_t;
 

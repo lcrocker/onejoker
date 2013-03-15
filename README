@@ -49,3 +49,17 @@ The second important structure in this library is called a "sequence"
 which is simply an ordered list of cards. This may represent a whole
 deck or stub (or even a multi-deck shoe), a single hand, a community
 board, or anything else needed for a particular game.
+
+========
+Contents
+========
+
+CMakeLists.txt  Cmake input file (and in subdirectories).
+scripts/        Scripts that aren't part of the product itself, but
+                    that are used for various programming tasks.
+src/            C source for the onejoker library and C-based
+                    unit tests.
+    include/    C Header files
+    lib/        Library code
+    tests/      C-based unit tests for library
+python/         Python language binding code and tests.

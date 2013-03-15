@@ -65,9 +65,10 @@ int tc001[] = { 2, 21, 45 };
 int tc002[] = { 4, 32, 21, 45, 43 };
 int tc003[] = { 4, 6, 21, 45, 50 };
 int tc004[] = { 6, 14, 32, 21, 45, 43, 8 };
+int tc005[] = { 3, 21, 45, 43 };
 
-void adds(void) {
-    int s;
+void add_remove(void) {
+    int s, c;
 
     cleanup();
 
@@ -86,10 +87,10 @@ void adds(void) {
     s = ojs_deal_to_head(&hand4, 12);
     assert(0 == s && tcequal(&hand4, tc002));
 
-    s = ojs_deal_from(&hand4);
-    assert(43 == s && 3 == hand4.length);
-    s = ojs_deal_from_head(&hand4);
-    assert(32 == s && 2 == hand4.length);
+    c = ojs_deal_from(&hand4);
+    assert(43 == c && 3 == hand4.length);
+    c = ojs_deal_from_head(&hand4);
+    assert(32 == c && 2 == hand4.length);
     s = ojs_deal_to(&hand4, 50);
     assert(3 == s);
     s = ojs_deal_to_head(&hand4, 6);
@@ -99,135 +100,101 @@ void adds(void) {
     s = ojs_deal_to_head(&hand16, 14);
     s = ojs_deal_to(&hand16, 8);
     assert(tcequal(&hand16, tc004));
-}
 
-#if 0
-void removes(void) {
-    int c, s;
-
-    /* Assumes conditions after sequence_adds */
-    assert(4 == g_hand1.length && 14 == g_hand1.cards[0] &&
-        32 == g_hand1.cards[1] && 21 == g_hand1.cards[2] && 43 == g_hand1.cards[3]);
-
-    c = oj_seq_deal_from_end(&g_hand1);
-    assert(43 == c && 3 == g_hand1.length);
-    c = oj_seq_pick(&g_hand1, 43);
+    c = ojs_deal_from(&hand16);
+    assert(8 == c);
+    c = ojs_pick(&hand16, 50);
     assert(0 == c);
-    s = oj_seq_deal_to_end(&g_hand1, 5);
-    assert(4 == s);
+    c = ojs_pick(&hand16, 32);
+    assert(32 == c);
+    c = ojs_deal_from_head(&hand16);
+    assert(14 == c && tcequal(&hand16, tc005));
 
-    c = oj_seq_deal_from_head(&g_hand1);
-    assert(14 == c && 3 == g_hand1.length);
-    c = oj_seq_pick(&g_hand1, 21);
-    assert(21 == c && 2 == g_hand1.length && 32 == g_hand1.cards[0] &&
-        5 == g_hand1.cards[1]);
-
-    oj_seq_clear(&g_hand1);
-    assert(0 == g_hand1.length);
-    c = oj_seq_deal_from_end(&g_hand1);
+    ojs_deal_from(&hand16);
+    c = ojs_pick(&hand16, 43);
     assert(0 == c);
-    c = oj_seq_deal_from_head(&g_hand1);
-    assert(0 == c && 0 == g_hand1.length);
+    c = ojs_pick(&hand16, 21);
+    assert(21 == c);
+    c = ojs_pick(&hand16, 45);
+    assert(45 == c && 0 == hand16.length);
+
+    ojs_clear(&hand4);
+    c = ojs_deal_from(&hand4);
+    assert(0 == c);
+    c = ojs_deal_from(&hand4);
+    assert(0 == c);
 }
 
-void fills(void) {
+int tc006[] = { 4, 1, 2, 3, 4 };
+int tc007[] = { 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+int tc008[] = { 14, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 49, 50, 51, 52 };
+int tc009[] = { 3, 46, 47, 48 };
+
+void fill_move_copy(void) {
     int s;
 
-    s = oj_seq_fill(&g_hand1, 10, oj_dt_standard);
-    assert(4 == s && 1 == g_hand1.cards[0] && 4 == g_hand1.cards[3]);
+    cleanup();
 
-    s = oj_seq_fill(&g_deck, 104, oj_dt_standard);
-    assert(104 == s && 1 == g_deck.cards[0] && 52 == g_deck.cards[51] &&
-        1 == g_deck.cards[52] && 2 == g_deck.cards[53] && 52 == g_deck.cards[103]);
-    s = oj_seq_fill(&g_deck, 52, oj_dt_standard);
-    assert(52 == s && 52 == g_deck.length && 1 == g_deck.cards[0] &&
-        33 == g_deck.cards[32] && 52 == g_deck.cards[51]);
+    s = ojs_fill(&hand4, 10, oj_dt_standard);
+    assert(4 == s && tcequal(&hand4, tc006));
+    s = ojs_fill(&hand16, 10, oj_dt_standard);
+    assert(10 == s && tcequal(&hand16, tc007));
+
+    s = ojs_fill(&deck, 52, oj_dt_standard);
+    assert(52 == s && 1 == deck.cards[0] && 52 == deck.cards[51]);
+    s = ojs_fill(&shoe, 4 * 53, oj_dt_1joker);
+    assert(4 * 53 == s && 53 == deck.cards[52] && 1 == deck.cards[53]);
+
+    s = ojs_move(&hand16, &deck, 4);
+    assert(4 == s && tcequal(&hand16, tc008));
+    s = ojs_copy_all(&shoe, &deck);
+    assert(48 == s && 48 == shoe.length);
+
+    ojs_clear(&hand4);
+    s = ojs_copy(&hand4, &deck, 3);
+    assert(3 == s && tcequal(&hand4, tc009) && 48 == deck.length);
+
+    ojs_clear(&hand16);
+    s = ojs_move(&hand16, &hand4, 10);
+    assert(3 == s && tcequal(&hand16, tc009) && 0 == hand4.length);
+    s = ojs_move(&hand16, &hand4, 2);
+    assert(0 == s && tcequal(&hand16, tc009));
+    s = ojs_copy(&hand16, &hand4, 2);
+    assert(0 == s && tcequal(&hand16, tc009));
+    s = ojs_copy_all(&hand16, &hand4);
+    assert(0 == s && 0 == hand16.length && 0 == hand4.length);
 }
 
-void move_and_copy(void) {
+int tc010[] = { 10, 42, 14, 20, 21, 6, 51, 12, 33, 2, 19 };
+int tc011[] = { 10, 51, 42, 33, 21, 20, 19, 14, 12, 6, 2 };
+
+void shuffle_sort(void) {
     int s;
 
-    s = oj_seq_fill(&g_deck, 20, oj_dt_standard);
-    oj_seq_sort(&g_deck);
-    assert(20 == s && 20 == g_deck.cards[0]);
+    cleanup();
 
-    oj_seq_clear(&g_hand1);
-    oj_seq_deal_to_end(&g_hand1, 50);
-    s = oj_seq_move(&g_hand1, &g_deck, 10);
-    assert(3 == s && 4 == g_hand1.length && 17 == g_deck.length &&
-        50 == g_hand1.cards[0] && 3 == g_hand1.cards[1] && 1 == g_hand1.cards[3]);
-
-    s = oj_seq_copy_all(&g_deck, &g_hand1);
-    assert(4 == s && 4 == g_hand1.length && 50 == g_hand1.cards[0] &&
-        3 == g_hand1.cards[1] && 1 == g_hand1.cards[3]);
-    assert(4 == g_deck.length && 50 == g_deck.cards[0] &&
-        3 == g_deck.cards[1] && 1 == g_deck.cards[3]);
-
-    oj_seq_clear(&g_hand2);
-    s = oj_seq_copy(&g_hand2, &g_deck, 5);
-    assert(5 == s && 5 == g_hand2.length && 5 == g_deck.length &&
-        6 == g_hand2.cards[0]);
+    tcfill(&hand16, tc010);
+    ojs_sort(&hand16);
+    assert(tcequal(&hand16, tc011));
+    ojs_shuffle(&hand16);
+    assert(! tcequal(&hand16, tc011)); /* Will fail rarely */
+    ojs_sort(&hand16);
+    assert(tcequal(&hand16, tc011));
 }
 
-void shuffle_and_sort(void) {
-    int s;
-
-    s = oj_seq_fill(&g_deck, 52, oj_dt_standard);
-    assert(52 == s);
-    oj_seq_shuffle(&g_deck);
-    assert(52 == g_deck.length);
-    /* This will fail once in a blue moon. */
-    assert(! (1 == g_deck.cards[0] && 2 == g_deck.cards[1] && 13 == g_deck.cards[12]
-        && 30 == g_deck.cards[29] && 51 == g_deck.cards[50] && 52 == g_deck.cards[51]));
-
-    oj_seq_sort(&g_deck);
-    assert(52 == g_deck.cards[0] && 51 == g_deck.cards[1] && 40 == g_deck.cards[12]
-        && 23 == g_deck.cards[29] && 2 == g_deck.cards[50] && 1 == g_deck.cards[51]);
-
-    oj_seq_fill(&g_deck, 12, oj_dt_standard);
-    oj_seq_fill(&g_hand2, 12, oj_dt_standard);
-    assert(g_deck.cards[0] == g_hand2.cards[0] && g_deck.cards[1] == g_hand2.cards[1]
-        && g_deck.cards[4] == g_hand2.cards[4] && g_deck.cards[7] == g_hand2.cards[7]
-        && g_deck.cards[10] == g_hand2.cards[10] && g_deck.cards[11] == g_hand2.cards[11]);
-
-    oj_seq_shuffle(&g_deck);
-    oj_seq_shuffle(&g_hand2);
-    /* Again, like all tests of randomness, this will sometimes randomly fail. */
-    assert(! (g_deck.cards[0] == g_hand2.cards[0] && g_deck.cards[1] == g_hand2.cards[1]
-        && g_deck.cards[4] == g_hand2.cards[4] && g_deck.cards[7] == g_hand2.cards[7]
-        && g_deck.cards[10] == g_hand2.cards[10] && g_deck.cards[11] == g_hand2.cards[11]));
-
-    oj_seq_sort(&g_deck);
-    oj_seq_sort(&g_hand2);
-    assert(g_deck.cards[0] == g_hand2.cards[0] && g_deck.cards[1] == g_hand2.cards[1]
-        && g_deck.cards[4] == g_hand2.cards[4] && g_deck.cards[7] == g_hand2.cards[7]
-        && g_deck.cards[10] == g_hand2.cards[10] && g_deck.cards[11] == g_hand2.cards[11]);
-
-    oj_seq_shuffle(&g_deck);
-    /* Again, like all tests of randomness, this will sometimes randomly fail. */
-    assert(! (g_deck.cards[0] == g_hand2.cards[0] && g_deck.cards[1] == g_hand2.cards[1]
-        && g_deck.cards[4] == g_hand2.cards[4] && g_deck.cards[7] == g_hand2.cards[7]
-        && g_deck.cards[10] == g_hand2.cards[10] && g_deck.cards[11] == g_hand2.cards[11]));
-
-    oj_seq_sort(&g_deck);
-    assert(g_deck.cards[0] == g_hand2.cards[0] && g_deck.cards[1] == g_hand2.cards[1]
-        && g_deck.cards[4] == g_hand2.cards[4] && g_deck.cards[7] == g_hand2.cards[7]
-        && g_deck.cards[10] == g_hand2.cards[10] && g_deck.cards[11] == g_hand2.cards[11]);
-}
-
-#define NSHUFFLES 10000000
+#define NSHUFFLES 1000000
 static long buckets[52][52] = { 0 };
 
 void shuffle_balance(void) {
     int i, j;
     double d, e, fit = 0.0;
 
-    oj_seq_fill(&g_deck, 52, oj_dt_standard);
+    ojs_fill(&deck, 52, oj_dt_standard);
     for (i = 0; i < NSHUFFLES; ++i) {
-        oj_seq_shuffle(&g_deck);
+        ojs_shuffle(&deck);
 
         for (j = 0; j < 52; ++j) {
-            ++buckets[j][g_deck.cards[j] - 1];
+            ++buckets[j][deck.cards[j] - 1];
         }
         if (0 == (i & 0xFFFF)) {
             fprintf(stderr, "%d\r", i);
@@ -242,27 +209,22 @@ void shuffle_balance(void) {
             fit += (d * d);
         }
     }
-    fit /= (double)NSHUFFLES;
+    fit /= (52.0 * NSHUFFLES);
     fprintf(stderr, "Fit: %.3f\n", fit);
-    assert(fit < 100.0);
+    assert(fit < 2.0);
 }
-#endif
 
 int main(int argc, char *argv[]) {
     int r;
     double f;
 
     initialize();
-    adds();
-    /*
-    removes();
-    fills();
-    move_and_copy();
-    shuffle_and_sort();
+    add_remove();
+    fill_move_copy();
+    shuffle_sort();
     fprintf(stderr, "Sequence tests passed.\n");
 
     shuffle_balance();
     fprintf(stderr, "Done.\n");
-    */
     return EXIT_SUCCESS;
 }

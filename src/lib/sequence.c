@@ -87,8 +87,10 @@ int ojs_pick(oj_sequence_t *sp, int card) {
 
     for (i = 0; i < sp->length; ++i) {
         if (card == sp->cards[i]) {
-            --sp->length;
-            memmove(sp->cards + i, sp->cards + i + 1, sp->length - i);
+            if (i != --sp->length) {
+                memmove(sp->cards + i, sp->cards + i + 1,
+                    (sp->length - i) * sizeof(int));
+            }
             return card;
         }
     }

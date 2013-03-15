@@ -21,7 +21,7 @@ class Sequence(Structure):
 
     def __init__(self, size):
         b = create_string_buffer(4 * size)
-        ojlib.ojs_new(byref(self), size, b)
+        ojlib.ojs_new(byref(self), size, cast(b, POINTER(c_int)))
 
     def fill(self, count):
         ojlib.ojs_fill(byref(self), count, 0)
@@ -42,9 +42,8 @@ def main():
     s.fill(20)
     s.show()
 
-    if 0:
-        s.sort()
-        s.show()
+    s.sort()
+    s.show()
 
     return 0
 

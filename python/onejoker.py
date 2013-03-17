@@ -125,7 +125,7 @@ class Sequence(Structure):
     def move(self, src, count):
         return ojlib.ojs_move(byref(self), byref(src), count)
 
-    def copy (self, src, count):
+    def copy(self, src, count):
         return ojlib.ojs_copy(byref(self), byref(src), count)
 
     def copy_all(self, src):
@@ -146,10 +146,56 @@ class Sequence(Structure):
     def equal(self, other):
         return ojlib.ojs_equal(byref(self), byref(other))
 
+    def truncate(self, size):
+        return ojlib.ojs_truncate(byref(self), size)
+
     def text(self):
+        if 0 == self.length:
+            return ""
+
         b = create_string_buffer(1024)
         c = ojlib.ojs_text(byref(self), byref(b), 1024, c_char(b" "))
         return b.value.decode()
+
+_ojc_binomial = ojlib.ojc_binomial
+_ojc_binomial.restype = c_longlong
+
+def binomial(n, k):
+    if (n <= 54 and k <= 54):
+        return _ojc_binomial(n, k)
+
+    b = 1
+    for i in range(1, k + 1):
+        b *= (n - (k - i));
+        b //= i
+    return b
+
+class Iterator(Structure):
+    _fields_ = [
+        ("_johnnymoss", c_int),
+        ("_sorted", c_int),
+        ("k", c_int),
+        ("a", POINTER(c_int)),
+        ("rank", c_longlong),
+        ("remaining", c_longlong),
+        ("deck", POINTER(Sequence)),
+        ("hand", POINTER(Sequence))
+        ]
+
+    def __init__(self, deck, k):
+        buf = create_string_buffer(4 * k)
+        self.h = Sequence(k)
+        ojlib.ojc_iter_new(byref(self), byref(deck), byref(self.h),
+            k, cast(buf, POINTER(c_int)))
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if 0 == ojlib.ojc_iter_next(byref(self)):
+            raise StopIteration
+        return self.hand.contents
+
 
 def main():
     di = get_deck_info(dt_stripped32)
@@ -176,6 +222,13 @@ def main():
     print(s.text())
     s.deal_to("3c As 9s 10h 5d")
     print(s.text())
+
+    print(binomial(52, 3), binomial(60, 10))
+
+    print(s.length, s.text())
+    hands = Iterator(s, 3)
+    for h in hands:
+        print(hands.remaining, h.text())
 
     return 0
 

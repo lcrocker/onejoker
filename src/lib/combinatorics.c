@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 #include "onejoker.h"
 
@@ -159,45 +160,82 @@ long long ojc_binomial(int n, int k) {
     return b;
 }
 
-/* Given a <k>-length 0-based array <a> of integers in the range
- * 0..<n>-1, assumed to be in ascending order, modify the array to
- * next in colexicographical order. Return 1 if we did in fact
- * modify it, or 0 if it was already at the end. This is so we can
- * do "do { ... } while (colex_next( ... ));"
+/* Start a new iteration sequence. We need to provide a <deck>
+ * sequence that is the set to make combinations of, a mutable <hand>
+ * to receive the combinations, <k> for the size of the combinations,
+ * and a <k>-sized integer buffer for internal use.
  */
-int colex_next(int *a, int n, int k) {
-    int i, j;
+long long ojc_iter_new(oj_iterator_t *iter, oj_sequence_t *deck,
+    oj_sequence_t *hand, int k, int *buf) {
+    int i;
 
+    assert(0 != iter && 0 != deck && 0 != hand && 0 != buf && 0 != k);
+    assert(hand->allocation >= k);
+    assert(deck->length >= k);
+
+    iter->_johnnymoss = 0x10ACE0FF;
+    ojs_sort(deck);
+    iter->_sorted = 1;
+
+    for (i = 0; i < k; ++i) {
+        buf[i] = i;
+        hand->cards[i] = deck->cards[i];
+    }
+    hand->length = k;
+
+    iter->k = k;
+    iter->a = buf;
+    iter->rank = 0LL;
+    iter->remaining = ojc_binomial(deck->length, k);
+    iter->deck = deck;
+    iter->hand = hand;
+
+    return iter->remaining;
+}
+
+/* Assuming everything is set up properly with iter_new, advance
+ * hand to the next in colex order. Return 1 if successful.
+ */
+int ojc_iter_next(oj_iterator_t *iter) {
+    int i, j, *a = iter->a, k = iter->k, n = iter->deck->length,
+        *cp = iter->hand->cards;
+    assert(0 != iter && 0x10ACE0FF == iter->_johnnymoss && iter->_sorted);
+
+    /* First time through, just return the one we set up */
+    if (0 == iter->rank) {
+        ++iter->rank;
+        --iter->remaining;
+        return 1;
+    }
+    /* Otherwise, calculate the next one */
     for (i = 0; i < k; ++i) {
         if ( ((i < k - 1) && (a[i] < (a[i + 1] - 1))) ||
              ((i == k - 1) && (a[i] < n - 1)) ) {
             ++a[i];
             for (j = 0; j < i; ++j) a[j] = j;
+
+            for (i = 0; i < k; ++i) {
+                cp[i] = iter->deck->cards[a[i]];
+            }
+            ++iter->rank;
+            --iter->remaining;
             return 1;
         }
     }
     return 0;
 }
 
-long long colex_rank(int *a, int k) {
-    int i;
-    long long r = 0;
+#define SWAP(a,b) do{t=cp[a];cp[a]=cp[b];cp[b]=t;}while(0)
 
-    for (i = 0; i < k; ++i) r += ojc_binomial(a[i], i + 1);
-    return r;
-}
+void ojc_iter_next_random(oj_iterator_t *iter) {
+    int i, j, t, k = iter->k, n = iter->deck->length,
+        *cp = iter->hand->cards;
+    assert(0 != iter && 0x10ACE0FF == iter->_johnnymoss);
 
-long long ojc_iter_new(oj_iterator_t *iter, int length, oj_sequence_t *deck) {
-}
-
-long long ojc_iter_next(oj_iterator_t *iter) {
-}
-
-long long ojc_iter_count(oj_iterator_t *iter) {
-}
-
-long long ojc_colex_rank(oj_sequence_t *hand, oj_sequence_t *deck) {
-}
-
-long long ojc_hand_at_colex_rank(long long r, int length, oj_sequence_t *deck) {
+    iter->_sorted = 0;
+    for (i = n; i > (n - k); --i) {
+        j = ojr_rand(i);
+        SWAP(i - 1, j);
+    }
+    memmove(iter->hand->cards, &cp[n - k], k * sizeof(int));
 }

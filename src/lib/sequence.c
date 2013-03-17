@@ -143,6 +143,11 @@ int ojs_copy_all(oj_sequence_t *destp, oj_sequence_t *srcp) {
     return destp->length = count;
 }
 
+int ojs_truncate(oj_sequence_t *sp, int size) {
+    if (size < sp->length) sp->length = size;
+    return sp->length;
+}
+
 /* Fill a sequence with fresh cards based on deck type. Can be used to
  * fill multi-deck shoes as well.
  */

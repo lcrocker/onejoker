@@ -44,7 +44,13 @@ typedef struct _oj_sequence {
 /* Structure that maintains the internal state of an iterator.
  */
 typedef struct _oj_iterator {
-    long count;
+    int _johnnymoss; /* Initialization check */
+    int _sorted;
+    int k;
+    int *a;
+    long long rank, remaining;
+    oj_sequence_t *deck;
+    oj_sequence_t *hand;
 } oj_iterator_t;
 
 /* Blackjack game rules.
@@ -87,16 +93,15 @@ extern int ojs_fill(oj_sequence_t *sp, int count, oj_deck_type_t dt);
 extern void ojs_sort(oj_sequence_t *sp);
 extern void ojs_shuffle(oj_sequence_t *sp);
 extern int ojs_equal(oj_sequence_t *sp1, oj_sequence_t *sp2);
+extern int ojs_truncate(oj_sequence_t *sp, int size);
 
 /* Combinatorics */
 
 long long ojc_binomial(int n, int k);
-long long ojc_iter_combinations(oj_iterator_t *iter, int length, oj_sequence_t *deck);
-long long ojc_iter_montecarlo(oj_iterator_t *iter, int length, oj_sequence_t *deck, long max);
-long long ojc_iter_next(oj_iterator_t *iter);
-long long ojc_iter_count(oj_iterator_t *iter);
-long long ojc_colex_rank(oj_sequence_t *hand, oj_sequence_t *deck);
-long long ojc_hand_at_colex_rank(long long r, int length, oj_sequence_t *deck);
+long long ojc_iter_new(oj_iterator_t *iter, oj_sequence_t *deck,
+    oj_sequence_t *hand, int k, int *buf);
+int ojc_iter_next(oj_iterator_t *iter);
+void ojc_iter_next_random(oj_iterator_t *iter);
 
 /* Poker functions */
 

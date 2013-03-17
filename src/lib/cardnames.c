@@ -124,17 +124,17 @@ int ojs_text(oj_sequence_t *sp, char *text, int size, char sep) {
     return i;
 }
 
-/* Add to sequence <sp> all the cards in <text>. Return the number
+/* Add to int array <dp> all the cards in <text>. Return the number
  * of cards added. Assumes ascii2 card text type.
  */
-int ojs_add_by_text(oj_sequence_t *sp, char *names) {
+int oj_cards_from_text(int max, int *dp, char *names) {
     int i, c, added;
 
     added = 0;
-    for (i = 0; i < sp->length; ++i) {
+    for (i = 0; i < max; ++i) {
         c = oj_card_from_text(names, &names);
         if (!c) break;
-        if (1 != ojs_deal_to(sp, c)) break;
+        dp[i] = c;
         ++added;
     }
     return added;

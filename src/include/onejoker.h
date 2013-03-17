@@ -21,6 +21,8 @@ typedef struct _oj_deck_info {
     int *cards;
 } oj_deck_info_t;
 
+extern oj_deck_info_t oj_deck_info[];
+
 /* Styles for rendering cards as text.
  */
 typedef enum _oj_card_style {
@@ -54,7 +56,6 @@ typedef struct _oj_blackjack_rules {
 /* General library functions */
 
 extern int oj_init_library(int seed);
-extern oj_deck_info_t *oj_deck_info(oj_deck_type_t dt);
 
 /* Card names */
 

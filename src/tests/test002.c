@@ -175,10 +175,12 @@ void shuffle_sort(void) {
 
     tcfill(&hand16, tc010);
     ojs_sort(&hand16);
+    ojs_reverse(&hand16);
     assert(tcequal(&hand16, tc011));
     ojs_shuffle(&hand16);
     assert(! tcequal(&hand16, tc011)); /* Will fail rarely */
     ojs_sort(&hand16);
+    ojs_reverse(&hand16);
     assert(tcequal(&hand16, tc011));
 }
 

@@ -147,7 +147,7 @@ int ojs_copy_all(oj_sequence_t *destp, oj_sequence_t *srcp) {
  * fill multi-deck shoes as well.
  */
 int ojs_fill(oj_sequence_t *sp, int count, oj_deck_type_t dt) {
-    oj_deck_info_t *di = oj_deck_info(dt);
+    oj_deck_info_t *di = &oj_deck_info[dt];
     int c, remaining;
     assert(0 != sp);
     assert(0x10ACE0FF == sp->_johnnymoss);
@@ -168,22 +168,9 @@ int ojs_fill(oj_sequence_t *sp, int count, oj_deck_type_t dt) {
     return sp->length;
 }
 
-/* Descending sort order of cards is by far the most common, so that's
- * assumed. The small cases (5 cards or fewer) are probably also very common
- * and may need to be done inside a big simulation loop so it's probably worth
- * the effort to special-case them.
- */
-
-#define CMP(a,b) (cp[a] < cp[b])
-/* Branchless compare-and-swap */
-#define CSWP(a,b) do{s=cp[a]+cp[b];d=abs(cp[a]-cp[b]);cp[a]=(s+d)>>1;cp[b]=(s-d)>>1;}while(0)
-
-#if 0 /* To change sort order to ascending, use these instead */
-#define CMP(a,b) (cp[a] > cp[b])
-#define CSWP(a,b) do{s=cp[a]+cp[b];d=abs(cp[a]-cp[b]);cp[a]=(s-d)>>1;cp[b]=(s+d)>>1;}while(0)
-#endif
-
 #define SWAP(a,b) do{t=cp[a];cp[a]=cp[b];cp[b]=t;}while(0)
+#define CMP(a,b) (cp[a]>cp[b])
+#define CSWP(a,b) do{s=cp[a]+cp[b];d=abs(cp[a]-cp[b]);cp[a]=(s-d)>>1;cp[b]=(s+d)>>1;}while(0)
 
 static void heapify(int *cp, int n, int start) {
     int t, lc, rc, head;
@@ -249,6 +236,15 @@ void ojs_shuffle(oj_sequence_t *sp) {
     for (i = sp->length; i > 1; --i) {
         j = ojr_rand(i);
         SWAP(i - 1, j);
+    }
+}
+
+void ojs_reverse(oj_sequence_t *sp) {
+    int i, t, *cp = sp->cards;
+    assert(0 != sp);
+
+    for (i = 0; i < (sp->length >> 1); ++i) {
+        SWAP(i, (sp->length - 1) - i);
     }
 }
 

@@ -65,10 +65,10 @@ extern int oj_init_library(int seed);
 
 /* Card names */
 
-extern int oj_card_from_text(char *text, char **next);
-extern char *oj_text_of_card(int card, oj_card_style_t style);
-extern int ojs_text(oj_sequence_t *sp, char *text, int size, char sep);
-extern int ojs_add_by_text(oj_sequence_t *sp, char *text);
+extern char *oj_text_from_card(int card);
+extern int oj_card_from_text(char *text);
+extern int oj_text_from_cards(int n, int *ip, int tsize, char *text, char *sep);
+extern int oj_cards_from_text(int max, int *cp, char *text);
 
 /* PRNG functions */
 
@@ -81,6 +81,10 @@ extern int ojr_rand(int limit);
 
 extern int ojs_new(oj_sequence_t *sp, int size, int *buf);
 extern void ojs_clear(oj_sequence_t *sp);
+extern int ojs_append(oj_sequence_t *sp, int card);
+extern int ojs_extend(oj_sequence_t *destp, oj_sequence_t *srcp);
+extern int ojs_delete(oj_sequence_t *sp, int index);
+
 extern int ojs_deal_from(oj_sequence_t *sp);
 extern int ojs_deal_to(oj_sequence_t *sp, int card);
 extern int ojs_deal_from_head(oj_sequence_t *sp);

@@ -21,9 +21,8 @@ static char *card_names_ascii2[] = { "XX",
 
 /* Return pointer to internal string name of card.
  */
-char *oj_text_of_card(int card, oj_card_style_t style) {
+char *oj_text_from_card(int card) {
     assert(card > 0 && card <= 54);
-    assert(oj_cs_ascii2 == style);
     return card_names_ascii2[card];
 }
 
@@ -34,7 +33,7 @@ char *oj_text_of_card(int card, oj_card_style_t style) {
  * immediately before returning, so <next> can be the address of
  * <name> without strange things happening.
  */
-int oj_card_from_text(char *text, char **next) {
+static int _oj_card_from_text(char *text, char **next) {
     int rank = 0, suit = 0;
 
     assert(0 != text);
@@ -91,37 +90,44 @@ int oj_card_from_text(char *text, char **next) {
     return ((rank << 2) + suit) + 1;
 }
 
-/* Fill the character array <text> with the textual representation of
- * the given sequence. Don't overflow <size> characters. If <sep> is
- * given, write one after each card but the last. Zero terminate, and
- * return the number of cards actually written (which may be less than
- * the number in the sequence if we run out of room).
+int oj_card_from_text(char *text) {
+    return _oj_card_from_text(text, 0);
+}
+
+/* Fill the character array <text> with the textual representation
+ * of the cards from the given integer array.
  */
-int ojs_text(oj_sequence_t *sp, char *text, int size, char sep) {
-    int i, len, needed;
-    char *np;
+int oj_text_from_cards(
+    int n,      /* Number of cards */
+    int *ip,    /* Card array */
+    int tsize,  /* Size of output string */
+    char *text, /* Output string */
+    char *sep   /* Separator */)
+{
+    int i, cl, sl, out;
+    char *cn;
 
-    assert(0 != sp);
-    assert(size >= 1);
-    assert(0 != text);
+    assert(0 != n && 0 != ip && 0 != tsize && 0 != text);
+    if (sep) sl = strlen(sep);
+    out = 0;
 
-    for (i = 0; i < sp->length; ++i) {
-        np = card_names_ascii2[sp->cards[i]];
-        len = strlen(np);
-        needed = len + 1;
-        if (size < needed) break;
-
-        strncpy(text, np, len);
-        text += len;
-        size -= len;
-
-        if (sep && (i < (sp->length - 1)) && size > 1) {
-            *text++ = sep;
-            --size;
+    for (i = 0; i < n; ++i) {
+        if (sep && 0 != i && tsize > sl) {
+            strncpy(text, sep, sl);
+            text += sl;
+            tsize -= sl;
+        }
+        cn = card_names_ascii2[ip[i]];
+        cl = strlen(cn);
+        if (tsize > cl) {
+            strncpy(text, cn, cl);
+            text += cl;
+            tsize -= cl;
+            ++out;
         }
     }
     *text = '\0';
-    return i;
+    return out;
 }
 
 /* Add to int array <dp> all the cards in <text>. Return the number
@@ -132,7 +138,7 @@ int oj_cards_from_text(int max, int *dp, char *names) {
 
     added = 0;
     for (i = 0; i < max; ++i) {
-        c = oj_card_from_text(names, &names);
+        c = _oj_card_from_text(names, &names);
         if (!c) break;
         dp[i] = c;
         ++added;

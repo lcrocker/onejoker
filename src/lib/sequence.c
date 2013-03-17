@@ -11,9 +11,7 @@
 /* Initialize an empty sequence object from with the given buffer.
  */
 int ojs_new(oj_sequence_t *sp, int size, int *buf) {
-    assert(0 != sp);
-    assert(0 != size);
-    assert(0 != buf);
+    assert(0 != sp && 0 != size && 0 != buf);
 
     sp->_johnnymoss = 0x10ACE0FF;
     sp->allocation = size;
@@ -28,6 +26,39 @@ void ojs_clear(oj_sequence_t *sp) {
     sp->length = 0;
 }
 
+/* Add a card to the end of the sequence.
+ */
+int ojs_append(oj_sequence_t *sp, int card) {
+    assert(0 != sp && card > 0 && card <= 54);
+    assert(0x10ACE0FF == sp->_johnnymoss);
+
+    if (sp->length == sp->allocation) return 0;
+    sp->cards[sp->length++] = card;
+    return sp->length;
+}
+
+/* Copy all cards from source sequence to the end of dest sequence.
+ */
+int ojs_extend(oj_sequence_t *destp, oj_sequence_t *srcp) {
+    assert(0 != srcp && 0 != destp);
+    assert(0x10ACE0FF == srcp->_johnnymoss);
+    assert(0x10ACE0FF == destp->_johnnymoss);
+
+    count = srcp->length;
+    if (count > (destp->allocation - destp->length))
+        count = (destp->allocation - destp->length);
+
+    memmove(destp->cards + destp->length, srcp->cards, count * sizeof(int));
+    destp->length += count;
+    return count;
+}
+
+int ojs_delete(oj_sequence_t *sp, int index) {
+}
+
+int ojs_insert(oj_sequence_t *sp, int index, int card) {
+}
+
 /* Remove and return a card from the end of the sequence.
  */
 int ojs_deal_from(oj_sequence_t *sp) {
@@ -38,17 +69,6 @@ int ojs_deal_from(oj_sequence_t *sp) {
     return sp->cards[--sp->length];
 }
 
-/* Add a card to the end of the sequence.
- */
-int ojs_deal_to(oj_sequence_t *sp, int card) {
-    assert(0 != sp);
-    assert(card > 0 && card <= 54);
-    assert(0x10ACE0FF == sp->_johnnymoss);
-
-    if (sp->length == sp->allocation) return 0;
-    sp->cards[sp->length++] = card;
-    return sp->length;
-}
 
 /* Remove and return a card from the start of the sequence.
  */

@@ -38,7 +38,7 @@ int tcfill(oj_sequence_t *sp, int *tc) {
 
     ojs_clear(sp);
     for (i = 0; i < tc[0]; ++i) {
-        ojs_deal_to(sp, tc[i + 1]);
+        ojs_append(sp, tc[i + 1]);
     }
 }
 
@@ -72,56 +72,56 @@ void add_remove(void) {
 
     cleanup();
 
-    s = ojs_deal_to(&hand4, 21);
+    s = ojs_append(&hand4, 21);
     assert(1 == s);
-    s = ojs_deal_to(&hand4, 45);
+    s = ojs_append(&hand4, 45);
     assert(2 == s && tcequal(&hand4, tc001));
 
-    s = ojs_deal_to_head(&hand4, 32);
+    s = ojs_insert(&hand4, 0, 32);
     assert(3 == s);
-    s = ojs_deal_to(&hand4, 43);
+    s = ojs_append(&hand4, 43);
     assert(4 == s && tcequal(&hand4, tc002));
 
-    s = ojs_deal_to(&hand4, 14);
+    s = ojs_append(&hand4, 14);
     assert(0 == s && tcequal(&hand4, tc002));
-    s = ojs_deal_to_head(&hand4, 12);
+    s = ojs_insert(&hand4, 0, 12);
     assert(0 == s && tcequal(&hand4, tc002));
 
-    c = ojs_deal_from(&hand4);
+    c = ojs_pop(&hand4);
     assert(43 == c && 3 == hand4.length);
-    c = ojs_deal_from_head(&hand4);
+    c = ojs_delete(&hand4, 0);
     assert(32 == c && 2 == hand4.length);
-    s = ojs_deal_to(&hand4, 50);
+    s = ojs_append(&hand4, 50);
     assert(3 == s);
-    s = ojs_deal_to_head(&hand4, 6);
+    s = ojs_insert(&hand4, 0, 6);
     assert(4 == s && tcequal(&hand4, tc003));
 
     tcfill(&hand16, tc002);
-    s = ojs_deal_to_head(&hand16, 14);
-    s = ojs_deal_to(&hand16, 8);
+    s = ojs_insert(&hand16, 0, 14);
+    s = ojs_append(&hand16, 8);
     assert(tcequal(&hand16, tc004));
 
-    c = ojs_deal_from(&hand16);
+    c = ojs_pop(&hand16);
     assert(8 == c);
-    c = ojs_pick(&hand16, 50);
+    c = ojs_remove(&hand16, 50);
     assert(0 == c);
-    c = ojs_pick(&hand16, 32);
+    c = ojs_remove(&hand16, 32);
     assert(32 == c);
-    c = ojs_deal_from_head(&hand16);
+    c = ojs_delete(&hand16, 0);
     assert(14 == c && tcequal(&hand16, tc005));
 
-    ojs_deal_from(&hand16);
-    c = ojs_pick(&hand16, 43);
+    ojs_pop(&hand16);
+    c = ojs_remove(&hand16, 43);
     assert(0 == c);
-    c = ojs_pick(&hand16, 21);
+    c = ojs_remove(&hand16, 21);
     assert(21 == c);
-    c = ojs_pick(&hand16, 45);
+    c = ojs_remove(&hand16, 45);
     assert(45 == c && 0 == hand16.length);
 
     ojs_clear(&hand4);
-    c = ojs_deal_from(&hand4);
+    c = ojs_pop(&hand4);
     assert(0 == c);
-    c = ojs_deal_from(&hand4);
+    c = ojs_pop(&hand4);
     assert(0 == c);
 }
 
@@ -144,25 +144,6 @@ void fill_move_copy(void) {
     assert(52 == s && 1 == deck.cards[0] && 52 == deck.cards[51]);
     s = ojs_fill(&shoe, 4 * 53, oj_dt_1joker);
     assert(4 * 53 == s && 53 == deck.cards[52] && 1 == deck.cards[53]);
-
-    s = ojs_move(&hand16, &deck, 4);
-    assert(4 == s && tcequal(&hand16, tc008));
-    s = ojs_copy_all(&shoe, &deck);
-    assert(48 == s && 48 == shoe.length);
-
-    ojs_clear(&hand4);
-    s = ojs_copy(&hand4, &deck, 3);
-    assert(3 == s && tcequal(&hand4, tc009) && 48 == deck.length);
-
-    ojs_clear(&hand16);
-    s = ojs_move(&hand16, &hand4, 10);
-    assert(3 == s && tcequal(&hand16, tc009) && 0 == hand4.length);
-    s = ojs_move(&hand16, &hand4, 2);
-    assert(0 == s && tcequal(&hand16, tc009));
-    s = ojs_copy(&hand16, &hand4, 2);
-    assert(0 == s && tcequal(&hand16, tc009));
-    s = ojs_copy_all(&hand16, &hand4);
-    assert(0 == s && 0 == hand16.length && 0 == hand4.length);
 }
 
 int tc010[] = { 10, 42, 14, 20, 21, 6, 51, 12, 33, 2, 19 };

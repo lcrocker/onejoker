@@ -8,26 +8,26 @@ under law, I waive all copyright and related or neighboring rights to
 this work. Where I have included the work of others, this is noted
 and such work may be licensed under different terms.
 
-It is written in C and Python using cmake <www.cmake.org>. Though it
-could certainly be used directly in C or C++ programs, it is designed
-with the goal of higher-level language bindings in mind. For example,
-the C code never allocates memory, but relies on the client (in this
-case the Python language binding is the client) for that. I try to
-write portably, but I'm sure there are some Linuxisms here that
-porters will have to smooth over.
+OneJoker consists of a shared library written in pure C, and a Python
+module that calls into the shared library. It is designed primarily
+to be used with its Python binding, but the C code can be used as a
+C library in its own right if you need the greatest possible speed, at
+the expense of some clarity. This should rarely be necessary, though,
+since the Python binding is quite adequate for doing billions of hands
+in reasonable time.
 
-To build on Linux, either create a build directory parallel to "src",
-change to it, and type
+It is written for Linux. I know nothing about Windows or OS/X how easy
+it might be to port to those. I stick to pretty vanilla C, so it
+shouldn't be difficult. I also assume Python 3. Back-porting shouldn't
+be too tricky if necessary.
 
-  cmake -g 'Unix Makefiles' ../src
-
-or else type
+I use cmake <http://www.cmake.org> to build the library. This should
+make porting easier. The way I build it on Linux is to change into the
+top-level directory of the git repository, then type
 
   cmake -g 'Unix Makefiles' src
 
-from the top-level directory itself. The former is cleaner, the latter
-seems to work better for Eclipse. You should then be able to "make"
-from the build directory.
+to build the Makefiles, then "make" to build everything.
 
 ========
 Overview
@@ -43,7 +43,8 @@ the "colored" joker for games that distinguish between the two.
 When cards are represented as text for input and output, each is two
 characters, for rank and suit, e.g., "2c", "5d", "Qh", "As". Tens use
 the letter T, so the 10 of diamonds is "Td". The joker is "JK" and the
-colored joker is "J2".
+colored joker is "J2". On input, the library is a bit more flexible,
+ignoring case and whitespace and allowing "10".
 
 The second important structure in this library is called a "sequence"
 which is simply an ordered list of cards. This may represent a whole
@@ -55,11 +56,9 @@ Contents
 ========
 
 CMakeLists.txt  Cmake input file (and in subdirectories).
-scripts/        Scripts that aren't part of the product itself, but
-                    that are used for various programming tasks.
+python/         Python module, tests, and scripts for other tasks.
 src/            C source for the onejoker library and C-based
                     unit tests.
     include/    C Header files
     lib/        Library code
     tests/      C-based unit tests for library
-python/         Python language binding code and tests.

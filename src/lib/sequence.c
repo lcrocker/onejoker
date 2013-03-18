@@ -20,31 +20,42 @@ int ojs_new(oj_sequence_t *sp, int size, int *buf) {
     return size;
 }
 
-/* Remove all cards.
+/* Functions that manipulate the list-like structure of the card
+ * sequence, generally modelled after the Python list methods of the
+ * same name. The major difference is that we never extend the
+ * allocation of a sequence--if it was created with space for 5 cards,
+ * it will never have more than 5 cards and adding more will fail.
+ *
+ * TODO: Negative indices and slices.
  */
-void ojs_clear(oj_sequence_t *sp) {
+
+inline void ojs_clear(oj_sequence_t *sp) {
     sp->length = 0;
 }
 
-/* Add a card to the end of the sequence.
- */
+inline int ojs_length(oj_sequence_t *sp) {
+    return sp->length;
+}
+
+/* Python doesn't have this one, but it's handy for our uses */
+inline void ojs_truncate(oj_sequence_t *sp, int size) {
+    if (size < sp->length) sp->length = size;
+}
+
 int ojs_append(oj_sequence_t *sp, int card) {
-    assert(0 != sp && card > 0 && card <= 54);
-    assert(0x10ACE0FF == sp->_johnnymoss);
+    assert(0 != sp && 0x10ACE0FF == sp->_johnnymoss);
+    assert(card > 0 && card <= 54);
 
     if (sp->length == sp->allocation) return 0;
     sp->cards[sp->length++] = card;
     return sp->length;
 }
 
-/* Copy all cards from source sequence to the end of dest sequence.
- */
-int ojs_extend(oj_sequence_t *destp, oj_sequence_t *srcp) {
-    assert(0 != srcp && 0 != destp);
-    assert(0x10ACE0FF == srcp->_johnnymoss);
-    assert(0x10ACE0FF == destp->_johnnymoss);
+int ojs_extend(oj_sequence_t *destp, oj_sequence_t *srcp, int count) {
+    assert(0 != srcp && 0x10ACE0FF == srcp->_johnnymoss);
+    assert(0 != destp && 0x10ACE0FF == destp->_johnnymoss);
 
-    count = srcp->length;
+    if (0 == count) count = srcp->length;
     if (count > (destp->allocation - destp->length))
         count = (destp->allocation - destp->length);
 
@@ -53,56 +64,43 @@ int ojs_extend(oj_sequence_t *destp, oj_sequence_t *srcp) {
     return count;
 }
 
-int ojs_delete(oj_sequence_t *sp, int index) {
-}
-
 int ojs_insert(oj_sequence_t *sp, int index, int card) {
+    assert(0 != sp && 0x10ACE0FF == sp->_johnnymoss && index >= 0);
+    assert(card > 0 && card <= 54);
+
+    if (sp->length == sp->allocation) return 0;
+    memmove(sp->cards + index + 1, sp->cards + index,
+        (sp->length - index) * sizeof(int));
+    sp->cards[index] = card;
+    return ++sp->length;
 }
 
-/* Remove and return a card from the end of the sequence.
+/* Here's a bit of a deviation from the Python model: pop() does not
+ * take an index, but that functionality is done with delete(), which
+ * returns the value deleted.
  */
-int ojs_deal_from(oj_sequence_t *sp) {
-    assert(0 != sp);
-    assert(0x10ACE0FF == sp->_johnnymoss);
+int ojs_delete(oj_sequence_t *sp, int index) {
+    int v;
+    assert(0 != sp && 0x10ACE0FF == sp->_johnnymoss && index >= 0);
+
+    if (index >= sp->length) return 0;
+    v = sp->cards[index];
+    --sp->length;
+    memmove(sp->cards + index, sp->cards + index + 1,
+        (sp->length - index) * sizeof(int));
+    return v;
+}
+
+int ojs_pop(oj_sequence_t *sp) {
+    assert(0 != sp && 0x10ACE0FF == sp->_johnnymoss);
 
     if (0 == sp->length) return 0;
     return sp->cards[--sp->length];
 }
 
-
-/* Remove and return a card from the start of the sequence.
- */
-int ojs_deal_from_head(oj_sequence_t *sp) {
-    int c;
-    assert(0 != sp);
-    assert(0x10ACE0FF == sp->_johnnymoss);
-
-    if (0 == sp->length) return 0;
-    c = *sp->cards;
-    memmove(sp->cards, sp->cards + 1, (--sp->length) * sizeof(int));
-    return c;
-}
-
-/* Insert card at the start of the sequence.
- */
-int ojs_deal_to_head(oj_sequence_t *sp, int card) {
-    assert(0 != sp);
-    assert(card > 0 && card <= 54);
-    assert(0x10ACE0FF == sp->_johnnymoss);
-
-    if (sp->length == sp->allocation) return 0;
-    memmove(sp->cards + 1, sp->cards, sp->length * sizeof(int));
-    *sp->cards = card;
-    return ++sp->length;
-}
-
-/* Find the given card in the sequence, remove and return it if
- * found, otherwise return 0.
- */
-int ojs_pick(oj_sequence_t *sp, int card) {
+int ojs_remove(oj_sequence_t *sp, int card) {
     int i;
-    assert(0 != sp);
-    assert(0x10ACE0FF == sp->_johnnymoss);
+    assert(0 != sp && 0x10ACE0FF == sp->_johnnymoss);
     assert(card > 0 && card <= 54);
 
     for (i = 0; i < sp->length; ++i) {
@@ -117,81 +115,21 @@ int ojs_pick(oj_sequence_t *sp, int card) {
     return 0;
 }
 
-/* Copy <count> cards from end of source sequence to the end of dest
- * sequence without removing them from source. Return the number of cards
- * actually moved.
+int ojs_index(oj_sequence_t *sp, int card) {
+    int i;
+    assert(0 != sp && 0x10ACE0FF == sp->_johnnymoss);
+    assert(card > 0 && card <= 54);
+
+    for (i = 0; i < sp->length; ++i) {
+        if (card == sp->cards[i]) return i;
+    }
+    return -1;
+}
+
+/* Many card game applications involve sorting small hands inside a
+ * loop, so we go to some effort here to optimize the hell out of those
+ * special cases.
  */
-int ojs_copy(oj_sequence_t *destp, oj_sequence_t *srcp, int count) {
-    assert(0 != srcp);
-    assert(0 != destp);
-    assert(0x10ACE0FF == srcp->_johnnymoss);
-    assert(0x10ACE0FF == destp->_johnnymoss);
-
-    if (count > srcp->length) count = srcp->length;
-    if (count > (destp->allocation - destp->length))
-        count = (destp->allocation - destp->length);
-
-    memmove( destp->cards + destp->length,
-        srcp->cards + (srcp->length - count),
-        count * sizeof(int) );
-    destp->length += count;
-    return count;
-}
-
-/* Move <count> cards from end of source sequence to the end of dest
- * sequence. Return the number of cards actually moved.
- */
-int ojs_move(oj_sequence_t *destp, oj_sequence_t *srcp, int count) {
-    int c = ojs_copy(destp, srcp, count);
-    srcp->length -= c;
-    return c;
-}
-
-/* Copy the whole <srcp> sequence to <destp>, which is overwritten.
- * Return the number of cards moved (which will be less than the
- * length of <srcp> if <destp> doesn't have enough room).
- */
-int ojs_copy_all(oj_sequence_t *destp, oj_sequence_t *srcp) {
-    int count = srcp->length;
-    assert(0 != srcp);
-    assert(0 != destp);
-    assert(0x10ACE0FF == srcp->_johnnymoss);
-    assert(0x10ACE0FF == destp->_johnnymoss);
-
-    if (count > destp->allocation) count = destp->allocation;
-    memmove(destp->cards, srcp->cards, count * sizeof(int));
-    return destp->length = count;
-}
-
-int ojs_truncate(oj_sequence_t *sp, int size) {
-    if (size < sp->length) sp->length = size;
-    return sp->length;
-}
-
-/* Fill a sequence with fresh cards based on deck type. Can be used to
- * fill multi-deck shoes as well.
- */
-int ojs_fill(oj_sequence_t *sp, int count, oj_deck_type_t dt) {
-    oj_deck_info_t *di = &oj_deck_info[dt];
-    int c, remaining;
-    assert(0 != sp);
-    assert(0x10ACE0FF == sp->_johnnymoss);
-
-    sp->length = 0;
-    remaining = count;
-    if (remaining > sp->allocation) remaining = sp->allocation;
-
-    do {
-        c = remaining;
-        if (c > di->size) c = di->size;
-        memmove(sp->cards + sp->length, di->cards, c * sizeof(int));
-
-        sp->length += c;
-        remaining -= c;
-    } while (remaining);
-
-    return sp->length;
-}
 
 #define SWAP(a,b) do{t=cp[a];cp[a]=cp[b];cp[b]=t;}while(0)
 #define CMP(a,b) (cp[a]>cp[b])
@@ -220,8 +158,7 @@ static void heapify(int *cp, int n, int start) {
 void ojs_sort(oj_sequence_t *sp) {
     int i, s, d, t;
     int n = sp->length, *cp = sp->cards;
-    assert(0 != sp);
-    assert(0x10ACE0FF == sp->_johnnymoss);
+    assert(0 != sp && 0x10ACE0FF == sp->_johnnymoss);
 
     switch (n) {
     case 0:
@@ -242,7 +179,7 @@ void ojs_sort(oj_sequence_t *sp) {
         return;
     default:
         break;
-        /* Fall back to in-place heapsort */
+        /* Fall back to normal in-place heapsort */
     }
     for (i = (n - 1) >> 1; i >= 0; --i) heapify(cp, n - 1, i);
     for (i = n - 1; i > 0; --i) {
@@ -251,22 +188,9 @@ void ojs_sort(oj_sequence_t *sp) {
     }
 }
 
-/* Standard Fisher-Yates shuffle.
- */
-void ojs_shuffle(oj_sequence_t *sp) {
-    int i, j, t, *cp = sp->cards;
-    assert(0 != sp);
-
-    if (0 == sp->length) return;
-    for (i = sp->length; i > 1; --i) {
-        j = ojr_rand(i);
-        SWAP(i - 1, j);
-    }
-}
-
 void ojs_reverse(oj_sequence_t *sp) {
     int i, t, *cp = sp->cards;
-    assert(0 != sp);
+    assert(0 != sp && 0x10ACE0FF == sp->_johnnymoss);
 
     for (i = 0; i < (sp->length >> 1); ++i) {
         SWAP(i, (sp->length - 1) - i);
@@ -281,4 +205,40 @@ int ojs_equal(oj_sequence_t *sp1, oj_sequence_t *sp2) {
         if (sp1->cards[i] != sp2->cards[i]) return 0;
     }
     return 1;
+}
+
+/* Fill a sequence with fresh cards based on deck type. Can be used
+ * to fill multi-deck shoes as well.
+ */
+int ojs_fill(oj_sequence_t *sp, int count, oj_deck_type_t dt) {
+    oj_deck_info_t *di = &oj_deck_info[dt];
+    int c, remaining;
+    assert(0 != sp && 0x10ACE0FF == sp->_johnnymoss);
+
+    sp->length = 0;
+    remaining = count;
+    if (remaining > sp->allocation) remaining = sp->allocation;
+
+    do {
+        c = remaining;
+        if (c > di->size) c = di->size;
+        memmove(sp->cards + sp->length, di->cards, c * sizeof(int));
+
+        sp->length += c;
+        remaining -= c;
+    } while (remaining);
+
+    return sp->length;
+}
+
+/* Standard Fisher-Yates shuffle.
+ */
+void ojs_shuffle(oj_sequence_t *sp) {
+    int i, j, t, *cp = sp->cards;
+    assert(0 != sp && 0x10ACE0FF == sp->_johnnymoss);
+
+    for (i = sp->length; i > 1; --i) {
+        j = ojr_rand(i);
+        SWAP(i - 1, j);
+    }
 }

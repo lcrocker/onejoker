@@ -165,49 +165,50 @@ long long ojc_binomial(int n, int k) {
  * to receive the combinations, <k> for the size of the combinations,
  * and a <k>-sized integer buffer for internal use.
  */
-long long ojc_iter_new(oj_iterator_t *iter, oj_sequence_t *deck,
-    oj_sequence_t *hand, int k, int *buf) {
+long long ojc_iter_new(
+    oj_iterator_t *iter,    /* Iterator to initialize */
+    oj_sequence_t *deck,    /* Universe set of cards */
+    oj_sequence_t *hand,    /* Hand to put results into */
+    int k,                  /* Cards per hand */
+    int *hbuf,              /* Scratch array of <k> integers */
+    long long count)        /* Monte carlo limit */
+{
     int i;
 
-    assert(0 != iter && 0 != deck && 0 != hand && 0 != buf && 0 != k);
+    assert(0 != iter && 0 != deck && 0 != hand && 0 != hbuf && 0 != k);
     assert(hand->allocation >= k);
     assert(deck->length >= k);
 
     iter->_johnnymoss = 0x10ACE0FF;
-    ojs_sort(deck);
-    iter->_sorted = 1;
-
-    for (i = 0; i < k; ++i) {
-        buf[i] = i;
-        hand->cards[i] = deck->cards[i];
-    }
-    hand->length = k;
-
-    iter->k = k;
-    iter->a = buf;
-    iter->rank = 0LL;
-    iter->remaining = ojc_binomial(deck->length, k);
+    iter->k = hand->length = k;
+    iter->a = hbuf;
     iter->deck = deck;
     iter->hand = hand;
+    iter->total = ojc_binomial(deck->length, k);
 
-    return iter->remaining;
+    if (count) {
+        iter->remaining = count + 1;
+        ojc_iter_next_random(iter);
+    } else {
+        iter->remaining = iter->total;
+        for (i = 0; i < k; ++i) {
+            hbuf[i] = i;
+            hand->cards[i] = deck->cards[hbuf[i]];
+        }
+    }
+    return iter->total;
 }
 
 /* Assuming everything is set up properly with iter_new, advance
- * hand to the next in colex order. Return 1 if successful.
+ * hand to the next in colex order. Return 1 if successful. In C, we
+ * do the loop with <new>, do { <stuff> } while (<next>); In Python we
+ * call it from a generator.
  */
 int ojc_iter_next(oj_iterator_t *iter) {
     int i, j, *a = iter->a, k = iter->k, n = iter->deck->length,
         *cp = iter->hand->cards;
-    assert(0 != iter && 0x10ACE0FF == iter->_johnnymoss && iter->_sorted);
+    assert(0 != iter && 0x10ACE0FF == iter->_johnnymoss);
 
-    /* First time through, just return the one we set up */
-    if (0 == iter->rank) {
-        ++iter->rank;
-        --iter->remaining;
-        return 1;
-    }
-    /* Otherwise, calculate the next one */
     for (i = 0; i < k; ++i) {
         if ( ((i < k - 1) && (a[i] < (a[i + 1] - 1))) ||
              ((i == k - 1) && (a[i] < n - 1)) ) {
@@ -217,7 +218,6 @@ int ojc_iter_next(oj_iterator_t *iter) {
             for (i = 0; i < k; ++i) {
                 cp[i] = iter->deck->cards[a[i]];
             }
-            ++iter->rank;
             --iter->remaining;
             return 1;
         }
@@ -227,15 +227,16 @@ int ojc_iter_next(oj_iterator_t *iter) {
 
 #define SWAP(a,b) do{t=cp[a];cp[a]=cp[b];cp[b]=t;}while(0)
 
-void ojc_iter_next_random(oj_iterator_t *iter) {
+int ojc_iter_next_random(oj_iterator_t *iter) {
     int i, j, t, k = iter->k, n = iter->deck->length,
-        *cp = iter->hand->cards;
+        *cp = iter->deck->cards;
     assert(0 != iter && 0x10ACE0FF == iter->_johnnymoss);
 
-    iter->_sorted = 0;
     for (i = n; i > (n - k); --i) {
         j = ojr_rand(i);
         SWAP(i - 1, j);
     }
     memmove(iter->hand->cards, &cp[n - k], k * sizeof(int));
+    if (0 == --iter->remaining) return 0;
+    return 1;
 }

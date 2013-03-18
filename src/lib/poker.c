@@ -22,14 +22,43 @@ static unsigned _ps_find(unsigned u) {
 }
 
 int ojp_eval5(oj_sequence_t *sp) {
-    int s, q, *cp = sp->cards;
-    assert(5 == sp->length);
+    int s, q, c0, c1, c2, c3, c4;
+    assert(0 != sp && 5 == sp->length);
 
-    q = (cp[0] | cp[1] | cp[2] | cp[3] | cp[4]) >> 16;
-    if (cp[0] & cp[1] & cp[2] & cp[3] & cp[4] & 0xf000) return _ck_flushes[q];
+    c0 = _ck_cardvals[sp->cards[0]];
+    c1 = _ck_cardvals[sp->cards[1]];
+    c2 = _ck_cardvals[sp->cards[2]];
+    c3 = _ck_cardvals[sp->cards[3]];
+    c4 = _ck_cardvals[sp->cards[4]];
+
+    q = (c0 | c1 | c2 | c3 | c4) >> 16;
+    if (c0 & c1 & c2 & c3 & c4 & 0xf000) return _ck_flushes[q];
     if ((s = _ck_unique5[q])) return s;
-    return _ps_hash_values[_ps_find((cp[0] & 0xff) * (cp[1] & 0xff) *
-        (cp[2] & 0xff) * (cp[3] & 0xff) * (cp[4] & 0xff))];
+    return _ps_hash_values[_ps_find((c0 & 0xff) * (c1 & 0xff) *
+        (c2 & 0xff) * (c3 & 0xff) * (c4 & 0xff))];
+}
+
+static oj_iterator_t piter;
+static oj_sequence_t phand;
+static int hbuf[5], ibuf[5];
+
+int ojp_eval(oj_sequence_t *sp) {
+    int v, best;
+    long long c;
+    assert(0 != sp && sp->length >= 5);
+
+    if (5 == sp->length) return ojp_eval5(sp);
+
+    ojs_new(&phand, 5, hbuf);
+    c = ojc_iter_new(&piter, sp, &phand, 5, ibuf, 0LL);
+
+    best = 9999;
+    do {
+        v = ojp_eval5(piter.hand);
+        if (v < best) best = v;
+    } while(ojc_iter_next(&piter));
+
+    return best;
 }
 
 static char *handgroup_names[] = {

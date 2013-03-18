@@ -45,10 +45,9 @@ typedef struct _oj_sequence {
  */
 typedef struct _oj_iterator {
     int _johnnymoss; /* Initialization check */
-    int _sorted;
     int k;
     int *a;
-    long long rank, remaining;
+    long long total, remaining;
     oj_sequence_t *deck;
     oj_sequence_t *hand;
 } oj_iterator_t;
@@ -80,32 +79,26 @@ extern int ojr_rand(int limit);
 /* Sequences */
 
 extern int ojs_new(oj_sequence_t *sp, int size, int *buf);
-extern void ojs_clear(oj_sequence_t *sp);
 extern int ojs_append(oj_sequence_t *sp, int card);
-extern int ojs_extend(oj_sequence_t *destp, oj_sequence_t *srcp);
+extern int ojs_extend(oj_sequence_t *destp, oj_sequence_t *srcp, int count);
 extern int ojs_delete(oj_sequence_t *sp, int index);
-
-extern int ojs_deal_from(oj_sequence_t *sp);
-extern int ojs_deal_to(oj_sequence_t *sp, int card);
-extern int ojs_deal_from_head(oj_sequence_t *sp);
-extern int ojs_deal_to_head(oj_sequence_t *sp, int card);
-extern int ojs_pick(oj_sequence_t *sp, int card);
-extern int ojs_move(oj_sequence_t *destp, oj_sequence_t *srcp, int count);
-extern int ojs_copy(oj_sequence_t *destp, oj_sequence_t *srcp, int count);
-extern int ojs_copy_all(oj_sequence_t *destp, oj_sequence_t *srcp);
-extern int ojs_fill(oj_sequence_t *sp, int count, oj_deck_type_t dt);
+extern int ojs_insert(oj_sequence_t *sp, int index, int card);
+extern int ojs_pop(oj_sequence_t *sp);
+extern int ojs_remove(oj_sequence_t *sp, int card);
+extern int ojs_index(oj_sequence_t *sp, int card);
 extern void ojs_sort(oj_sequence_t *sp);
-extern void ojs_shuffle(oj_sequence_t *sp);
+extern void ojs_reverse(oj_sequence_t *sp);
 extern int ojs_equal(oj_sequence_t *sp1, oj_sequence_t *sp2);
-extern int ojs_truncate(oj_sequence_t *sp, int size);
+extern int ojs_fill(oj_sequence_t *sp, int count, oj_deck_type_t dt);
+extern void ojs_shuffle(oj_sequence_t *sp);
 
 /* Combinatorics */
 
 long long ojc_binomial(int n, int k);
 long long ojc_iter_new(oj_iterator_t *iter, oj_sequence_t *deck,
-    oj_sequence_t *hand, int k, int *buf);
+    oj_sequence_t *hand, int k, int *hbuf, long long count);
 int ojc_iter_next(oj_iterator_t *iter);
-void ojc_iter_next_random(oj_iterator_t *iter);
+int ojc_iter_next_random(oj_iterator_t *iter);
 
 /* Poker functions */
 

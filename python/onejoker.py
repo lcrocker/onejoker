@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 #
 # Python language binding for OneJoker library.
+# Uses ctypes to access shared lib.
 #
 
-import sys
+import sys, itertools
+import cardnames as cn
 from ctypes import *
 ojlib = CDLL("libonejoker.so")
 
@@ -32,8 +34,10 @@ def binomial(n, k):
         b //= i
     return b
 
+
 class Iterator(Structure):
     pass
+
 
 class Sequence(Structure):
     _fields_ = [
@@ -43,57 +47,52 @@ class Sequence(Structure):
         ("cards", POINTER(c_int))
     ]
 
-    def __init__(self, arg):
-        if isinstance(arg, str):
-            cards = cast(create_string_buffer(1024), POINTER(c_int))
-            allocation = ojlib.oj_cards_from_text(256, cards, arg.encode())
-            length = allocation
-        else:
-            allocation = arg
-            length = 0
-
+    def __init__(self, allocation, init = None):
         buf = cast(create_string_buffer(4 * allocation), POINTER(c_int))
         ojlib.ojs_new(byref(self), allocation, buf)
-        if length > 0:
-            memmove(buf, cards, 4 * length)
-            self.length = length
-
-    def __str__(self):
-        if 0 == self.length:
-            return "()"
-
-        text = create_string_buffer(1024)
-        o = ojlib.oj_text_from_cards(self.length, self.cards,
-            1024, text, " ".encode())
-        return "({0})".format(text.value.decode())
+        if init:
+            self.append(init)
 
     def __len__(self):
         return self.length
 
+    def __iter__(self):
+        for i in range(self.length):
+            yield self.cards[i]
+
+    def __str__(self):
+        t = " ".join("{0:2d}/{1}".format(self.cards[i],
+            cn.cardname(self.cards[i])) for i in range(self.length))
+        return "({0})".format(t)
+
     def __eq__(self, other):
-        return ojlib.ojs_equal(byref(self), byref(other))
+        if isinstance(other, Sequence):
+            return ojlib.ojs_equal(byref(self), byref(other))
+        else:
+            if isinstance(other, str):
+                other = cn.cardnums(other)
+            return all( a == b for a, b in itertools.zip_longest(other,
+                (self.cards[i] for i in range(self.length)), fillvalue = 0) )
 
     def __getitem__(self, index):
+        if index >= self.length:
+            raise IndexError
         return self.cards[index]
 
     def __setitem__(self, index, val):
         if index >= self.length:
             raise IndexError
         if isinstance(val, str):
-            val = ojlib.oj_card_from_text(val.encode())
+            val = cardnum(val)
         self.cards[index] = val
 
     def __delitem__(self, index):
-        ojlib.ojs_delete(byref(self), index)
+        v = ojlib.ojs_delete(byref(self), index)
 
-    def __contains__(self, card):
-        if isinstance(card, str):
-            card = ojlib.oj_card_from_text(card.encode())
-        return (-1 != ojlib.ojs_index(byref(self), card))
-
-    def __iter__(self):
-        for i in range(self.length):
-            yield self.cards[i]
+    def __contains__(self, val):
+        if isinstance(val, str):
+            val = cn.cardnum(val)
+        return (-1 != ojlib.ojs_index(byref(self), val))
 
     def clear(self):
         self.length = 0
@@ -104,27 +103,26 @@ class Sequence(Structure):
 
     def append(self, arg):
         if isinstance(arg, str):
-            cards = cast(create_string_buffer(1024), POINTER(c_int))
-            count = ojlib.oj_cards_from_text(256, cards, arg.encode())
-            for i in range(count):
-                ojlib.ojs_append(byref(self), cards[i])
+            for c in cn.cardnums(arg):
+                ojlib.ojs_append(byref(self), c)
         elif isinstance(arg, Sequence):
             for i in range(arg.length):
                 ojlib.ojs_append(byref(self), arg.cards[i])
         else:
-            ojlib.ojs_append(byref(self), card)
+            ojlib.ojs_append(byref(self), arg)
 
-    def insert(self, index, card):
-        if isinstance(card, str):
-            card = ojlib.oj_card_from_text(card.encode())
-        ojlib.ojs_insert(byref(self), index, card)
+    def insert(self, index, arg):
+        if isinstance(arg, str):
+            for c in cn.cardnums(arg):
+                ojlib.ojs_insert(byref(self), index, c)
+                index += 1
+        else:
+            ojlib.ojs_insert(byref(self), index, arg)
 
     def remove(self, arg):
         if isinstance(arg, str):
-            cards = cast(create_string_buffer(1024), POINTER(c_int))
-            count = ojlib.oj_cards_from_text(256, cards, arg.encode())
-            for i in range(count):
-                v = ojlib.ojs_remove(byref(self), cards[i])
+            for c in cn.cardnums(arg):
+                v = ojlib.ojs_remove(byref(self), c)
             return v
         elif isinstance(arg, Sequence):
             for i in range(arg.length):
@@ -133,22 +131,31 @@ class Sequence(Structure):
         else:
             return ojlib.ojs_remove(byref(self), arg)
 
-    # Slight deviation from the Python model: doesn't take index
     def pop(self):
         return ojlib.ojs_pop(byref(self))
 
     def index(self, card):
         if isinstance(card, str):
-            card = ojlib.oj_card_from_text(card.encode())
+            card = cn.cardnum(card)
         return ojlib.ojs_index(byref(self), card)
 
-    def fill(self, count, type):
+    def fill(self, count, type = None):
+        if type is None:
+            d = { 32: dt_stripped32, 40: dt_stripped40,
+                41: dt_stripped40j, 53: dt_1joker, 54: dt_2jokers }
+            if count in d:
+                type = d[count]
+            else:
+                type = dt_standard
         ojlib.ojs_fill(byref(self), count, type)
 
     def sort(self):
         ojlib.ojs_sort(byref(self))
 
     def reverse(self):
+        ojlib.ojs_sort(byref(self))
+
+    def shuffle(self):
         ojlib.ojs_sort(byref(self))
 
     def _combination_generator(self):

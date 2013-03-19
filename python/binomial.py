@@ -6,7 +6,7 @@
 # in the OneJoker library.
 #
 
-import sys
+import sys, tablebuilder
 
 class App(object):
     def __init__(self, max):
@@ -25,32 +25,20 @@ class App(object):
                     b = self.table[n-1][k] + self.table[n-1][k-1]
                 self.table[n][k] = b
 
-    def output(self, val):
-        if val > 2**63: val = -1
-        text = " {0}LL,".format(val)
-
-        if self.column + len(text) > 76:
-            print("\n   ", end = "")
-            self.column = 3
-        print(text, end = "")
-        self.column += len(text)
-
-    def dump(self):
-        count = 0
-        print("long long bctable[] = {", end="");
-
-        self.column = 999
+    def generate(self):
         for n in range(self.max + 1):
             for k in range(self.max + 1):
                 if n < 4 or k < 2 or k > n-k:
                     continue
-                self.output(self.table[n][k])
-                count += 1
-        print("\n}}; /* {0} Entries */".format(count));
+                yield self.table[n][k]
+
+    def output(self):
+        b = tablebuilder.TableBuilder("bctable", "long long", "{0}LL")
+        b.dump1d(self.generate())
 
     def run(self):
         self.build()
-        self.dump()
+        self.output()
         return 0
 
 def main(args):

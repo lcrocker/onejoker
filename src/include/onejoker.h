@@ -1,4 +1,5 @@
-/* Primary declarations for the OneJoker library.
+/* Declarations for the OneJoker library.
+ * <https://github.com/lcrocker/OneJoker>
  */
 
 #ifndef _ONEJOKER_H

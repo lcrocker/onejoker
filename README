@@ -1,12 +1,9 @@
 2013-02-27
 Lee Daniel Crocker <lee@piclab.com>
-https://github.com/lcrocker/OneJoker.git
+<https://github.com/lcrocker/OneJoker>
 
-OneJoker is a general-purpose card game and simulation library for
-Python created by Lee Daniel Crocker in 2013. To the extent possible
-under law, I waive all copyright and related or neighboring rights to
-this work. Where I have included the work of others, this is noted
-and such work may be licensed under different terms.
+OneJoker is a general-purpose card game and simulation library for C and
+Python created by Lee Daniel Crocker in 2013.
 
 OneJoker consists of a shared library written in pure C, and a Python
 module that calls into the shared library. It is designed primarily
@@ -16,10 +13,11 @@ the expense of some clarity. This should rarely be necessary, though,
 since the Python binding is quite adequate for doing billions of hands
 in reasonable time.
 
-It is written for Linux. I know nothing about Windows or OS/X how easy
-it might be to port to those. I stick to pretty vanilla C, so it
-shouldn't be difficult. I also assume Python 3. Back-porting shouldn't
-be too tricky if necessary.
+I write for Linux. I know nothing about Windows or OS/X how easy it might
+be to port to those. I stick to pretty vanilla C, so it shouldn't be
+difficult. I also assume Python 3. Back-porting shouldn't be too tricky if
+necessary. It should also be pretty easy to write C++ / Objective-C / C#
+bindings, but that will be someone else's project.
 
 I use cmake <http://www.cmake.org> to build the library. This should
 make porting easier. The way I build it on Linux is to change into the
@@ -27,29 +25,38 @@ top-level directory of the git repository, then type
 
   cmake -g 'Unix Makefiles' src
 
-to build the Makefiles, then "make" to build everything.
+to build the Makefiles, then
+
+  make
+
+to build everything.
 
 ========
 Overview
 ========
 
-The two design choices to understand are card numbers and sequences. A
-card is represented by an integer from 1 to 54. "0" is usually used for
-error returns and such. 1 is the deuce of clubs, followed by the deuce
-of diamonds, hearts, and spades; 5 is the trey of clubs, 6 the trey of
-diamonds, etc., up to 52, the Ace of spades. 53 is the joker, and 54 is
-the "colored" joker for games that distinguish between the two.
+The first two design choices to understand are card numbers and sequences.
+A card is represented by an integer from 1 to 54. 1 is the deuce of clubs,
+followed by the deuce of diamonds, hearts, and spades; 5 is the trey of
+clubs, 6 the trey of diamonds, etc., up to 52, the Ace of spades. 53 is the
+joker, and 54 is the "colored" joker for games that distinguish between the
+two. The number 0 is usually used for error returns and such.
 
 When cards are represented as text for input and output, each is two
-characters, for rank and suit, e.g., "2c", "5d", "Qh", "As". Tens use
-the letter T, so the 10 of diamonds is "Td". The joker is "JK" and the
-colored joker is "J2". On input, the library is a bit more flexible,
-ignoring case and whitespace and allowing "10".
+characters, for rank and suit, e.g., "2c", "5d", "Qh", "As". Tens use the
+letter T, so the 10 of diamonds is "Td". The joker is "JK" and the colored
+joker is "J2". On input, the library is a bit more flexible, ignoring case
+and whitespace and allowing "10" and "Joker". The text handling stuff is not
+in the C library, but is in pure Python, which is much better suited to it.
+If you're writing for speed, you probably don't need human-readable text
+anyway except on final output.
 
 The second important structure in this library is called a "sequence"
-which is simply an ordered list of cards. This may represent a whole
-deck or stub (or even a multi-deck shoe), a single hand, a community
-board, or anything else needed for a particular game.
+which is simply an ordered list of cards. This may represent a whole deck or
+stub (or even a multi-deck shoe), a single hand, a community board, or
+anything else needed for a particular game. They are implemented as arrays
+allocated at creation time, although there are many list-like functions
+available for them.
 
 ========
 Contents
@@ -62,3 +69,19 @@ src/            C source for the onejoker library and C-based
     include/    C Header files
     lib/        Library code
     tests/      C-based unit tests for library
+
+======================
+Credits and Copyrights
+======================
+
+<http://creativecommons.org/publicdomain/zero/1.0/>
+To the extent possible under law, Lee Daniel Crocker has waived all copyright
+and related or neighboring rights to this work.
+
+The OneJoker library contains some code by others, and this may be licensed
+under different terms. I have chosen the most permissively licensed code
+wherever possible.
+
+<www.cs.ucl.ac.uk/staff/d.jones/GoodPracticeRNG.pdf>
+The JKISS pseudo-random number generation algorithm by David Jones of the UCL
+Bioinformatics Group is also in the public domain.

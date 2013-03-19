@@ -48,8 +48,8 @@ class Sequence(Structure):
     ]
 
     def __init__(self, allocation, init = None):
-        buf = cast(create_string_buffer(4 * allocation), POINTER(c_int))
-        ojlib.ojs_new(byref(self), allocation, buf)
+        self.buf = cast(create_string_buffer(4 * allocation), POINTER(c_int))
+        ojlib.ojs_new(byref(self), allocation, self.buf)
         if init:
             self.append(init)
 
@@ -61,9 +61,8 @@ class Sequence(Structure):
             yield self.cards[i]
 
     def __str__(self):
-        t = " ".join("{0:2d}/{1}".format(self.cards[i],
-            cn.cardname(self.cards[i])) for i in range(self.length))
-        return "({0})".format(t)
+        return "({0})".format(cn.cardnames(
+            (self.cards[i] for i in range(self.length)), " "))
 
     def __eq__(self, other):
         if isinstance(other, Sequence):
@@ -105,9 +104,9 @@ class Sequence(Structure):
         if isinstance(arg, str):
             for c in cn.cardnums(arg):
                 ojlib.ojs_append(byref(self), c)
-        elif isinstance(arg, Sequence):
-            for i in range(arg.length):
-                ojlib.ojs_append(byref(self), arg.cards[i])
+        elif hasattr(arg, "__iter__"):
+            for v in arg:
+                ojlib.ojs_append(byref(self), v)
         else:
             ojlib.ojs_append(byref(self), arg)
 
@@ -115,6 +114,10 @@ class Sequence(Structure):
         if isinstance(arg, str):
             for c in cn.cardnums(arg):
                 ojlib.ojs_insert(byref(self), index, c)
+                index += 1
+        elif hasattr(arg, "__iter__"):
+            for v in arg:
+                ojlib.ojs_insert(byref(self), index, v)
                 index += 1
         else:
             ojlib.ojs_insert(byref(self), index, arg)
@@ -124,9 +127,9 @@ class Sequence(Structure):
             for c in cn.cardnums(arg):
                 v = ojlib.ojs_remove(byref(self), c)
             return v
-        elif isinstance(arg, Sequence):
-            for i in range(arg.length):
-                v = ojlib.ojs_remove(byref(self), arg.cards[i])
+        elif hasattr(arg, "__iter__"):
+            for v in arg:
+                v = ojlib.ojs_remove(byref(self), v)
             return v
         else:
             return ojlib.ojs_remove(byref(self), arg)
@@ -139,7 +142,7 @@ class Sequence(Structure):
             card = cn.cardnum(card)
         return ojlib.ojs_index(byref(self), card)
 
-    def fill(self, count, type = None):
+    def fill(self, count = 52, type = None):
         if type is None:
             d = { 32: dt_stripped32, 40: dt_stripped40,
                 41: dt_stripped40j, 53: dt_1joker, 54: dt_2jokers }
@@ -194,8 +197,9 @@ class Iterator(Structure):
 
     def __init__(self, deck, k, count):
         self.h = Sequence(k)
-        buf = cast(create_string_buffer(4 * k), POINTER(c_int))
-        _ojc_iter_new(byref(self), byref(deck), byref(self.h), k, buf, count)
+        self.buf = cast(create_string_buffer(4 * k), POINTER(c_int))
+        _ojc_iter_new(byref(self), byref(deck), byref(self.h), k,
+            self.buf, count)
 
 def poker_eval(hand):
     return ojlib.ojp_eval(byref(hand))

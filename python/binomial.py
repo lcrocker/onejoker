@@ -6,7 +6,7 @@
 # in the OneJoker library.
 #
 
-import sys, tablebuilder
+import sys, lookuptables
 
 class App(object):
     def __init__(self, max):
@@ -33,7 +33,7 @@ class App(object):
                 yield self.table[n][k]
 
     def output(self):
-        b = tablebuilder.TableBuilder("bctable", "long long", "{0}LL")
+        b = lookuptables.Printer("bctable", "long long", "{0}LL")
         b.dump1d(self.generate())
 
     def run(self):

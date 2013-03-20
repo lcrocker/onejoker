@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
+# OneJoker library <https://github.com/lcrocker/OneJoker>
 #
-# binomial.py
-#
-# Used to build the lookup table for the fast binomial coefficient function
-# in the OneJoker library.
+# Used to build lookup table for the fast binomial coefficient function.
 #
 
-import sys, lookuptables
+import sys
+if sys.version < "3.0":
+    print("Python 3 required.")
+    sys.exit(1)
+
+sys.path.append(".")
+import lookuptables
 
 class App(object):
     def __init__(self, max):

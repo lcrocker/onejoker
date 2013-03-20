@@ -1,4 +1,5 @@
-/* Fast 5-card evaluator by "Cactus" Kevin Suffecool and Paul Senzee.
+/* OneJoker library <https://github.com/lcrocker/OneJoker/>
+ * 5-card evaluator by "Cactus" Kevin Suffecool and Paul Senzee.
  */
 
 #include <stdlib.h>

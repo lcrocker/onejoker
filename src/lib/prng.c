@@ -1,5 +1,6 @@
-/* Pseudo-random number generator for OneJoker library.  Based on the public
- * domain JKISS by David Jones
+/* OneJoker library <https://github.com/lcrocker/OneJoker/>
+ * Pseudo-random number generator based on the public domain JKISS by
+ * David Jones of the UCL Bioinformatics Group.
  * <http://www.cs.ucl.ac.uk/staff/d.jones/GoodPracticeRNG.pdf>.
  */
 
@@ -44,7 +45,7 @@ int ojr_seed(int seed) {
         _seeded = 1;
         return 0;
     }
-    /* Fetch all 128 bits of seed from system randomness.
+    /* Fetch seed from system randomness.
      */
     fn = open("/dev/urandom", O_RDONLY);
     do {
@@ -66,8 +67,8 @@ int ojr_seed(int seed) {
     /* Fall back to using time()
      */
     time(&t);
-    x ^= (0x5A5A5A5A & t);
-    z ^= (0xA5A5A5A5 & t);
+    x ^= (0xA5A5A5A5 & t);
+    z ^= (0x5A5A5A5A & t);
 
     _seeded = 1;
     return 0;

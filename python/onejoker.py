@@ -1,13 +1,20 @@
 #!/usr/bin/env python3
+# OneJoker library <https://github.com/lcrocker/OneJoker>
 #
-# Python language binding for OneJoker library.
-# Uses ctypes to access shared lib.
+# Python language binding for OneJoker library. Uses ctypes to access the
+# shared library.
 #
 
-import sys, itertools
-import cardnames as cn
+import sys
+if sys.version < "3.0":
+    print("Python 3 required.")
+    sys.exit(1)
+
+import itertools
 from ctypes import *
 ojlib = CDLL("libonejoker.so")
+
+import cardnames as cn
 
 dt_standard = 0
 dt_1joker = 1

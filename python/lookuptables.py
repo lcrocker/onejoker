@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
+# OneJoker library <https://github.com/lcrocker/OneJoker>
 #
-# lookuptables.py
+# Utility to help build lookup tables.
 #
-# Utility to help build lookup tables for C code.
-#
+
+import sys
+if sys.version < "3.0":
+    print("Python 3 required.")
+    sys.exit(1)
 
 class Printer(object):
     def __init__(self, name, type = "int", format = "{0}", width = 78):

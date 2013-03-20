@@ -1,15 +1,21 @@
 #!/usr/bin/env python3
+# OneJoker library <https://github.com/lcrocker/OneJoker>
 #
-# Python script that calculates the lookup tables for the poker evaluator.
-# Of course, it requres an existing evalutator to calculate the table.
-# I initially used the Suffecool/Senzee 5-card evaluator which is very fast
-# and compact, but this code is deadly slow anyway. That's my fault, not
-# theirs. It's here for historical interest.
+# Build the lookup tables for the poker evaluator. Of course, this requres an
+# existing evalutator to calculate the table. I used the Suffecool/Senzee
+# 5-card evaluator which is very fast and compact, but not included here.
 #
 
 import sys
+if sys.version < "3.0":
+    print("Python 3 required.")
+    sys.exit(1)
+
 from array import array
+
 import onejoker as oj, cardnames as cn, lookuptables
+sys.path.append(".")
+import lookuptables
 
 table5 = array('h', (-1 for i in range(oj.binomial(52, 5))))
 table4 = array('h', (-1 for i in range(52 * 4680 + 1)))

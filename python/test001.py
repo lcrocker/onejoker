@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-#
-# Sample use of the OneJoker library.
+# OneJoker library <https://github.com/lcrocker/OneJoker>
 #
 
 import sys
+if sys.version < "3.0":
+    print("Python 3 required.")
+    sys.exit(1)
+
 sys.path.append(".")
-import onejoker as oj
-import cardnames as cn
+import onejoker as oj, cardnames as cn
 
 class App(object):
     def __init__(self):

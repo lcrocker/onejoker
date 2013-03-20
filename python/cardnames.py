@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
+# OneJoker library <https://github.com/lcrocker/OneJoker>
 #
-# Python language binding for OneJoker library.
-# Uses ctypes to access shared lib.
+# Functions for text I/O of cards. Uses regular expression module.
 #
+
+import sys
+if sys.version < "3.0":
+    print("Python 3 required.")
+    sys.exit(1)
 
 import re
-
 _cnamepattern = re.compile("""
     \\s*
     (

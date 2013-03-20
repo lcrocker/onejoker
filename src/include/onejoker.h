@@ -1,5 +1,4 @@
-/* Declarations for the OneJoker library.
- * <https://github.com/lcrocker/OneJoker>
+/* OneJoker library <https://github.com/lcrocker/OneJoker>
  */
 
 #ifndef _ONEJOKER_H
@@ -22,14 +21,8 @@ typedef struct _oj_deck_info {
     int *cards;
 } oj_deck_info_t;
 
+/* Defined in decktypes.c */
 extern oj_deck_info_t oj_deck_info[];
-
-/* Styles for rendering cards as text.
- */
-typedef enum _oj_card_style {
-    oj_cs_ascii2, oj_cs_ascii3, oj_cs_unicode2, oj_cs_unicode3,
-    oj_cs_fulltext, oj_cs_html, oj_cs_htmlcolor,
-} oj_card_style_t;
 
 /* This is the sequence type used by the client. Mostly just a
  * typical array-like thing. Client is responsible for allocating
@@ -51,24 +44,21 @@ typedef struct _oj_iterator {
     long long total, remaining;
     oj_sequence_t *deck;
     oj_sequence_t *hand;
+    int deck_invert[55];
 } oj_iterator_t;
 
-/* Blackjack game rules.
+/* Information needed to display value of poker hand.
  */
-typedef struct _oj_blackjack_rules {
-    int soft17;
-} oj_blackjack_rules_t;
+typedef struct _oj_poker_hand_info {
+    int val, group;
+    char *group_name;
+    int nranks;
+    int ranks[5];
+} oj_poker_hand_info_t;
 
 /* General library functions */
 
 extern int oj_init_library(int seed);
-
-/* Card names */
-
-extern char *oj_text_from_card(int card);
-extern int oj_card_from_text(char *text);
-extern int oj_text_from_cards(int n, int *ip, int tsize, char *text, char *sep);
-extern int oj_cards_from_text(int max, int *cp, char *text);
 
 /* PRNG functions */
 
@@ -95,20 +85,19 @@ extern void ojs_shuffle(oj_sequence_t *sp);
 
 /* Combinatorics */
 
-long long ojc_binomial(int n, int k);
-long long ojc_iter_new(oj_iterator_t *iter, oj_sequence_t *deck,
+extern long long ojc_binomial(int n, int k);
+extern long long ojc_iter_new(oj_iterator_t *iter, oj_sequence_t *deck,
     oj_sequence_t *hand, int k, int *hbuf, long long count);
-int ojc_iter_next(oj_iterator_t *iter);
-int ojc_iter_next_random(oj_iterator_t *iter);
+extern int ojc_iter_next(oj_iterator_t *iter);
+extern int ojc_iter_next_random(oj_iterator_t *iter);
+extern long long ojc_colex_rank(oj_sequence_t *hand, oj_iterator_t *iter);
+extern int ojc_colex_hand_at(oj_sequence_t *hand, oj_iterator_t *iter, long long rank);
 
 /* Poker functions */
 
 extern int ojp_eval5(oj_sequence_t *sp);
-extern int ojp_handgroup(int val);
-extern char *ojp_handname(int cat);
+extern int ojp_hand_info(oj_poker_hand_info_t *ip, int val);
 
 /* Blackjack functions */
-
-/* extern int ojb_val(oj_sequence_t *sp); */
 
 #endif /* _ONEJOKER_H */

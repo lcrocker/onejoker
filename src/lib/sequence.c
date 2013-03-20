@@ -1,4 +1,6 @@
-/* Dealing with card sequences.
+/* OneJoker library <http://github.com/lcrocker/OneJoker/>
+ * Dealing with card sequences. Generally modelled after the Python list
+ * methods of the same name, but with concessions to speed.
  */
 
 #include <stdlib.h>
@@ -8,7 +10,7 @@
 
 #include "onejoker.h"
 
-/* Initialize an empty sequence object from with the given buffer.
+/* Initialize an empty sequence object with the given buffer.
  */
 int ojs_new(oj_sequence_t *sp, int size, int *buf) {
     assert(0 != sp && 0 != size && 0 != buf);
@@ -19,15 +21,6 @@ int ojs_new(oj_sequence_t *sp, int size, int *buf) {
     sp->length = 0;
     return size;
 }
-
-/* Functions that manipulate the list-like structure of the card
- * sequence, generally modelled after the Python list methods of the
- * same name. The major difference is that we never extend the
- * allocation of a sequence--if it was created with space for 5 cards,
- * it will never have more than 5 cards and adding more will fail.
- *
- * TODO: Negative indices and slices.
- */
 
 inline void ojs_clear(oj_sequence_t *sp) {
     sp->length = 0;
@@ -79,6 +72,13 @@ int ojs_insert(oj_sequence_t *sp, int index, int card) {
  * take an index, but that functionality is done with delete(), which
  * returns the value deleted.
  */
+int ojs_pop(oj_sequence_t *sp) {
+    assert(0 != sp && 0x10ACE0FF == sp->_johnnymoss);
+
+    if (0 == sp->length) return 0;
+    return sp->cards[--sp->length];
+}
+
 int ojs_delete(oj_sequence_t *sp, int index) {
     int v;
     assert(0 != sp && 0x10ACE0FF == sp->_johnnymoss && index >= 0);
@@ -89,13 +89,6 @@ int ojs_delete(oj_sequence_t *sp, int index) {
     memmove(sp->cards + index, sp->cards + index + 1,
         (sp->length - index) * sizeof(int));
     return v;
-}
-
-int ojs_pop(oj_sequence_t *sp) {
-    assert(0 != sp && 0x10ACE0FF == sp->_johnnymoss);
-
-    if (0 == sp->length) return 0;
-    return sp->cards[--sp->length];
 }
 
 int ojs_remove(oj_sequence_t *sp, int card) {
@@ -126,9 +119,8 @@ int ojs_index(oj_sequence_t *sp, int card) {
     return -1;
 }
 
-/* Many card game applications involve sorting small hands inside a
- * loop, so we go to some effort here to optimize the hell out of those
- * special cases.
+/* Many applications involve sorting small hands inside a loop, so we go to
+ * some effort here to optimize the hell out of those special cases.
  */
 
 #define SWAP(a,b) do{t=cp[a];cp[a]=cp[b];cp[b]=t;}while(0)
@@ -207,8 +199,8 @@ int ojs_equal(oj_sequence_t *sp1, oj_sequence_t *sp2) {
     return 1;
 }
 
-/* Fill a sequence with fresh cards based on deck type. Can be used
- * to fill multi-deck shoes as well.
+/* Fill a sequence with fresh cards based on deck type. Can be used to fill
+ * multi-deck shoes as well.
  */
 int ojs_fill(oj_sequence_t *sp, int count, oj_deck_type_t dt) {
     oj_deck_info_t *di = &oj_deck_info[dt];

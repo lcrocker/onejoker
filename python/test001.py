@@ -17,7 +17,8 @@ class App(object):
     def preflop_compare(self):
         hands = [
             oj.Sequence(7, "Ac Kh"),
-            oj.Sequence(7, "2s 2h")
+            oj.Sequence(7, "2s 2d"),
+            oj.Sequence(7, "Ts Js")
         ]
 
         wins = [ 0 for h in hands ]
@@ -25,19 +26,22 @@ class App(object):
         ties = 0
 
         deck = oj.Sequence(52)
-        deck.fill(52)
+        deck.fill()
         for h in hands:
             deck.remove(h)
 
-        boards = deck.iter_montecarlo(5, 100000)
-        count = deck.iter.remaining
-        print("{0} total boards.".format(deck.iter.total))
+        boards = oj.Iterator(deck, 5)
+        print("{0} total boards.".format(boards.total))
 
-        for board in boards:
+        count = 1000
+        h1 = oj.Sequence(7)
+
+        for b in boards.random(count):
             for i, h in enumerate(hands):
-                h.append(board)
-                values[i] = oj.poker_eval(h)
-                h.truncate(2)
+                h1.clear()
+                h1.append(h)
+                h1.append(b)
+                values[i] = oj.poker_eval(h1)
 
             best = min(values)
             if all( v == best for v in values ):
@@ -47,7 +51,7 @@ class App(object):
                     if v == best:
                         wins[i] += 1
 
-        for h in enumerate(hands):
+        for i, h in enumerate(hands):
             print("{0} {1:8d} wins ({2:5.2f}%)".format(hands[i], wins[i], (wins[i] * 100.0) / count))
 
         print("        {0:8d} ties ({1:5.2f}%)".format(ties, (ties * 100.0) / count))
@@ -107,8 +111,9 @@ class App(object):
         print(s1)
 
     def run(self):
-        self.list_functions()
         self.preflop_compare()
+        # self.list_functions()
+        print("Done.")
 
 if __name__ == "__main__":
     App().run()

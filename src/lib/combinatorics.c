@@ -34,10 +34,11 @@ long long ojc_binomial(int n, int k) {
     return b;
 }
 
-/* Start a new iteration sequence. We need to provide a <deck>
- * sequence that is the set to make combinations of, a mutable <hand>
- * to receive the combinations, <k> for the size of the combinations,
- * and a <k>-sized integer buffer for internal use.
+/* Start a new iteration sequence. We need to provide a <deck> sequence that is
+ * the set to make combinations of, a mutable <hand> sequence to receive the
+ * combinations, <k> for the size of the combinations, and a <k>-sized integer
+ * buffer for internal use. If <count> is nonzero, the monte carlo interator
+ * will stop after that many iterations.
  */
 long long ojc_iter_new(
     oj_iterator_t *iter,    /* Iterator to initialize */
@@ -60,47 +61,51 @@ long long ojc_iter_new(
     iter->hand = hand;
     iter->total = ojc_binomial(deck->length, k);
 
+    if (0 == count) {
+        iter->count = iter->total;
+    } else {
+        iter->count = count;
+    }
+    iter->remaining = iter->count;
     for (i = 0; i < deck->length; ++i) {
         iter->deck_invert[deck->cards[i]] = i;
     }
-
-    if (count) {
-        iter->remaining = count + 1;
-        ojc_iter_next_random(iter);
-    } else {
-        iter->remaining = iter->total;
-        for (i = 0; i < k; ++i) {
-            hbuf[i] = i;
-            hand->cards[i] = deck->cards[hbuf[i]];
-        }
-    }
-    return iter->total;
+    return iter->count;
 }
 
-/* Assuming everything is set up properly with iter_new, advance
- * hand to the next in colex order. Return 1 if successful. In C, we
- * do the loop with <new>, do { <stuff> } while (<next>); In Python we
- * call it from a generator.
+/* Assuming everything is set up properly with iter_new, advance <hand> to the
+ * next in colex order. Return 1 if there are more to process. In C, we do the
+ * loop like this:
+ *   <new>;
+ *   while <next> { <stuff> };
+ * In Python we call it from a generator.
  */
 int ojc_iter_next(oj_iterator_t *iter) {
-    int i, j, *a = iter->a, k = iter->k, n = iter->deck->length,
-        *cp = iter->hand->cards;
+    int i, j, *a = iter->a, k = iter->k, n = iter->deck->length;
     assert(0 != iter && 0x10ACE0FF == iter->_johnnymoss);
 
-    for (i = 0; i < k; ++i) {
-        if ( ((i < k - 1) && (a[i] < (a[i + 1] - 1))) ||
-             ((i == k - 1) && (a[i] < n - 1)) ) {
-            ++a[i];
-            for (j = 0; j < i; ++j) a[j] = j;
+    if (0 == iter->remaining) {
+        return 0;
+    } else if (iter->remaining == iter->count) { /* First pass */
+        for (i = 0; i < iter->k; ++i) {
+            a[i] = i;
+            iter->hand->cards[i] = iter->deck->cards[a[i]];
+        }
+    } else {
+        for (i = 0; i < k; ++i) {
+            if ( ((i < k - 1) && (a[i] < (a[i + 1] - 1))) ||
+                  ((i == k - 1) && (a[i] < n - 1)) ) {
+                ++a[i];
+                for (j = 0; j < i; ++j) a[j] = j;
 
-            for (i = 0; i < k; ++i) {
-                cp[i] = iter->deck->cards[a[i]];
+                for (i = 0; i < k; ++i) {
+                    iter->hand->cards[i] = iter->deck->cards[a[i]];
+                }
             }
-            --iter->remaining;
-            return 1;
         }
     }
-    return 0;
+    --iter->remaining;
+    return 1;
 }
 
 #define SWAP(a,b) do{t=cp[a];cp[a]=cp[b];cp[b]=t;}while(0)
@@ -110,17 +115,59 @@ int ojc_iter_next_random(oj_iterator_t *iter) {
         *cp = iter->deck->cards;
     assert(0 != iter && 0x10ACE0FF == iter->_johnnymoss);
 
+    if (0 == iter->remaining) return 0;
+
+    /* Partial Fisher-Yates: only randomize as many random cards as needed */
     for (i = n; i > (n - k); --i) {
         j = ojr_rand(i);
         SWAP(i - 1, j);
     }
     memmove(iter->hand->cards, &cp[n - k], k * sizeof(int));
-    if (0 == --iter->remaining) return 0;
+    --iter->remaining;
     return 1;
 }
 
-long long ojc_colex_rank(oj_sequence_t *hand, oj_iterator_t *iter) {
+/* Once we have set up an interation object with the appropriate values, we can
+ * calculate some things without actually running the iterations. "Rank" is the
+ * order in which a given hand would appear in the sequence if we ran it. The
+ * "hand_at" function does the reverse: which hand would appear at that rank.
+ * All of these functions use colexicographical order, because that's the
+ * simplest to calculate in most cases.
+ */
+long long ojc_rank(oj_sequence_t *hand, oj_iterator_t *iter) {
+    int i, buf[64];
+    long long b, r = 0;
+    assert(0 != hand && 0 != iter);
+    assert(hand->length < 64);
+
+    if (hand->length != iter->k) return -1;
+    for (i = 0; i < iter->k; ++i) {
+        buf[i] = iter->deck_invert[hand->cards[i]];
+    }
+    _ojs_sort_int_array(iter->k, buf);
+
+    for (i = 0; i < iter->k; ++i) {
+        r += ojc_binomial(buf[i], i + 1);
+    }
+    return r;
 }
 
-int ojc_colex_hand_at(oj_sequence_t *hand, oj_iterator_t *iter, long long rank) {
+void ojc_hand_at(long long rank, oj_sequence_t *hand, oj_iterator_t *iter) {
+    int i, v, buf[64];
+    long long b;
+    assert(0 != hand && 0 != iter);
+    assert(hand->allocation >= iter->k);
+
+    v = iter->deck->length;
+    for (i = iter->k; i >= 1; --i) {
+        while ((b = ojc_binomial(v, i)) > rank) {
+            --v;
+        }
+        buf[i - 1] = v;
+        rank -= b;
+    }
+    hand->length = iter->k;
+    for (i = 0; i < iter->k; ++i) {
+        hand->cards[i] = iter->deck->cards[buf[i]];
+    }
 }

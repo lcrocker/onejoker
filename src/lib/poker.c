@@ -41,7 +41,7 @@ int ojp_eval5(oj_sequence_t *sp) {
 
 static oj_iterator_t piter;
 static oj_sequence_t phand;
-static int hbuf[5], ibuf[5];
+static int hbuf[8], ibuf[8];
 
 int ojp_eval(oj_sequence_t *sp) {
     int v, best;
@@ -54,11 +54,10 @@ int ojp_eval(oj_sequence_t *sp) {
     c = ojc_iter_new(&piter, sp, &phand, 5, ibuf, 0LL);
 
     best = 9999;
-    do {
+    while (ojc_iter_next(&piter)) {
         v = ojp_eval5(piter.hand);
         if (v < best) best = v;
-    } while(ojc_iter_next(&piter));
-
+    }
     return best;
 }
 

@@ -42,10 +42,6 @@ def binomial(n, k):
     return b
 
 
-class Iterator(Structure):
-    pass
-
-
 class Sequence(Structure):
     _fields_ = [
         ("_johnnymoss", c_int),
@@ -168,28 +164,6 @@ class Sequence(Structure):
     def shuffle(self):
         ojlib.ojs_sort(byref(self))
 
-    def _combination_generator(self):
-        yield self.iter.hand.contents
-        while ojlib.ojc_iter_next(byref(self.iter)):
-            yield self.iter.hand.contents
-
-    def iter_combinations(self, k):
-        self.iter = Iterator(self, k, 0)
-        return self._combination_generator()
-
-    def _montecarlo_generator(self):
-        yield self.iter.hand.contents
-        while ojlib.ojc_iter_next_random(byref(self.iter)):
-            yield self.iter.hand.contents
-
-    def iter_montecarlo(self, k, count):
-        self.iter = Iterator(self, k, count)
-        return self._montecarlo_generator()
-
-_ojc_iter_new = ojlib.ojc_iter_new
-_ojc_iter_new.restype = c_longlong
-_ojc_iter_new.argtypes = [ c_void_p, c_void_p, c_void_p,
-    c_int, POINTER(c_int), c_longlong ]
 
 class Iterator(Structure):
     _fields_ = [
@@ -197,16 +171,39 @@ class Iterator(Structure):
         ("k", c_int),
         ("a", POINTER(c_int)),
         ("total", c_longlong),
+        ("count", c_longlong),
         ("remaining", c_longlong),
         ("deck", POINTER(Sequence)),
         ("hand", POINTER(Sequence))
     ]
 
-    def __init__(self, deck, k, count):
+    def __init__(self, deck, k):
         self.h = Sequence(k)
         self.buf = cast(create_string_buffer(4 * k), POINTER(c_int))
-        _ojc_iter_new(byref(self), byref(deck), byref(self.h), k,
-            self.buf, count)
+        ojlib.ojc_iter_new(byref(self), byref(deck), byref(self.h),
+            k, self.buf, c_longlong(0))
+
+    def combinations(self):
+        while ojlib.ojc_iter_next(byref(self)):
+            yield self.hand.contents
+
+    def random(self, count):
+        self.count = count
+        self.remaining = count
+        while ojlib.ojc_iter_next_random(byref(self)):
+            yield self.hand.contents
+
+    def rank(self, hand):
+        if isinstance(hand, str):
+            hand = Sequence(self.k, hand)
+        _ojc_rank = ojlib.ojc_rank
+        _ojc_rank.restype = c_longlong
+        return _ojc_rank(byref(hand), byref(self))
+
+    def hand_at(self, rank):
+        h = Sequence(self.k)
+        _ojc_hand_at(c_longlong(rank), byref(h), byref(self))
+        return h
 
 def poker_eval(hand):
     return ojlib.ojp_eval(byref(hand))

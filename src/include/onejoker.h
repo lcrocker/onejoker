@@ -41,10 +41,10 @@ typedef struct _oj_iterator {
     int _johnnymoss; /* Initialization check */
     int k;
     int *a;
-    long long total, remaining;
+    long long total, count, remaining;
     oj_sequence_t *deck;
     oj_sequence_t *hand;
-    int deck_invert[55];
+    int deck_invert[64];
 } oj_iterator_t;
 
 /* Information needed to display value of poker hand.
@@ -77,6 +77,7 @@ extern int ojs_insert(oj_sequence_t *sp, int index, int card);
 extern int ojs_pop(oj_sequence_t *sp);
 extern int ojs_remove(oj_sequence_t *sp, int card);
 extern int ojs_index(oj_sequence_t *sp, int card);
+extern void _ojs_sort_int_array(int n, int *cp);
 extern void ojs_sort(oj_sequence_t *sp);
 extern void ojs_reverse(oj_sequence_t *sp);
 extern int ojs_equal(oj_sequence_t *sp1, oj_sequence_t *sp2);
@@ -90,8 +91,8 @@ extern long long ojc_iter_new(oj_iterator_t *iter, oj_sequence_t *deck,
     oj_sequence_t *hand, int k, int *hbuf, long long count);
 extern int ojc_iter_next(oj_iterator_t *iter);
 extern int ojc_iter_next_random(oj_iterator_t *iter);
-extern long long ojc_colex_rank(oj_sequence_t *hand, oj_iterator_t *iter);
-extern int ojc_colex_hand_at(oj_sequence_t *hand, oj_iterator_t *iter, long long rank);
+extern long long ojc_rank(oj_sequence_t *hand, oj_iterator_t *iter);
+extern void ojc_hand_at(long long rank, oj_sequence_t *hand, oj_iterator_t *iter);
 
 /* Poker functions */
 

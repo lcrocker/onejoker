@@ -147,10 +147,8 @@ static void heapify(int *cp, int n, int start) {
     }
 }
 
-void ojs_sort(oj_sequence_t *sp) {
+void _ojs_sort_int_array(int n, int *cp) {
     int i, s, d, t;
-    int n = sp->length, *cp = sp->cards;
-    assert(0 != sp && 0x10ACE0FF == sp->_johnnymoss);
 
     switch (n) {
     case 0:
@@ -178,6 +176,10 @@ void ojs_sort(oj_sequence_t *sp) {
         SWAP(0, i);
         heapify(cp, i - 1, 0);
     }
+}
+
+void ojs_sort(oj_sequence_t *sp) {
+    _ojs_sort_int_array(sp->length, sp->cards);
 }
 
 void ojs_reverse(oj_sequence_t *sp) {

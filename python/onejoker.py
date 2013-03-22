@@ -13,6 +13,8 @@ if sys.version < "3.0":
 import itertools
 from ctypes import *
 ojlib = CDLL("libonejoker.so")
+ojlib.ojc_binomial.restype = c_longlong
+ojlib.ojc_rank.restype = c_longlong
 
 import cardnames as cn
 
@@ -29,12 +31,9 @@ def seed(val):
 def rand(limit):
     return ojlib.ojr_rand(limit)
 
-_ojc_binomial = ojlib.ojc_binomial
-_ojc_binomial.restype = c_longlong
-
 def binomial(n, k):
     if (n <= 54 and k <= 54):
-        return _ojc_binomial(n, k)
+        return ojlib.ojc_binomial(n, k)
     b = 1
     for i in range(1, k + 1):
         b *= (n - (k - i));
@@ -88,9 +87,6 @@ class Sequence(Structure):
             val = cardnum(val)
         self.cards[index] = val
 
-    def __delitem__(self, index):
-        v = ojlib.ojs_delete(byref(self), index)
-
     def __contains__(self, val):
         if isinstance(val, str):
             val = cn.cardnum(val)
@@ -98,6 +94,9 @@ class Sequence(Structure):
 
     def clear(self):
         self.length = 0
+
+    def delete(self, index):
+        return ojlib.ojs_delete(byref(self), index)
 
     def truncate(self, length):
         if (length <= self.length):
@@ -174,7 +173,8 @@ class Iterator(Structure):
         ("count", c_longlong),
         ("remaining", c_longlong),
         ("deck", POINTER(Sequence)),
-        ("hand", POINTER(Sequence))
+        ("hand", POINTER(Sequence)),
+        ("deck_invert", c_int * 64)
     ]
 
     def __init__(self, deck, k):
@@ -183,7 +183,7 @@ class Iterator(Structure):
         ojlib.ojc_iter_new(byref(self), byref(deck), byref(self.h),
             k, self.buf, c_longlong(0))
 
-    def combinations(self):
+    def all(self):
         while ojlib.ojc_iter_next(byref(self)):
             yield self.hand.contents
 
@@ -196,13 +196,11 @@ class Iterator(Structure):
     def rank(self, hand):
         if isinstance(hand, str):
             hand = Sequence(self.k, hand)
-        _ojc_rank = ojlib.ojc_rank
-        _ojc_rank.restype = c_longlong
-        return _ojc_rank(byref(hand), byref(self))
+        return ojlib.ojc_rank(byref(hand), byref(self))
 
     def hand_at(self, rank):
         h = Sequence(self.k)
-        _ojc_hand_at(c_longlong(rank), byref(h), byref(self))
+        ojlib.ojc_hand_at(c_longlong(rank), byref(h), byref(self))
         return h
 
 def poker_eval(hand):

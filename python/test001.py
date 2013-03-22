@@ -10,6 +10,10 @@ if sys.version < "3.0":
 sys.path.append(".")
 import onejoker as oj, cardnames as cn
 
+def progress(count):
+    if (0 == (count & 0x3FFF)):
+        print("\r{0:8d} remaining.".format(count), file=sys.stderr, end="")
+
 class App(object):
     def __init__(self):
         pass
@@ -30,18 +34,17 @@ class App(object):
         for h in hands:
             deck.remove(h)
 
+        count = 100000
         boards = oj.Iterator(deck, 5)
-        print("{0} total boards.".format(boards.total))
-
-        count = 1000
-        h1 = oj.Sequence(7)
+        print("{0:8d} total boards.".format(boards.total))
 
         for b in boards.random(count):
+            progress(boards.remaining)
+
             for i, h in enumerate(hands):
-                h1.clear()
-                h1.append(h)
-                h1.append(b)
-                values[i] = oj.poker_eval(h1)
+                h.append(b)
+                values[i] = oj.poker_eval(h)
+                h.truncate(2)
 
             best = min(values)
             if all( v == best for v in values ):
@@ -50,6 +53,7 @@ class App(object):
                 for i, v in enumerate(values):
                     if v == best:
                         wins[i] += 1
+        print("\r")
 
         for i, h in enumerate(hands):
             print("{0} {1:8d} wins ({2:5.2f}%)".format(hands[i], wins[i], (wins[i] * 100.0) / count))
@@ -78,7 +82,7 @@ class App(object):
         for c in (14, 15, "5d", "5h"):
             print("{0}{1}in {2}".format(c, " " if c in s1 else " not ", s1))
 
-        del s1[2]
+        s1.delete(2)
         print(s1)
         s1.remove(21)
         print(s1)
@@ -113,7 +117,6 @@ class App(object):
     def run(self):
         self.preflop_compare()
         # self.list_functions()
-        print("Done.")
 
 if __name__ == "__main__":
     App().run()

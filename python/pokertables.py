@@ -2,12 +2,10 @@
 # OneJoker library <https://github.com/lcrocker/OneJoker>
 #
 # Build the lookup tables for the poker evaluator. Of course, this requres an
-# existing evalutator to calculate the table. I originally used the "Cactus"
+# existing evaluator to calculate the table. I originally used the "Cactus"
 # Kevin Suffecool/Paul Senzee 5-card evaluator which is very fast and compact,
 # but not included here.
 #
-
-sys.exit(1) # This is currently not working!!!
 
 import sys
 if sys.version < "3.0":
@@ -15,24 +13,23 @@ if sys.version < "3.0":
     sys.exit(1)
 
 from array import array
+import itertools as it
 
 import onejoker as oj, cardnames as cn, lookuptables
 sys.path.append(".")
 import lookuptables
 
-table5 = array('h', (-1 for i in range(oj.binomial(52, 5))))
-table4 = array('h', (-1 for i in range(52 * 4680 + 1)))
-table3 = array('l', (-1 for i in range(52 * 1599 + 1)))
-table2 = array('l', (-1 for i in range(52 * 403 + 1)))
-table1 = array('l', (-1 for i in range(53 * 53)))
+table4 = array('h', (-1 for i in range(52 * 4680)))
+table3 = array('l', (-1 for i in range(52 * 1599)))
+table2 = array('l', (-1 for i in range(52 * 403)))
+table1 = array('h', (0 for i in range(52 * 52)))
 
-def tolist(hand):
-    r = []
-    for card in hand:
-        r.append(card - 1)
-    return r
+deck = oj.Sequence(52)
+deck.fill()
 
-def colex_rank(seq):
+# Return the rank of the give sequence in colexicographical order
+#
+def clrank(seq):
     r = 0
     i = 1
     for v in seq:
@@ -40,196 +37,176 @@ def colex_rank(seq):
         i += 1
     return r
 
+# Check that the sequence matches the given pattern's equality relationships.
+#
+def eqpattern(p, seq):
+    for i in range(len(seq) - 1):
+        for j in range(i + 1, len(seq)):
+            if ((seq[i] == seq[j]) != (p[i] == p[j])):
+                return False
+    return True
+
 # This is the magic table compression trick. Create a unique ID for the set of
 # cards given like this: sort the combination, group first by flush/no flush,
-# remove the suits and group by pairs, and assign IDs by the rank within group.
+# then remove the suits and group by pairs, and assign IDs by the rank within
+# the group.
+#
 
 def id2(seq):
     suit = seq[0] & 3
-    flush = all( suit == (v & 3) for v in seq )
+    flush = all( (suit == (v & 3)) for v in seq )
     s = [ (v >> 2) for v in seq ]
     s.sort()
 
     if flush:
-        return suit * 78 + colex_rank(s)
-    # Different ranks
+        return suit * 78 + clrank(s)
     elif s[0] != s[1]:
-        return    4 * 78 + colex_rank(s)
-    # Pair
+        return    4 * 78 + clrank(s)
     else:
         return    5 * 78 + s[0]
 
 def id3(seq):
     suit = seq[0] & 3
-    flush = all( suit == (v & 3) for v in seq )
+    flush = all( (suit == (v & 3)) for v in seq )
     s = [ (v >> 2) for v in seq ]
     s.sort()
 
     if flush:
-        return suit * 286          + colex_rank(s)
-    # Unique ranks
-    elif s[0] != s[1] and s[0] != s[2] and s[1] != s[2]:
-        return    4 * 286          + colex_rank(s)
-    # One pair
-    elif s[0] == s[1] and s[0] != s[2]:
-        return    5 * 286          + colex_rank([s[0], s[2]])
-    elif s[1] == s[2] and s[0] != s[1]:
-        return    5 * 286 +     78 + colex_rank([s[0], s[1]])
-    # Trips
+        return suit * 286          + clrank(s)
+    elif eqpattern("ABC", s):
+        return    4 * 286          + clrank(s)
+    elif eqpattern("AAB", s):
+        return    5 * 286          + clrank([s[0], s[2]])
+    elif eqpattern("ABB", s):
+        return    5 * 286 +     78 + clrank([s[0], s[1]])
     else:
-        assert(s[0] == s[1] and s[0] == s[2])
         return    5 * 286 + 2 * 78 + s[0]
 
 def id4(seq):
     suit = seq[0] & 3
-    flush = all( suit == (v & 3) for v in seq )
+    flush = all( (suit == (v & 3)) for v in seq )
     s = [ (v >> 2) for v in seq ]
     s.sort()
 
     if flush:
-        r =  suit * 715                    + colex_rank(s)
-    # Unique
-    elif s[0] != s[1] and s[0] != s[2] and s[0] != s[3] and s[1] != s[2] and s[1] != s[3] and s[2] != s[3]:
-        r =     4 * 715                    + colex_rank(s)
-    # One pair
-    elif s[0] == s[1] and s[0] != s[2] and s[0] != s[3] and s[2] != s[3]:
-        r =     5 * 715                    + colex_rank([s[0], s[2], s[3]])
-    elif s[0] != s[1] and s[1] == s[2] and s[0] != s[3] and s[1] != s[3]:
-        r =     5 * 715 +     286          + colex_rank([s[0], s[1], s[3]])
-    elif s[0] != s[1] and s[0] != s[2] and s[1] != s[2] and s[2] == s[3]:
-        r =     5 * 715 + 2 * 286          + colex_rank([s[0], s[1], s[2]])
-    # Two pair
-    elif s[0] == s[1] and s[0] != s[2] and s[2] == s[3]:
-        r =     5 * 715 + 3 * 286          + colex_rank([s[0], s[2]])
-    # Trips
-    elif s[0] == s[1] and s[0] == s[2] and s[0] != s[3]:
-        r =     5 * 715 + 3 * 286 +     78 + colex_rank([s[0], s[3]])
-    elif s[0] != s[1] and s[1] == s[2] and s[1] == s[3]:
-        r =     5 * 715 + 3 * 286 + 2 * 78 + colex_rank([s[0], s[1]])
-    # Quads
+        return suit * 715                    + clrank(s)
+    elif eqpattern("ABCD", s):
+        return    4 * 715                    + clrank(s)
+    elif eqpattern("AABC", s):
+        return    5 * 715                    + clrank([s[0], s[2], s[3]])
+    elif eqpattern("ABBC", s):
+        return    5 * 715 +     286          + clrank([s[0], s[1], s[3]])
+    elif eqpattern("ABCC", s):
+        return    5 * 715 + 2 * 286          + clrank([s[0], s[1], s[2]])
+    elif eqpattern("AABB", s):
+        return    5 * 715 + 3 * 286          + clrank([s[0], s[2]])
+    elif eqpattern("AAAB", s):
+        return    5 * 715 + 3 * 286 +     78 + clrank([s[0], s[3]])
+    elif eqpattern("ABBB", s):
+        return    5 * 715 + 3 * 286 + 2 * 78 + clrank([s[0], s[1]])
     else:
-        assert(s[0] == s[1] and s[0] == s[2] and s[0] == s[3])
-        r =     5 * 715 + 3 * 286 + 3 * 78 + s[0]
-    return r
-
-# Table 5 is just the rank of all 2598960 poker hands in colex order
-#
-def id5(seq):
-    s = sorted(seq)
-    v = colex_rank(s)
-    return v
+        return    5 * 715 + 3 * 286 + 3 * 78 + s[0]
 
 def progress(count):
     if (0 == (count & 0x1FFF)):
-        print("\r{0:8d} remaining.".format(count), end = "", file = sys.stderr)
+        print("\r{0:8d}".format(count), end = "", file = sys.stderr)
 
+def make_table4():
+    hands = oj.Iterator(deck, 4)
+    print("Building table 4.", file = sys.stderr)
+
+    h5 = oj.Sequence(5)
+    for h in hands.all():
+        progress(hands.remaining)
+        l4 = [ (c - 1) for c in h ]
+        r4 = id4(l4)
+
+        for c in range(52):
+            if (c in l4) or (-1 != table4[52 * r4 + c]):
+                continue
+
+            h5.set(h)
+            h5.append(c + 1)
+            table4[52 * r4 + c] = oj.poker_eval(h5)
+    print("\r", end = "", file = sys.stderr)
+
+def make_table3():
+    hands = oj.Iterator(deck, 3)
+    print("Building table 3.", file = sys.stderr)
+
+    for h in hands.all():
+        progress(hands.remaining)
+        l3 = [ (c - 1) for c in h ]
+        r3 = id3(l3)
+        l4 = list(l3)
+
+        for c in range(52):
+            if (c in l3) or (-1 != table3[52 * r3 + c]):
+                continue
+
+            l4.append(c)
+            v = id4(l4)
+            l4.pop()
+            table3[52 * r3 + c] = 52 * v
+    print("\r", end = "", file = sys.stderr)
+
+def make_table2():
+    hands = oj.Iterator(deck, 2)
+    print("Building table 2.", file = sys.stderr)
+
+    for h in hands.all():
+        l2 = [ (c - 1) for c in h ]
+        r2 = id2(l2)
+        l3 = list(l2)
+
+        for c in range(52):
+            if (c in l2) or (-1 != table2[52 * r2 + c]):
+                continue
+
+            l3.append(c)
+            v = id3(l3)
+            l3.pop()
+            table2[52 * r2 + c] = 52 * v
+
+def make_table1():
+    print("Building table 1.", file = sys.stderr)
+    for i in range(52):
+        for j in range(52):
+            if i == j:
+                table1[52 * i + j] = 0
+            else:
+                table1[52 * i + j] = 52 * id2([i, j])
 
 class App(object):
     def __init__(self):
-        self.deck = oj.Sequence(52)
-        self.deck.fill()
-
-    def make_table5(self):
-        hands = oj.Iterator(self.deck, 5)
-        print("\n{0:8d} total hands.".format(hands.total), file = sys.stderr)
-
-        for h in hands.all():
-            progress(hands.remaining)
-            r = hands.total - hands.remaining - 1
-            table5[r] = oj.poker_eval(h)
-
-    def make_table4(self):
-        hands = oj.Iterator(self.deck, 4)
-        print("\n{0:8d} hands at level 4.".format(hands.total), file = sys.stderr)
-
-        for h in hands.all():
-            progress(hands.remaining)
-            l4 = tolist(h)
-            r4 = id4(l4)
-            l5 = list(l4)
-
-            if -1 != table4[54 * r4]:
-                continue
-
-            for c in range(52):
-                if c in l4:
-                    table4[52 * r4 + c] = 9999
-                else:
-                    l5.append(c)
-                    v = id5(l5)
-                    l5.pop()
-                    table4[52 * r4 + c] = table5[v]
-        print()
-
-    def make_table3(self):
-        hands = oj.Iterator(self.deck, 3)
-        print("\n{0:8d} hands at level 3.".format(hands.total), file = sys.stderr)
-
-        for h in hands.all():
-            progress(hands.remaining)
-            l3 = tolist(h)
-            r3 = id3(l3)
-            l4 = list(l3)
-
-            if -1 != table4[54 * r4]:
-                continue
-
-            for c in range(52):
-                if c in l3:
-                    table3[52 * r3 + c] = 999999
-                else:
-                    l4.append(c)
-                    v = id4(l4)
-                    l4.pop()
-                    table3[52 * r3 + c] = 52 * v
-
-    def make_table2(self):
-        hands = oj.Iterator(self.deck, 2)
-        print("\n{0:8d} hands at level 2.".format(hands.total), file = sys.stderr)
-        table2[0] = 0
-
-        for h in hands.all():
-            l2 = tolist(h)
-            r2 = id2(l2)
-            l3 = list(l2)
-
-            if -1 != table4[54 * r4]:
-                continue
-
-            for c in range(52):
-                if c in l2:
-                    table2[52 * r2 + c] = 999999
-                else:
-                    l3.append(c)
-                    v = id3(l3)
-                    l3.pop()
-                    table2[52 * r2 + c] = 52 * v
-
-    def make_table1(self):
-        for i in range(52):
-            for j in range(52):
-                if i == j:
-                    table1[52 * i + j] = 29999
-                else:
-                    v = id2([i, j])
-                    table1[52 * i + j] = 52 * v
+        pass
 
     def make_tables(self):
-        self.make_table5()
-        self.make_table4()
-        self.make_table3()
-        self.make_table2()
-        self.make_table1()
+        make_table4()
+        make_table3()
+        make_table2()
+        make_table1()
 
     def write_tables(self):
-        b = lookuptables.Printer("lct1", "static unsigned short")
+        print("Writing tables.", file = sys.stderr)
+
+        print(
+"""/* OneJoker library <https://github.com/lcrocker/OneJoker>
+ * Lookup tables for LDC poker hand evaluator.
+ * This is an automatically generated file--do not edit!
+ */
+""")
+        b = lookuptables.Printer("ldc1", "static short")
         b.dump1d(table1)
-        b = lookuptables.Printer("lct2", "static unsigned int")
-        b.dump1d(table2)
-        b = lookuptables.Printer("lct3", "static unsigned int")
-        b.dump1d(table3)
-        b = lookuptables.Printer("lct4", "static unsigned short")
-        b.dump1d(table4)
+
+        b = lookuptables.Printer("ldc2", "static int")
+        b.dump1d(it.chain([], table2))
+
+        b = lookuptables.Printer("ldc3", "static int")
+        b.dump1d(it.chain([], table3))
+
+        b = lookuptables.Printer("ldc4", "static short")
+        b.dump1d(it.chain([], table4))
 
     def run(self):
         self.make_tables()

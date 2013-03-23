@@ -26,10 +26,6 @@ inline void ojs_clear(oj_sequence_t *sp) {
     sp->length = 0;
 }
 
-inline int ojs_length(oj_sequence_t *sp) {
-    return sp->length;
-}
-
 /* Python doesn't have this one, but it's handy for our uses */
 inline void ojs_truncate(oj_sequence_t *sp, int size) {
     if (size < sp->length) sp->length = size;

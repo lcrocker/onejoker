@@ -112,6 +112,10 @@ class Sequence(Structure):
         else:
             ojlib.ojs_append(byref(self), arg)
 
+    def set(self, arg):
+        self.length = 0
+        self.append(arg)
+
     def insert(self, index, arg):
         if isinstance(arg, str):
             for c in cn.cardnums(arg):

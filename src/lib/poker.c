@@ -1,5 +1,5 @@
 /* OneJoker library <https://github.com/lcrocker/OneJoker/>
- * 5-card evaluator by "Cactus" Kevin Suffecool and Paul Senzee.
+ * Poker functions.
  */
 
 #include <stdlib.h>
@@ -7,36 +7,13 @@
 #include <assert.h>
 
 #include "onejoker.h"
-#include "pokertables.h"
-
-static unsigned _ps_find(unsigned u) {
-    unsigned a, b, r;
-
-    u += 0xe91aaa35;
-    u ^= u >> 16;
-    u += u << 8;
-    u ^= u >> 4;
-    b  = (u >> 8) & 0x1ff;
-    a  = (u + (u << 2)) >> 19;
-    r  = a ^ _ps_hash_adjust[b];
-    return r;
-}
+#include "ldctables.h"
 
 int ojp_eval5(oj_sequence_t *sp) {
-    int s, q, c0, c1, c2, c3, c4;
-    assert(0 != sp && 5 == sp->length);
-
-    c0 = _ck_cardvals[sp->cards[0]];
-    c1 = _ck_cardvals[sp->cards[1]];
-    c2 = _ck_cardvals[sp->cards[2]];
-    c3 = _ck_cardvals[sp->cards[3]];
-    c4 = _ck_cardvals[sp->cards[4]];
-
-    q = (c0 | c1 | c2 | c3 | c4) >> 16;
-    if (c0 & c1 & c2 & c3 & c4 & 0xf000) return _ck_flushes[q];
-    if ((s = _ck_unique5[q])) return s;
-    return _ps_hash_values[_ps_find((c0 & 0xff) * (c1 & 0xff) *
-        (c2 & 0xff) * (c3 & 0xff) * (c4 & 0xff))];
+    return ldc4[ ldc3[ ldc2[ ldc1[
+        52 * (sp->cards[0] - 1) + sp->cards[1] - 1 ]
+           + sp->cards[2] - 1 ] + sp->cards[3] - 1 ]
+           + sp->cards[4] - 1 ];
 }
 
 static oj_iterator_t piter;

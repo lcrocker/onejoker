@@ -26,13 +26,13 @@ class Printer(object):
         text = self.format.format(val)
         if self.column + len(text) < self.text_width:
             if not self.first_item:
-                print(", ", end="")
+                print(", ", end = "")
                 self.column += 2
         else:
             if not self.first_item:
-                print(",\n    ", end="")
+                print(",\n    ", end = "")
                 self.column = 4
-        print(text, end="")
+        print(text, end = "")
 
         self.column += len(text)
         self.first_item = 0
@@ -56,18 +56,18 @@ class Printer(object):
     def output2d(self, val):
         text = self.format.format(val)
         if not self.first_item and 0 == self.row_count:
-            print(" },\n  { ", end="")
+            print(" },\n  { ", end = "")
             self.column = 4
 
         if self.column + len(text) < self.text_width:
             if not self.first_item and not 0 == self.row_count:
-                print(", ", end="")
+                print(", ", end = "")
                 self.column += 2
         else:
             if not self.first_item:
-                print(",\n    ", end="")
+                print(",\n    ", end = "")
                 self.column = 4
-        print(text, end="")
+        print(text, end = "")
 
         self.row_count += 1
         if self.row_count == self.array_width:

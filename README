@@ -12,12 +12,10 @@ if you need the greatest possible speed, at the expense of some clarity. This
 should rarely be necessary, though, since the Python binding is quite adequate
 for doing billions of hands in reasonable time.
 
-I write for Linux. I know nothing about Windows or OS/X how easy it might be to
-port to those. I stick to pretty vanilla C, so it shouldn't be difficult. I
-also assume Python 3. Back-porting shouldn't be too tricky if necessary. Change
-all the range()s to xrange(), because I never use the list form and I often do
-range(1000000) without a second thought. It should also be pretty easy to write
-C++ / Objective-C / C# bindings, but that will be someone else's project.
+I write for Linux. I know nothing about Windows or OS/X or how easy it might be
+to port to those. I stick to pretty vanilla C, so it shouldn't be difficult. I
+also assume Python 3. It should also be pretty easy to write C++ / Objective-C
+/ C# bindings, but that will be someone else's project.
 
 I use cmake <http://www.cmake.org> to build the library. This should make
 porting easier. The way I build it on Linux is to change into the top-level

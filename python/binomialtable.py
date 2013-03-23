@@ -37,6 +37,12 @@ class App(object):
                 yield self.table[n][k]
 
     def output(self):
+        print(
+"""/* OneJoker library <https://github.com/lcrocker/OneJoker>
+ * Lookup tables for binomial coefficient function.
+ * This is an automatically generated file--do not edit!
+ */
+""")
         b = lookuptables.Printer("bctable", "long long", "{0}LL")
         b.dump1d(self.generate())
 

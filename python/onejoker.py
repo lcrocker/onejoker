@@ -25,6 +25,12 @@ dt_stripped32 = 3
 dt_stripped40 = 4
 dt_stripped40j = 5
 
+pg_standard = 0
+pg_acetofive = 1
+pg_deucetoseven = 2
+pg_acetosix = 3
+pg_badugi = 4
+
 def seed(val):
     return ojlib.ojr_seed(val)
 
@@ -39,7 +45,6 @@ def binomial(n, k):
         b *= (n - (k - i));
         b //= i
     return b
-
 
 class Sequence(Structure):
     _fields_ = [
@@ -207,5 +212,15 @@ class Iterator(Structure):
         ojlib.ojc_hand_at(c_longlong(rank), byref(h), byref(self))
         return h
 
-def poker_eval(hand):
-    return ojlib.ojp_eval(byref(hand))
+class PokerGame(object):
+    def __init__(self):
+        pass
+
+
+def poker_eval5(hand):
+    return ojlib.ojp_eval5(byref(hand))
+
+def poker_best5(hand):
+    b = Sequence(5)
+    v = ojlib.ojp_best5(byref(hand), byref(b))
+    return v, b

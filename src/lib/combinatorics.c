@@ -22,7 +22,7 @@ long long ojc_binomial(int n, int k) {
     if (1 == k) return (long long)n;
 
     if (n <= 54 && k <= 54) {
-        return bctable[(((n - 3) * (n - 3)) >> 2) + (k - 2)];
+        return bctable[(((n - 3) * (n - 3)) >> 2) + k];
     }
     /* Last resort: actually calculate */
     b = 1LL;

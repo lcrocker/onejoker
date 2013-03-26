@@ -60,6 +60,16 @@ class App(object):
 
         print("        {0:8d} ties ({1:5.2f}%)".format(ties, (ties * 100.0) / count))
 
+    def allhands(self):
+        deck = oj.Sequence(52)
+        deck.fill()
+
+        hands = oj.Iterator(deck, 5)
+        for h in hands.all():
+            v = oj.poker_eval(h)
+
+        print("Evaluated {0} hands.".format(hands.total))
+
     def list_functions(self):
         s1 = oj.Sequence(10, "2h 3s")
         s2 = oj.Sequence(10, "10s Jc")

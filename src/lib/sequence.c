@@ -232,3 +232,22 @@ void ojs_shuffle(oj_sequence_t *sp) {
         SWAP(i - 1, j);
     }
 }
+
+/* Standard warnings here about returning pointers to mutable buffers.
+ */
+static char _oj_htbuf[162];
+
+char *ojs_text(oj_sequence_t *sp) {
+    int i;
+    char *cn, *bp = _oj_htbuf;
+    assert(sp->length <= 54);
+
+    for (i = 0; i < sp->length; ++i) {
+        if (0 != i) *bp++ = ' ';
+        cn = oj_cardname(sp->cards[i]);
+        *bp++ = *cn++;
+        *bp++ = *cn;
+    }
+    *bp = 0;
+    return _oj_htbuf;
+}

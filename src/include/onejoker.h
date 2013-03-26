@@ -24,6 +24,15 @@ typedef struct _oj_deck_info {
 /* Defined in decktypes.c */
 extern oj_deck_info_t oj_deck_info[];
 
+/* Poker games. A "game" in this sense is just a hand evaluation method, not a
+ * type of game in the sense of order of play or betting methods and so on.
+ * Just how is one hand judged better than another.
+ */
+typedef enum _oj_poker_game {
+    oj_pg_standard = 0, oj_pg_acetofive = 1, oj_pg_deucetoseven = 2,
+    oj_pg_acetosix = 3, oj_pg_badugi = 4
+} oj_poker_game_t;
+
 /* This is the sequence type used by the client. Mostly just a
  * typical array-like thing. Client is responsible for allocating
  * memory and initializing, and we check for this in several places.
@@ -50,15 +59,22 @@ typedef struct _oj_iterator {
 /* Information needed to display value of poker hand.
  */
 typedef struct _oj_poker_hand_info {
+    int _johnnymoss;
     int val, group;
-    char *group_name;
     int nranks;
     int ranks[5];
 } oj_poker_hand_info_t;
 
 /* General library functions */
 
+#define OJ_RANK(c) (((c)-1)>>2)
+#define OJ_SUIT(c) ((c)&3)
+
 extern int oj_init_library(int seed);
+extern char *oj_cardname(int c);
+extern char *oj_rankname(int r);
+extern char *oj_suitname(int s);
+extern char *oj_cardname_long(int c);
 
 /* PRNG functions */
 
@@ -83,6 +99,7 @@ extern void ojs_reverse(oj_sequence_t *sp);
 extern int ojs_equal(oj_sequence_t *sp1, oj_sequence_t *sp2);
 extern int ojs_fill(oj_sequence_t *sp, int count, oj_deck_type_t dt);
 extern void ojs_shuffle(oj_sequence_t *sp);
+extern char *ojs_text(oj_sequence_t *sp);
 
 /* Combinatorics */
 
@@ -97,7 +114,9 @@ extern void ojc_hand_at(long long rank, oj_sequence_t *hand, oj_iterator_t *iter
 /* Poker functions */
 
 extern int ojp_eval5(oj_sequence_t *sp);
-extern int ojp_hand_info(oj_poker_hand_info_t *ip, int val);
+extern int ojp_best5(oj_sequence_t *sp, oj_sequence_t *bh);
+extern int ojp_hand_info(oj_poker_hand_info_t *ip, oj_sequence_t *sp, int val);
+extern char *ojp_hand_description(oj_poker_hand_info_t *pi);
 
 /* Blackjack functions */
 

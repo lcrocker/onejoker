@@ -9,6 +9,12 @@ if sys.version < "3.0":
     print("Python 3 required.")
     sys.exit(1)
 
+from ctypes import *
+ojlib = CDLL("libonejoker.so")
+ojlib.oj_cardname.restype = c_char_p
+ojlib.oj_rankname.restype = c_char_p
+ojlib.oj_suitname.restype = c_char_p
+
 import re
 _cnamepattern = re.compile("""
     \\s*
@@ -22,21 +28,24 @@ _cnamepattern = re.compile("""
         )
     )""", re.IGNORECASE | re.VERBOSE)
 
-def cardname(val):
-    if (val < 0 or val > 53):
-        return "XX"
-    else:
-        return ( "XX",
-            "2c", "2d", "2h", "2s", "3c", "3d", "3h", "3s",
-            "4c", "4d", "4h", "4s", "5c", "5d", "5h", "5s",
-            "6c", "6d", "6h", "6s", "7c", "7d", "7h", "7s",
-            "8c", "8d", "8h", "8s", "9c", "9d", "9h", "9s",
-            "Tc", "Td", "Th", "Ts", "Jc", "Jd", "Jh", "Js",
-            "Qc", "Qd", "Qh", "Qs", "Kc", "Kd", "Kh", "Ks",
-            "Ac", "Ad", "Ah", "As", "JK", "J2" )[val]
+_cardnames = [ (ojlib.oj_cardname(c).decode()) for c in range(54) ]
+_ranknames = [ (ojlib.oj_rankname(r).decode()) for r in range(14) ]
+_suitnames = [ (ojlib.oj_suitname(s).decode()) for s in range(4) ]
+
+def cardname(c):
+    assert(c >= 1 and c <= 54);
+    return _cardnames[c - 1]
 
 def cardnames(vals, sep = ""):
     return sep.join(cardname(v) for v in vals)
+
+def rankname(r):
+    assert(r >= 0 and r <= 13)
+    return _ranknames[r]
+
+def suitname(s):
+    assert(s >= 0 and s <= 3)
+    return _suitnames[s]
 
 def _cardnum(groups):
     if groups[1]:

@@ -70,6 +70,26 @@ typedef struct _oj_poker_hand_info {
 #define OJ_RANK(c) (((c)-1)>>2)
 #define OJ_SUIT(c) ((c)&3)
 
+#define OJR_DEUCE 0
+#define OJR_TREY 1
+#define OJR_FOUR 2
+#define OJR_FIVE 3
+#define OJR_SIX 4
+#define OJR_SEVEN 5
+#define OJR_EIGHT 6
+#define OJR_NINE 7
+#define OJR_TEN 8
+#define OJR_JACK 9
+#define OJR_QUEEN 10
+#define OJR_KING 11
+#define OJR_ACE 12
+#define OJR_JOKER 13
+
+#define OJS_CLUB 0
+#define OJS_DIAMOND 1
+#define OJS_HEART 2
+#define OJS_SPADE 3
+
 extern int oj_init_library(int seed);
 extern char *oj_cardname(int c);
 extern char *oj_rankname(int r);

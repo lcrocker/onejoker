@@ -23,13 +23,12 @@ int poker_eval() {
     ojs_fill(&gdeck, 52, oj_dt_standard);
 
     ojs_new(&hand, 8, hbuf);
-    ojc_iter_new(&iter, &gdeck, &hand, 5, ibuf, 100LL);
+    ojc_iter_new(&iter, &gdeck, &hand, 5, ibuf, 100000LL);
 
     while (ojc_iter_next_random(&iter)) {
         v1 = ojp_eval5(&hand);
         ojp_hand_info(&pi, &hand, v1);
 
-        if (v1 > 100) continue;
         printf("<%s>%5d %s\n", ojs_text(&hand), v1, ojp_hand_description(&pi));
 /*
         if (0 == (0x1FFFF & iter.remaining)) {

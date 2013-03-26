@@ -70,9 +70,9 @@ int ojp_hand_info(oj_poker_hand_info_t *pi, oj_sequence_t *sp, int val) {
     if (val < 11) {
         pi->group = 0;  /* Straight Flush */
         pi->nranks = 1;
-        pi->ranks[0] = (sp->cards[0] - 1) >> 2;
-        if (12 == pi->ranks[0] && sp->cards[1] < 17) {
-            pi->ranks[0] = 3;
+        pi->ranks[0] = OJ_RANK(sp->cards[0]);
+        if (OJR_ACE == pi->ranks[0] && OJR_FIVE == OJ_RANK(sp->cards[1])) {
+            pi->ranks[0] = OJR_FIVE;
             t[0] = sp->cards[0];
             memmove(sp->cards, sp->cards + 1, 4 * sizeof(int));
             sp->cards[4] = t[0];
@@ -80,17 +80,17 @@ int ojp_hand_info(oj_poker_hand_info_t *pi, oj_sequence_t *sp, int val) {
     } else if (val < 167) {
         pi->group = 1;  /* Quads */
         pi->nranks = 2;
-        if (((sp->cards[0] - 1) >> 2) != ((sp->cards[1] - 1) >> 2)) {
+        if (OJ_RANK(sp->cards[0]) != OJ_RANK(sp->cards[1])) {
             t[0] = sp->cards[0];
             memmove(sp->cards, sp->cards + 1, 4 * sizeof(int));
             sp->cards[4] = t[0];
         }
-        pi->ranks[0] = (sp->cards[0] - 1) >> 2;
-        pi->ranks[1] = (sp->cards[4] - 1) >> 2;
+        pi->ranks[0] = OJ_RANK(sp->cards[0]);
+        pi->ranks[1] = OJ_RANK(sp->cards[4]);
     } else if (val < 323) {
         pi->group = 2;  /* Full House */
         pi->nranks = 2;
-        if (((sp->cards[0] - 1) >> 2) != ((sp->cards[2] - 1) >> 2)) {
+        if (OJ_RANK(sp->cards[0]) != OJ_RANK(sp->cards[2])) {
             memmove(t, sp->cards, 2 * sizeof(int));
             memmove(sp->cards, sp->cards + 2, 3 * sizeof(int));
             memmove(sp->cards + 3, t, 2 * sizeof(int));
@@ -100,13 +100,13 @@ int ojp_hand_info(oj_poker_hand_info_t *pi, oj_sequence_t *sp, int val) {
     } else if (val < 1600) {
         pi->group = 3;  /* Flush */
         pi->nranks = 5;
-        for (i = 0; i < 5; ++i) pi->ranks[i] = (sp->cards[i] - 1) >> 2;
+        for (i = 0; i < 5; ++i) pi->ranks[i] = OJ_RANK(sp->cards[i]);
     } else if (val < 1610) {
         pi->group = 4;  /* Straight */
         pi->nranks = 1;
-        pi->ranks[0] = (sp->cards[0] - 1) >> 2;
-        if (12 == pi->ranks[0] && sp->cards[1] < 17) {
-            pi->ranks[0] = 3;
+        pi->ranks[0] = OJ_RANK(sp->cards[0]);
+        if (OJR_ACE == pi->ranks[0] && OJR_FIVE == OJ_RANK(sp->cards[1])) {
+            pi->ranks[0] = OJR_FIVE;
             t[0] = sp->cards[0];
             memmove(sp->cards, sp->cards + 1, 4 * sizeof(int));
             sp->cards[4] = t[0];
@@ -114,7 +114,7 @@ int ojp_hand_info(oj_poker_hand_info_t *pi, oj_sequence_t *sp, int val) {
     } else if (val < 2468) {
         pi->group = 5;  /* Trips */
         pi->nranks = 3;
-        for (i = 0; i < 3; ++i) t[i] = (sp->cards[i] - 1) >> 2;
+        for (i = 0; i < 3; ++i) t[i] = OJ_RANK(sp->cards[i]);
         if (t[0] != t[1]) {
             if (t[1] != t[2]) {
                 memmove(t, sp->cards, 2 * sizeof(int));
@@ -126,11 +126,11 @@ int ojp_hand_info(oj_poker_hand_info_t *pi, oj_sequence_t *sp, int val) {
                 sp->cards[3] = t[0];
             }
         }
-        for (i = 0; i < 3; ++i) pi->ranks[i] = (sp->cards[i + 2] - 1) >> 2;
+        for (i = 0; i < 3; ++i) pi->ranks[i] = OJ_RANK(sp->cards[i + 2]);
     } else if (val < 3326) {
         pi->group = 6;  /* Two Pair */
         pi->nranks = 3;
-        for (i = 0; i < 5; ++i) t[i] = (sp->cards[i] - 1) >> 2;
+        for (i = 0; i < 5; ++i) t[i] = OJ_RANK(sp->cards[i]);
         if (t[3] == t[4]) {
             if (t[0] == t[1]) {
                 t[0] = sp->cards[2];
@@ -142,11 +142,11 @@ int ojp_hand_info(oj_poker_hand_info_t *pi, oj_sequence_t *sp, int val) {
                 sp->cards[4] = t[0];
             }
         }
-        for (i = 0; i < 3; ++i) pi->ranks[i] = (sp->cards[i << 1] - 1) >> 2;
+        for (i = 0; i < 3; ++i) pi->ranks[i] = OJ_RANK(sp->cards[i << 1]);
     } else if (val < 6186) {
         pi->group = 7;  /* One Pair */
         pi->nranks = 4;
-        for (i = 0; i < 5; ++i) t[i] = (sp->cards[i] - 1) >> 2;
+        for (i = 0; i < 5; ++i) t[i] = OJ_RANK(sp->cards[i]);
         if (t[1] == t[2]) {
             t[0] = sp->cards[0];
             memmove(sp->cards, sp->cards + 1, 2 * sizeof(int));
@@ -160,11 +160,11 @@ int ojp_hand_info(oj_poker_hand_info_t *pi, oj_sequence_t *sp, int val) {
             memmove(sp->cards, sp->cards + 3, 2 * sizeof(int));
             memmove(sp->cards + 2, t, 3 * sizeof(int));
         }
-        for (i = 0; i < 4; ++i) pi->ranks[i] = (sp->cards[i + 1] - 1) >> 2;
+        for (i = 0; i < 4; ++i) pi->ranks[i] = OJ_RANK(sp->cards[i + 1]);
     } else {
         pi->group = 8;  /* No Pair */
         pi->nranks = 5;
-        for (i = 0; i < 5; ++i) pi->ranks[i] = (sp->cards[i] - 1) >> 2;
+        for (i = 0; i < 5; ++i) pi->ranks[i] = OJ_RANK(sp->cards[i]);
     }
     pi->_johnnymoss = 0x10ACE0FF;
     return pi->group;

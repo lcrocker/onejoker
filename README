@@ -18,17 +18,31 @@ also assume Python 3. It should also be pretty easy to write C++ / Objective-C
 / C# bindings, but that will be someone else's project.
 
 I use cmake <http://www.cmake.org> to build the library. This should make
-porting easier. The way I build it on Linux is to change into the top-level
+porting easier. The way I build it on Linux is to change into the "src"
 directory of the git repository, then type
 
-  cmake -g 'Unix Makefiles' src
+  cmake -g "Unix Makefiles"
 
 to build the Makefiles, then
 
   make
+  sudo make install
 
-to build everything. Then either copy the library to some standard place like
-/usr/local/lib (and run ldconfig), or add its path to the library path.
+to build everything and install the shared library. This will NOT install the
+Python module, yet. I'll make a proper Python install system at some point.
+
+========
+Contents
+========
+
+python/
+    module/             The .py files for the module itself
+    scripts/            Scripts for tasks like building lookup tables.
+    test/               Samples of use of the module
+src/
+    include/            C Header files
+    lib/                Library code
+    tests/              C-based unit tests for library
 
 ========
 Overview
@@ -63,17 +77,6 @@ the iteration such as the total number of combinations, which hand would come
 up 1000th, and conversely at what position a certain hand would come up. The
 object can then be used to step through each of those combinations. You can
 also use an iterator to generate random combinations for monte carlo runs.
-
-========
-Contents
-========
-
-CMakeLists.txt          Cmake input file (and in subdirectories).
-python/                 Python module, tests, and scripts for other tasks.
-src/
-    include/            C Header files
-    lib/                Library code
-    tests/              C-based unit tests for library
 
 ======================
 Credits and Copyrights

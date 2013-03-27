@@ -183,7 +183,7 @@ char *ojp_hand_group_name(int g) {
 static char _hdbuf[48];
 
 #define RN(x) (oj_rankname(pi->ranks[x]))
-#define RNP(x) ((4==pi->ranks[x])?"es":"s")
+#define RNP(x) ((OJR_SIX==pi->ranks[x])?"es":"s")
 
 char *ojp_hand_description(oj_poker_hand_info_t *pi) {
     assert(0x10ACE0FF == pi->_johnnymoss);

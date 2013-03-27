@@ -7,12 +7,13 @@ if sys.version < "3.0":
     print("Python 3 required.")
     sys.exit(1)
 
-sys.path.append(".")
-import onejoker as oj, cardnames as cn
+sys.path.append("..")
+import onejoker.core as oj, onejoker.text as ot
 
 def progress(count):
     if (0 == (count & 0x3FFF)):
-        print("\r{0:8d} remaining.".format(count), file=sys.stderr, end="")
+        print("\r{0:8d} remaining.".format(count), file = sys.stderr,
+            end = "")
 
 class App(object):
     def __init__(self):
@@ -43,7 +44,7 @@ class App(object):
 
             for i, h in enumerate(hands):
                 h.append(b)
-                values[i] = oj.poker_eval(h)
+                values[i], h5 = oj.poker_best5(h)
                 h.truncate(2)
 
             best = min(values)
@@ -84,10 +85,10 @@ class App(object):
         s1.append(s2)
         print(s1)
 
-        print(s1[3], s1[6], cn.cardname(s1[2]), cn.cardname(s1[5]))
+        print(s1[3], s1[6], ot.cardname(s1[2]), ot.cardname(s1[5]))
         s1[3] = 21
         # s1[2] = "5h"
-        print(s1[3], s1[6], cn.cardname(s1[2]), cn.cardname(s1[5]))
+        print(s1[3], s1[6], ot.cardname(s1[2]), ot.cardname(s1[5]))
 
         for c in (14, 15, "5d", "5h"):
             print("{0}{1}in {2}".format(c, " " if c in s1 else " not ", s1))

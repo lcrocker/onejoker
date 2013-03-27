@@ -4,18 +4,18 @@
 # Functions for text I/O of cards. Uses regular expression module.
 #
 
-import sys
+import sys, re
 if sys.version < "3.0":
     print("Python 3 required.")
     sys.exit(1)
 
 from ctypes import *
-ojlib = CDLL("libonejoker.so")
+from ctypes.util import find_library
+ojlib = CDLL(find_library("onejoker"))
 ojlib.oj_cardname.restype = c_char_p
 ojlib.oj_rankname.restype = c_char_p
 ojlib.oj_suitname.restype = c_char_p
 
-import re
 _cnamepattern = re.compile("""
     \\s*
     (
@@ -28,7 +28,7 @@ _cnamepattern = re.compile("""
         )
     )""", re.IGNORECASE | re.VERBOSE)
 
-_cardnames = [ (ojlib.oj_cardname(c).decode()) for c in range(54) ]
+_cardnames = [ (ojlib.oj_cardname(c).decode()) for c in range(1, 54) ]
 _ranknames = [ (ojlib.oj_rankname(r).decode()) for r in range(14) ]
 _suitnames = [ (ojlib.oj_suitname(s).decode()) for s in range(4) ]
 

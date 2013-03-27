@@ -35,14 +35,15 @@ Python module, yet. I'll make a proper Python install system at some point.
 Contents
 ========
 
+CMakeLists.txt          Cmake build files (and in subdirectories)
 python/
-    module/             The .py files for the module itself
+    onejoker/           The .py files for the module itself
     scripts/            Scripts for tasks like building lookup tables.
-    test/               Samples of use of the module
+    tests/              Samples of use of the module
 src/
     include/            C Header files
     lib/                Library code
-    tests/              C-based unit tests for library
+    tests/              C-based tests for library
 
 ========
 Overview

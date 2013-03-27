@@ -1,6 +1,8 @@
+include_directories(${OneJoker_SOURCE_DIR}/src/include)
+link_directories(${OneJoker_BINARY_DIR}/src/lib)
+
 set(CMAKE_CXX_FLAGS "-v -g -Wall")
 set(CMAKE_SHARED_LINKER_FLAGS "-nostartfiles")
-
 set(OJ_HEADERS onejoker.h bctable.h ldctables.h)
 set(OJ_CFILES onejoker.c deckinfo.c prng.c sequence.c combinatorics.c poker.c)
 

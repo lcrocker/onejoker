@@ -5,18 +5,19 @@
 # shared library.
 #
 
-import sys
+import sys, itertools as it
 if sys.version < "3.0":
     print("Python 3 required.")
     sys.exit(1)
 
-import itertools
 from ctypes import *
-ojlib = CDLL("libonejoker.so")
+from ctypes.util import find_library
+
+ojlib = CDLL(find_library("onejoker"))
 ojlib.ojc_binomial.restype = c_longlong
 ojlib.ojc_rank.restype = c_longlong
 
-import cardnames as cn
+import onejoker.text as ot
 
 dt_standard = 0
 dt_1joker = 1
@@ -68,7 +69,7 @@ class Sequence(Structure):
             yield self.cards[i]
 
     def __str__(self):
-        return "({0})".format(cn.cardnames(
+        return "({0})".format(ot.cardnames(
             (self.cards[i] for i in range(self.length)), " "))
 
     def __eq__(self, other):
@@ -76,8 +77,8 @@ class Sequence(Structure):
             return ojlib.ojs_equal(byref(self), byref(other))
         else:
             if isinstance(other, str):
-                other = cn.cardnums(other)
-            return all( a == b for a, b in itertools.zip_longest(other,
+                other = ot.cardnums(other)
+            return all( a == b for a, b in it.zip_longest(other,
                 (self.cards[i] for i in range(self.length)), fillvalue = 0) )
 
     def __getitem__(self, index):
@@ -94,7 +95,7 @@ class Sequence(Structure):
 
     def __contains__(self, val):
         if isinstance(val, str):
-            val = cn.cardnum(val)
+            val = ot.cardnum(val)
         return (-1 != ojlib.ojs_index(byref(self), val))
 
     def clear(self):
@@ -109,7 +110,7 @@ class Sequence(Structure):
 
     def append(self, arg):
         if isinstance(arg, str):
-            for c in cn.cardnums(arg):
+            for c in ot.cardnums(arg):
                 ojlib.ojs_append(byref(self), c)
         elif hasattr(arg, "__iter__"):
             for v in arg:
@@ -123,7 +124,7 @@ class Sequence(Structure):
 
     def insert(self, index, arg):
         if isinstance(arg, str):
-            for c in cn.cardnums(arg):
+            for c in ot.cardnums(arg):
                 ojlib.ojs_insert(byref(self), index, c)
                 index += 1
         elif hasattr(arg, "__iter__"):
@@ -135,7 +136,7 @@ class Sequence(Structure):
 
     def remove(self, arg):
         if isinstance(arg, str):
-            for c in cn.cardnums(arg):
+            for c in ot.cardnums(arg):
                 v = ojlib.ojs_remove(byref(self), c)
             return v
         elif hasattr(arg, "__iter__"):
@@ -150,7 +151,7 @@ class Sequence(Structure):
 
     def index(self, card):
         if isinstance(card, str):
-            card = cn.cardnum(card)
+            card = ot.cardnum(card)
         return ojlib.ojs_index(byref(self), card)
 
     def fill(self, count = 52, type = None):

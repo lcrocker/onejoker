@@ -17,16 +17,16 @@ I use [cmake][3] to build the library. This should make porting easier. The way
 I build it on Linux is to change into the root directory of the git repository,
 then type
 
-   cmake -g "Unix Makefiles"
+    cmake -g "Unix Makefiles"
 
 to build the Makefiles, then
 
-   make
-   sudo make install
+    make
+    sudo make install
 
 to build everything and install. You can also use
 
-   make test
+    make test
 
 to run the unit tests.
 

@@ -1,11 +1,14 @@
 add_executable(test001 test001.c)
-target_link_libraries(test001 onejoker)
+target_link_libraries(test001 onejoker m)
+add_test(randomization test001)
 
 add_executable(test002 test002.c)
 target_link_libraries(test002 onejoker)
+add_test(sequence test002)
 
 add_executable(test003 test003.c)
-target_link_libraries(test003 onejoker)
+target_link_libraries(test003 onejoker m)
+add_test(combinations test003)
 
 add_executable(test004 test004.c)
 target_link_libraries(test004 onejoker)

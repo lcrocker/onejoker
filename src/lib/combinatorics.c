@@ -67,6 +67,8 @@ long long ojc_iter_new(
         iter->count = count;
     }
     iter->remaining = iter->count;
+
+    for (i = 0; i < k; ++i) hbuf[i] = i;
     for (i = 0; i < deck->length; ++i) {
         iter->deck_invert[deck->cards[i]] = i;
     }
@@ -86,43 +88,36 @@ int ojc_iter_next(oj_iterator_t *iter) {
 
     if (0 == iter->remaining) {
         return 0;
-    } else if (iter->remaining == iter->count) { /* First pass */
-        for (i = 0; i < iter->k; ++i) {
-            a[i] = i;
-            iter->hand->cards[i] = iter->deck->cards[a[i]];
-        }
-    } else {
+    } else if (iter->remaining != iter->count) {
         for (i = 0; i < k; ++i) {
             if ( ((i < k - 1) && (a[i] < (a[i + 1] - 1))) ||
                   ((i == k - 1) && (a[i] < n - 1)) ) {
                 ++a[i];
                 for (j = 0; j < i; ++j) a[j] = j;
-
-                for (i = 0; i < k; ++i) {
-                    iter->hand->cards[i] = iter->deck->cards[a[i]];
-                }
             }
         }
+    }
+    for (i = 0; i < k; ++i) {
+        iter->hand->cards[i] = iter->deck->cards[a[i]];
     }
     --iter->remaining;
     return 1;
 }
 
-#define SWAP(a,b) do{t=cp[a];cp[a]=cp[b];cp[b]=t;}while(0)
+#define SWAP(a,b) do{t=dp[a];dp[a]=dp[b];dp[b]=t;ip[dp[a]]=(a);ip[dp[b]]=(b);}while(0)
 
 int ojc_iter_next_random(oj_iterator_t *iter) {
     int i, j, t, k = iter->k, n = iter->deck->length,
-        *cp = iter->deck->cards;
+        *dp = iter->deck->cards, *ip = iter->deck_invert;
     assert(0 != iter && 0x10ACE0FF == iter->_johnnymoss);
 
     if (0 == iter->remaining) return 0;
 
-    /* Partial Fisher-Yates: only randomize as many random cards as needed */
-    for (i = n; i > (n - k); --i) {
-        j = ojr_rand(i);
-        SWAP(i - 1, j);
+    for (i = 0; i < k; ++i) {
+        j = ojr_rand(n - i);
+        SWAP(i, i + j);
+        iter->hand->cards[i] = dp[i];
     }
-    memmove(iter->hand->cards, &cp[n - k], k * sizeof(int));
     --iter->remaining;
     return 1;
 }
@@ -153,12 +148,11 @@ long long ojc_rank(oj_sequence_t *hand, oj_iterator_t *iter) {
 }
 
 void ojc_hand_at(long long rank, oj_sequence_t *hand, oj_iterator_t *iter) {
-    int i, v, buf[64];
+    int i, buf[64], v = iter->deck->length;
     long long b;
     assert(0 != hand && 0 != iter);
     assert(hand->allocation >= iter->k);
 
-    v = iter->deck->length;
     for (i = iter->k; i >= 1; --i) {
         while ((b = ojc_binomial(v, i)) > rank) {
             --v;

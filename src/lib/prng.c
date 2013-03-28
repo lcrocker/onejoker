@@ -117,7 +117,7 @@ uint32_t ojr_next32(void) {
 int ojr_rand(int limit) {
     int v, m = limit - 1;
     assert(_seeded);
-    assert(limit > 1);
+    assert(limit > 0);
     assert(limit < 65536);
 
     m |= m >> 1;

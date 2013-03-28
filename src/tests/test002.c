@@ -10,204 +10,286 @@
 
 #include "onejoker.h"
 
-oj_sequence_t hand4, hand16, deck, shoe;
-int hbuf4[4], hbuf16[16], dbuf[54], sbuf[6 * 52];
+oj_sequence_t hand5, hand20, deck, shoe;
+int hbuf5[5], hbuf20[20], dbuf[54], sbuf[6 * 52];
 
 void initialize(void) {
     int s;
 
-    s = ojs_new(&hand4, 4, hbuf4);
-    assert(4 == s);
-    s = ojs_new(&hand16, 16, hbuf16);
-    assert(16 == s);
+    s = ojs_new(&hand5, 5, hbuf5);
+    assert(5 == s);
+    s = ojs_new(&hand20, 20, hbuf20);
+    assert(20 == s);
     s = ojs_new(&deck, 54, dbuf);
     assert(54 == s);
-    s = ojs_new(&shoe, 6 * 52, dbuf);
+    s = ojs_new(&shoe, 6 * 52, sbuf);
     assert(6 * 52 == s);
 }
 
 void cleanup(void) {
-    ojs_clear(&hand4);
-    ojs_clear(&hand16);
+    ojs_clear(&hand5);
+    ojs_clear(&hand20);
     ojs_clear(&deck);
     ojs_clear(&shoe);
 }
 
-int tcfill(oj_sequence_t *sp, int *tc) {
-    int i;
+int t_truncate(void) {
+    int v1, v2;
 
-    ojs_clear(sp);
-    for (i = 0; i < tc[0]; ++i) {
-        ojs_append(sp, tc[i + 1]);
+    v1 = ojr_rand(6);
+    v2 = ojr_rand(21);
+    ojs_truncate(&hand5, v1);
+    if (v1 < hand5.length) return 1;
+    ojs_truncate(&hand20, v2);
+    if (v2 < hand20.length) return 1;
+    return 0;
+}
+
+int t_append(void) {
+    int v1, v2, h5l, h20l;
+
+    h5l = hand5.length;
+    v1 = ojr_rand(52) + 1;
+    ojs_append(&hand5, v1);
+    if (hand5.length != (h5l + 1)) {
+        if (hand5.length != hand5.allocation) return 1;
+    } else {
+        if (v1 != hand5.cards[hand5.length - 1]) return 1;
     }
-}
-
-int tcequal(oj_sequence_t *sp, int *tc) {
-    int i;
-
-    if (*tc != sp->length) return 0;
-    for (i = 0; i < sp->length; ++i) {
-        if (tc[i + 1] != sp->cards[i]) return 0;
+    h20l = hand20.length;
+    v2 = ojr_rand(52) + 1;
+    ojs_append(&hand20, v2);
+    if (hand20.length != (h20l + 1)) {
+        if (hand20.length != hand20.allocation) return 1;
+    } else {
+        if (v2 != hand20.cards[hand20.length - 1]) return 1;
     }
-    return 1;
+    ojs_append(&hand20, ojr_rand(52) + 1);
+    return 0;
 }
 
-void show(oj_sequence_t *sp) {
-    int i;
-    fprintf(stderr, "(%2d)", sp->length);
-    for (i = 0; i < sp->length; ++i) {
-        fprintf(stderr, " %2d", sp->cards[i]);
+int t_extend(void) {
+    int v1, h5l, h20l;
+
+    v1 = hand20.length + hand5.length;
+    ojs_extend(&hand20, &hand5, 0);
+    if (v1 > 20) v1 = 20;
+    if (v1 != hand20.length) return 1;
+
+    ojs_append(&hand5, ojr_rand(52) + 1);
+    v1 = ojr_rand(hand5.length) + 1;
+    ojs_truncate(&hand20, 20 - v1);
+    h20l = hand20.length;
+
+    ojs_extend(&hand20, &hand5, v1);
+    if (h20l + v1 != hand20.length) return 1;
+    if (hand5.cards[0] != hand20.cards[h20l]) return 1;
+    return 0;
+}
+
+int t_insert(void) {
+    int v1, v2, v3, h20l;
+
+    ojs_append(&hand20, ojr_rand(52) + 1);
+    ojs_truncate(&hand20, hand20.length - 1);
+    h20l = hand20.length;
+    v1 = hand20.cards[0];
+    v2 = hand20.cards[h20l - 1];
+    v3 = ojr_rand(++h20l);
+
+    ojs_insert(&hand20, v3, ojr_rand(52) + 1);
+    if (h20l != hand20.length) return 1;
+
+    if (0 != v3) {
+        if (v1 != hand20.cards[0]) return 1;
+    } else if (v3 < (h20l - 1)) {
+        if (v2 != hand20.cards[h20l - 1]) return 1;
     }
-    fprintf(stderr, "\n");
+    return 0;
 }
 
-int tc001[] = { 2, 21, 45 };
-int tc002[] = { 4, 32, 21, 45, 43 };
-int tc003[] = { 4, 6, 21, 45, 50 };
-int tc004[] = { 6, 14, 32, 21, 45, 43, 8 };
-int tc005[] = { 3, 21, 45, 43 };
+int t_pop(void) {
+    int v1, v2, h5l, h20l;
 
-void add_remove(void) {
-    int s, c;
-
-    cleanup();
-
-    s = ojs_append(&hand4, 21);
-    assert(1 == s);
-    s = ojs_append(&hand4, 45);
-    assert(2 == s && tcequal(&hand4, tc001));
-
-    s = ojs_insert(&hand4, 0, 32);
-    assert(3 == s);
-    s = ojs_append(&hand4, 43);
-    assert(4 == s && tcequal(&hand4, tc002));
-
-    s = ojs_append(&hand4, 14);
-    assert(0 == s && tcequal(&hand4, tc002));
-    s = ojs_insert(&hand4, 0, 12);
-    assert(0 == s && tcequal(&hand4, tc002));
-
-    c = ojs_pop(&hand4);
-    assert(43 == c && 3 == hand4.length);
-    c = ojs_delete(&hand4, 0);
-    assert(32 == c && 2 == hand4.length);
-    s = ojs_append(&hand4, 50);
-    assert(3 == s);
-    s = ojs_insert(&hand4, 0, 6);
-    assert(4 == s && tcequal(&hand4, tc003));
-
-    tcfill(&hand16, tc002);
-    s = ojs_insert(&hand16, 0, 14);
-    s = ojs_append(&hand16, 8);
-    assert(tcequal(&hand16, tc004));
-
-    c = ojs_pop(&hand16);
-    assert(8 == c);
-    c = ojs_remove(&hand16, 50);
-    assert(0 == c);
-    c = ojs_remove(&hand16, 32);
-    assert(32 == c);
-    c = ojs_delete(&hand16, 0);
-    assert(14 == c && tcequal(&hand16, tc005));
-
-    ojs_pop(&hand16);
-    c = ojs_remove(&hand16, 43);
-    assert(0 == c);
-    c = ojs_remove(&hand16, 21);
-    assert(21 == c);
-    c = ojs_remove(&hand16, 45);
-    assert(45 == c && 0 == hand16.length);
-
-    ojs_clear(&hand4);
-    c = ojs_pop(&hand4);
-    assert(0 == c);
-    c = ojs_pop(&hand4);
-    assert(0 == c);
+    h5l = hand5.length;
+    v1 = ojs_pop(&hand5);
+    if (0 == v1) {
+        if (0 != h5l) return 1;
+    } else {
+        if (hand5.length != (h5l - 1)) return 1;
+    }
+    h20l = hand20.length;
+    v2 = ojs_pop(&hand20);
+    if (0 == v2) {
+        if (0 != h20l) return 1;
+    } else {
+        if (hand20.length != (h20l - 1)) return 1;
+    }
+    return 0;
 }
 
-int tc006[] = { 4, 1, 2, 3, 4 };
-int tc007[] = { 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-int tc008[] = { 14, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 49, 50, 51, 52 };
-int tc009[] = { 3, 46, 47, 48 };
+int t_delete(void) {
+    int v1, v2, v3, h20l;
 
-void fill_move_copy(void) {
-    int s;
+    h20l = hand20.length;
+    ojs_delete(&hand20, 0);
+    if (h20l != hand20.length + 1) {
+        if (0 != h20l) return 1;
+    }
+    ojs_append(&hand20, ojr_rand(52) + 1);
+    h20l = hand20.length;
+    v1 = ojr_rand(h20l);
+    v2 = hand20.cards[v1];
 
-    cleanup();
-
-    s = ojs_fill(&hand4, 10, oj_dt_standard);
-    assert(4 == s && tcequal(&hand4, tc006));
-    s = ojs_fill(&hand16, 10, oj_dt_standard);
-    assert(10 == s && tcequal(&hand16, tc007));
-
-    s = ojs_fill(&deck, 52, oj_dt_standard);
-    assert(52 == s && 1 == deck.cards[0] && 52 == deck.cards[51]);
-    s = ojs_fill(&shoe, 4 * 53, oj_dt_1joker);
-    assert(4 * 53 == s && 53 == deck.cards[52] && 1 == deck.cards[53]);
+    v3 = ojs_delete(&hand20, v1);
+    if (v2 != v3) return 1;
+    if (h20l != hand20.length + 1) return 1;
+    return 0;
 }
 
-int tc010[] = { 10, 42, 14, 20, 21, 6, 51, 12, 33, 2, 19 };
-int tc011[] = { 10, 51, 42, 33, 21, 20, 19, 14, 12, 6, 2 };
+int t_remove(void) {
+    int v1, v2;
 
-void shuffle_sort(void) {
-    int s;
+    ojs_truncate(&hand20, 19);
+    v1 = ojr_rand(52) + 1;
+    ojs_append(&hand20, v1);
+    ojs_shuffle(&hand20);
+    if (-1 == ojs_index(&hand20, v1)) return 1;
 
-    cleanup();
+    v2 = ojs_remove(&hand20, v1);
+    if (v2 != v1) return 1;
 
-    tcfill(&hand16, tc010);
-    ojs_sort(&hand16);
-    ojs_reverse(&hand16);
-    assert(tcequal(&hand16, tc011));
-    ojs_shuffle(&hand16);
-    assert(! tcequal(&hand16, tc011)); /* Will fail rarely */
-    ojs_sort(&hand16);
-    ojs_reverse(&hand16);
-    assert(tcequal(&hand16, tc011));
+    do {
+        v2 = ojs_remove(&hand20, v1);
+    } while (0 != v2);
+    if (-1 != ojs_index(&hand20, v1)) return 1;
+    return 0;
 }
 
-#define NSHUFFLES 1000000
-static long buckets[52][52] = { 0 };
+int t_sort_reverse(void) {
+    int j;
 
-void shuffle_balance(void) {
-    int i, j;
-    double d, e, fit = 0.0;
+    ojs_append(&hand20, ojr_rand(20) + 18);
+    ojs_append(&hand20, ojr_rand(20) + 1);
+    ojs_sort(&hand20);
+    for (j = 1; j < hand20.length; ++j) {
+        if (hand20.cards[j] < hand20.cards[j - 1]) return 1;
+    }
+    ojs_reverse(&hand20);
+    for (j = 1; j < hand20.length; ++j) {
+        if (hand20.cards[j] > hand20.cards[j - 1]) return 1;
+    }
+    return 0;
+}
 
-    ojs_fill(&deck, 52, oj_dt_standard);
-    for (i = 0; i < NSHUFFLES; ++i) {
-        ojs_shuffle(&deck);
+int t_equal(void) {
+    int j;
 
-        for (j = 0; j < 52; ++j) {
-            ++buckets[j][deck.cards[j] - 1];
+    for (j = 0; j < 5; ++j) ojs_append(&hand5, ojr_rand(52) + 1);
+    ojs_clear(&hand20);
+    ojs_extend(&hand20, &hand5, 0);
+    if (! ojs_equal(&hand5, &hand20)) return 1;
+
+    ojs_append(&hand20, ojr_rand(52) + 1);
+    if (ojs_equal(&hand5, &hand20)) return 1;
+
+    ojs_pop(&hand20);
+    if (! ojs_equal(&hand5, &hand20)) return 1;
+
+    ojs_pop(&hand20);
+    ojs_append(&hand20, 53);
+    if (ojs_equal(&hand5, &hand20)) return 1;
+    return 0;
+}
+
+int t_fill(void) {
+    int j, v1, v2;
+
+    v1 = 15 + ojr_rand(10);
+    v2 = ojs_fill(&hand20, v1, oj_dt_standard);
+    if (v2 != v1) {
+        if (v2 != 20) return 1;
+    }
+    for (j = 0; j < hand20.length; ++j) {
+        if (j + 1 != hand20.cards[j]) return 1;
+    }
+    ojs_fill(&shoe, 3 * 52, oj_dt_standard);
+    if (1 != shoe.cards[52] || 1 != shoe.cards[104]) return 1;
+    return 0;
+}
+
+int fuzz(int count) {
+    int i, j, c, v1, v2, v3, h5l, h20l;
+
+    for (i = 0; i < count; ++i) {
+        c = ojr_rand(14) + 1;
+        switch (c) {
+        case 1:
+            ojs_clear(&hand5);
+            break;
+        case 2:
+            ojs_clear(&hand20);
+            break;
+        case 3:
+            ojs_append(&hand5, ojr_rand(52) + 1);
+            break;
+        case 4:
+            ojs_append(&hand20, ojr_rand(52) + 1);
+            ojs_append(&hand20, ojr_rand(52) + 1);
+            break;
+        case 5:
+            if (0 != t_truncate()) return c;
+            break;
+        case 6:
+            if (0 != t_append()) return c;
+            break;
+        case 7:
+            if (0 != t_extend()) return c;
+            break;
+        case 8:
+            if (0 != t_insert()) return c;
+            break;
+        case 9:
+            if (0 != t_pop()) return c;
+            break;
+        case 10:
+            if (0 != t_delete()) return c;
+            break;
+        case 11:
+            if (0 != t_remove()) return c;
+            break;
+        case 12:
+            if (0 != t_sort_reverse()) return c;
+            break;
+        case 13:
+            if (0 != t_equal()) return c;
+            break;
+        case 14:
+            if (0 != t_fill()) return c;
+            break;
+        default:
+            assert(0);
         }
-        if (0 == (i & 0xFFFF)) {
-            fprintf(stderr, "%d\r", i);
-        }
     }
-    fprintf(stderr, "Performed %d shuffles.\n", NSHUFFLES);
-    e = (double)NSHUFFLES / 52.0;
-
-    for (i = 0; i < 52; ++i) {
-        for (j = 0; j < 52; ++j) {
-            d = (double)(buckets[i][j]) - e;
-            fit += (d * d);
-        }
-    }
-    fit /= (52.0 * NSHUFFLES);
-    fprintf(stderr, "Fit: %.3f\n", fit);
-    assert(fit < 2.0);
+    cleanup();
+    return 0;
 }
 
 int main(int argc, char *argv[]) {
-    int r;
-    double f;
+    int r, failed = 0, count = 1000000;
 
     initialize();
-    add_remove();
-    fill_move_copy();
-    shuffle_sort();
-    fprintf(stderr, "Sequence tests passed.\n");
+    r = fuzz(count);
+    if (r) {
+        fprintf(stderr, "Test #%d failed.\n", r);
+    }
+    failed |= r;
 
-    shuffle_balance();
-    fprintf(stderr, "Done.\n");
-    return EXIT_SUCCESS;
+    fprintf(stderr, "Sequence tests ");
+    if (failed) {
+        fprintf(stderr, "failed. Code = %d", failed);
+    } else {
+        fprintf(stderr, "passed %d random operations.\n", count);
+    }
+    return failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }

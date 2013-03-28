@@ -45,8 +45,10 @@ int ojs_extend(oj_sequence_t *destp, oj_sequence_t *srcp, int count) {
     assert(0 != destp && 0x10ACE0FF == destp->_johnnymoss);
 
     if (0 == count) count = srcp->length;
+    if (count > srcp->length) count = srcp->length;
     if (count > (destp->allocation - destp->length))
         count = (destp->allocation - destp->length);
+    if (0 == count) return 0;
 
     memmove(destp->cards + destp->length, srcp->cards, count * sizeof(int));
     destp->length += count;
@@ -58,6 +60,8 @@ int ojs_insert(oj_sequence_t *sp, int index, int card) {
     assert(card > 0 && card <= 54);
 
     if (sp->length == sp->allocation) return 0;
+    if (index > sp->length) return 0;
+
     memmove(sp->cards + index + 1, sp->cards + index,
         (sp->length - index) * sizeof(int));
     sp->cards[index] = card;

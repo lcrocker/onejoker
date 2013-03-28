@@ -26,3 +26,5 @@ Makefile
 
 build/
 install_manifest.txt
+CTestTestfile.cmake
+Testing/

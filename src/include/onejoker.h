@@ -72,7 +72,9 @@ typedef struct _oj_poker_hand_info {
 #define OJ_JOKER2 54
 
 #define OJR_DEUCE 0
+#define OJR_TWO 0
 #define OJR_TREY 1
+#define OJR_THREE 1
 #define OJR_FOUR 2
 #define OJR_FIVE 3
 #define OJR_SIX 4

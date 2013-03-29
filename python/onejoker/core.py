@@ -61,6 +61,9 @@ def rank(c):
 def suit(c):
     return (c - 1) & 3
 
+def card(r, s):
+    return ((r << 2) | s) + 1
+
 def seed(val):
     return ojlib.ojr_seed(val)
 

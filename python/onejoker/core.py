@@ -19,6 +19,29 @@ ojlib.ojc_rank.restype = c_longlong
 
 import onejoker.text as ot
 
+r_deuce = 0
+r_trey = 1
+r_four = 2
+r_five = 3
+r_six = 4
+r_seven = 5
+r_eight = 6
+r_nine = 7
+r_ten = 8
+r_jack = 9
+r_queen = 10
+r_king = 11
+r_ace = 12
+r_joker = 13
+
+s_club = 0
+s_diamond = 1
+s_heart = 2
+s_spade = 3
+
+c_joker = 53
+c_joker2 = 54
+
 dt_standard = 0
 dt_1joker = 1
 dt_2jokers = 2
@@ -31,6 +54,12 @@ pg_acetofive = 1
 pg_deucetoseven = 2
 pg_acetosix = 3
 pg_badugi = 4
+
+def rank(c):
+    return (c - 1) >> 2
+
+def suit(c):
+    return (c - 1) & 3
 
 def seed(val):
     return ojlib.ojr_seed(val)

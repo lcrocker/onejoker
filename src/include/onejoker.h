@@ -65,10 +65,11 @@ typedef struct _oj_poker_hand_info {
     int ranks[5];
 } oj_poker_hand_info_t;
 
-/* General library functions */
-
 #define OJ_RANK(c) (((c)-1)>>2)
-#define OJ_SUIT(c) ((c)&3)
+#define OJ_SUIT(c) (((c)-1)&3)
+#define OJ_CARD(r,s) ((((r)<<2)|(s))+1)
+#define OJ_JOKER 53
+#define OJ_JOKER2 54
 
 #define OJR_DEUCE 0
 #define OJR_TREY 1
@@ -89,6 +90,8 @@ typedef struct _oj_poker_hand_info {
 #define OJS_DIAMOND 1
 #define OJS_HEART 2
 #define OJS_SPADE 3
+
+/* General library functions */
 
 extern int oj_init_library(int seed);
 extern char *oj_cardname(int c);

@@ -1,14 +1,19 @@
-add_executable(test001 test001.c)
-target_link_libraries(test001 onejoker m)
-add_test(randomization test001)
+# CMakeLists.txt file for subdirectory "src/tests" of OneJoker project.
+# This contains C sources for test code of the C library.
+#
+link_directories(${OneJoker_BINARY_DIR}/src/lib)
 
-add_executable(test002 test002.c)
-target_link_libraries(test002 onejoker)
-add_test(sequence test002)
+add_executable(randomization randomization.c)
+target_link_libraries(randomization onejoker m)
+add_test(randomization randomization)
 
-add_executable(test003 test003.c)
-target_link_libraries(test003 onejoker m)
-add_test(combinations test003)
+add_executable(sequences sequences.c)
+target_link_libraries(sequences onejoker)
+add_test(sequences sequences)
+
+add_executable(combinations combinations.c)
+target_link_libraries(combinations onejoker m)
+add_test(combinations combinations)
 
 add_executable(test004 test004.c)
 target_link_libraries(test004 onejoker)

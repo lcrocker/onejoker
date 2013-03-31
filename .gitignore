@@ -18,13 +18,4 @@ __pycache__
 *.out
 *.app
 
-# CMake created objects
-CMakeCache.txt
-CMakeFiles
-cmake_install.cmake
-Makefile
-
-build/
-install_manifest.txt
-CTestTestfile.cmake
-Testing/
+build

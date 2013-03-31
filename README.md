@@ -14,21 +14,23 @@ Build and Install
 -----------------
 
 I use [cmake][3] to build the library. This should make porting easier. The way
-I build it on Linux is to change into the root directory of the git repository,
-then type
+I build it on Linux is to make an out-of-source build tree. From the root
+directory of the git repository, type:
 
-    cmake -g "Unix Makefiles"
+    mkdir build
+    cd build
+    cmake -G "Unix Makefiles" ..
 
 to build the Makefiles, then
 
     make
-    sudo make install
 
-to build everything and install. You can also use
+to build the library. You can also use
 
     make test
 
-to run the unit tests.
+to run the unit tests. The "python" directory contains the python module with a
+standard setup.py script.
 
 [3]: http://www.cmake.org
 

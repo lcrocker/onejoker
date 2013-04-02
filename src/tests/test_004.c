@@ -14,7 +14,7 @@ oj_sequence_t gdeck;
 int gdbuf[60];
 
 int poker_eval() {
-    int r, v1, v2, hbuf[8], ibuf[8];
+    int v1, hbuf[8], ibuf[8];
     oj_sequence_t hand;
     oj_iterator_t iter;
     oj_poker_hand_info_t pi;
@@ -36,6 +36,7 @@ int poker_eval() {
         }
 */
     }
+    return 0;
 }
 
 int main(int argc, char *argv[]) {

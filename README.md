@@ -13,26 +13,21 @@ The best documentation for OneJoker is currently the [wiki][2] at GitHub:
 Build and Install
 -----------------
 
-I use [cmake][3] to build the library. This should make porting easier. The way
-I build it on Linux is to make an out-of-source build tree. From the root
-directory of the git repository, type:
-
-    mkdir build
-    cd build
-    cmake -G "Unix Makefiles" ..
-
-to build the Makefiles, then
+The C library should be buildable just by typing:
 
     make
 
-to build the library. You can also use
+at the root of the git repository. The Makefiles will detect Linux and
+Windows (MinGW/Cygwin) environments, and act accordingly. Other OSs are not yet
+supported, but shouldn't be too difficult to port to. The code is all very
+generic C, so porting should mostly involve how to make shared libraries on
+your OS. You can use:
 
     make test
 
 to run the unit tests. The "python" directory contains the python module with a
-standard setup.py script.
-
-[3]: http://www.cmake.org
+standard setup.py script. On Linux, you may have to run "ldconfig" after
+building the library before running the tests.
 
 Contents
 --------

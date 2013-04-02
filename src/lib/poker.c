@@ -28,7 +28,6 @@ static int hbuf[8], ibuf[8];
  */
 int ojp_best5(oj_sequence_t *sp, oj_sequence_t *bh) {
     int v, best;
-    long long c;
     assert(0 != sp && sp->length >= 5);
     assert(0 != bh && bh->allocation >= 5);
 
@@ -38,7 +37,7 @@ int ojp_best5(oj_sequence_t *sp, oj_sequence_t *bh) {
         return ojp_eval5(sp);
     }
     ojs_new(&phand, 5, hbuf);
-    c = ojc_iter_new(&piter, sp, &phand, 5, ibuf, 0LL);
+    ojc_iter_new(&piter, sp, &phand, 5, ibuf, 0LL);
 
     best = 9999;
     while (ojc_iter_next(&piter)) {

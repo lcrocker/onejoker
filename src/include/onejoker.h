@@ -110,6 +110,8 @@ extern int ojr_rand(int limit);
 
 /* Sequences */
 
+extern void ojs_clear(oj_sequence_t *sp);
+extern void ojs_truncate(oj_sequence_t *sp, int size);
 extern int ojs_new(oj_sequence_t *sp, int size, int *buf);
 extern int ojs_append(oj_sequence_t *sp, int card);
 extern int ojs_extend(oj_sequence_t *destp, oj_sequence_t *srcp, int count);

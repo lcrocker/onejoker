@@ -10,23 +10,38 @@
 
 int _oj_johnnymoss = 0;
 
-/* Initialization and finalization for library. This is the Linux way.
- * On other OSs you'll have to arrange for some way to make sure that
- * oj_init_library() gets called on load.
+/* Initialization and finalization for library.
  */
+ 
+#ifdef _WIN32
+
+#include <windows.h>
+
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
+    int r;
+
+    if (DLL_PROCESS_ATTACH == fdwReason) {
+        r = oj_init_library(0);
+        if (r) exit(EXIT_FAILURE);
+    }
+    return TRUE;
+}
+
+#else /* This is the Linux Way */
+
 void _init(void) {
     int r;
 
     r = oj_init_library(0);
-    if (r) {
-        exit(EXIT_FAILURE);
-    }
+    if (r) exit(EXIT_FAILURE);
     return;
 }
 
 void _fini(void) {
     return;
 }
+
+#endif
 
 int oj_init_library(int seed) {
     int r;

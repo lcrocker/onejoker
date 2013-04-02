@@ -11,7 +11,7 @@
 #include "bctable.h"
 
 long long ojc_binomial(int n, int k) {
-    int i, j;
+    int i;
     long long b;
     assert(n >= 0 && k >= 0);
 
@@ -131,7 +131,7 @@ int ojc_iter_next_random(oj_iterator_t *iter) {
  */
 long long ojc_rank(oj_sequence_t *hand, oj_iterator_t *iter) {
     int i, buf[64];
-    long long b, r = 0;
+    long long r = 0;
     assert(0 != hand && 0 != iter);
     assert(hand->length < 64);
 

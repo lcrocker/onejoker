@@ -22,12 +22,12 @@ int ojs_new(oj_sequence_t *sp, int size, int *buf) {
     return size;
 }
 
-inline void ojs_clear(oj_sequence_t *sp) {
+void ojs_clear(oj_sequence_t *sp) {
     sp->length = 0;
 }
 
 /* Python doesn't have this one, but it's handy for our uses */
-inline void ojs_truncate(oj_sequence_t *sp, int size) {
+void ojs_truncate(oj_sequence_t *sp, int size) {
     if (size < sp->length) sp->length = size;
 }
 

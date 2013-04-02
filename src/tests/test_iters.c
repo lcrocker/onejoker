@@ -76,7 +76,6 @@ int test_combinations(int n, int k) {
 
 int loop_combinations(void) {
     int i, k, n, r;
-    long long t;
 
     for (i = 0; i < 8; ++i) {
         n = nvals[i];
@@ -95,7 +94,7 @@ int loop_combinations(void) {
 }
 
 int test_montecarlo(int n, int k, long long count) {
-    int i, r;
+    int r;
     long long t;
     assert(0x10ACE0FF == deck._johnnymoss);
 
@@ -119,7 +118,6 @@ int test_montecarlo(int n, int k, long long count) {
 
 int loop_montecarlo(void) {
     int i, k, n, r;
-    long long t;
 
     for (i = 0; i < 8; ++i) {
         n = 20 + ojr_rand(10);
@@ -134,7 +132,7 @@ int loop_montecarlo(void) {
 long long buckets[52];
 
 int random_balance(void) {
-    int i, r;
+    int i;
     long long count = 1000000;
     double exp, d, t, sd, z, maxz;
 

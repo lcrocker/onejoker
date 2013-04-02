@@ -69,7 +69,7 @@ int t_append(void) {
 }
 
 int t_extend(void) {
-    int v1, h5l, h20l;
+    int v1, h20l;
 
     v1 = hand20.length + hand5.length;
     ojs_extend(&hand20, &hand5, 0);
@@ -219,7 +219,7 @@ int t_fill(void) {
 }
 
 int fuzz(int count) {
-    int i, j, c, v1, v2, v3, h5l, h20l;
+    int i, c;
 
     for (i = 0; i < count; ++i) {
         c = ojr_rand(14) + 1;

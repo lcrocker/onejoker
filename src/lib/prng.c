@@ -11,6 +11,11 @@
 #include <fcntl.h>
 #include <time.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#include <wincrypt.h>
+#endif
+
 #include "onejoker.h"
 
 /* Seed variables */
@@ -24,10 +29,15 @@ static int _seeded = 0;
 static uint16_t *sptr, state[2 * STATE_SIZE];
 
 int ojr_seed(int seed) {
-    int fn;
-    uint32_t s;
+    uint32_t s[4];
     time_t t;
+#ifdef _WIN32
+    HCRYPTPROV hCryptProv;
+#else
+    int fn;
+#endif
 
+    /* Make sure we reload on first call */
     sptr = state;
 
     /* Start with some reasonable defaults */
@@ -47,29 +57,39 @@ int ojr_seed(int seed) {
     }
     /* Fetch seed from system randomness.
      */
+#ifdef _WIN32
+    do {
+        if (!(CryptAcquireContext(&hCryptProv, "LDC",
+            0, PROV_RSA_FULL, 0))) {
+            if (!CryptAcquireContext(&hCryptProv, "LDC",
+                0, PROV_RSA_FULL, CRYPT_NEWKEYSET)) {
+                break;
+            }
+        }
+        if (CryptGenRandom(hCryptProv, 16, (BYTE *)s)) _seeded = 1;
+        CryptReleaseContext(hCryptProv, 0);
+    } while (0);
+#else
     fn = open("/dev/urandom", O_RDONLY);
     do {
         if (-1 == fn) break;
-        if (4 != read(fn, &s, 4)) break;
-        x = s;
-        if (4 != read(fn, &s, 4)) break;
-        if (0 != s) y = s;
-        if (4 != read(fn, &s, 4)) break;
-        z = s;
-        if (4 != read(fn, &s, 4)) break;
-        c = s % 698769068 + 1;
-
+        if (16 != read(fn, s, 16)) break;
         close(fn);
         _seeded = 1;
-        return 0;
     } while (0);
-
+#endif
+    if (_seeded) {
+        x = s[0];
+        if (0 != s[1]) y = s[1];
+        z = s[2];
+        c = s[3] % 698769068 + 1;
+        return 0;
+    }
     /* Fall back to using time()
      */
     time(&t);
     x ^= (0xA5A5A5A5 & t);
     z ^= (0x5A5A5A5A & t);
-
     _seeded = 1;
     return 0;
 }

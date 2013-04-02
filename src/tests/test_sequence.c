@@ -40,7 +40,7 @@ int t_truncate(void) {
     v2 = ojr_rand(21);
     ojs_truncate(&hand5, v1);
     if (v1 < hand5.length) return 1;
-    ojs_truncate(&hand20, v2);
+    OJS_TRUNCATE(&hand20, v2);
     if (v2 < hand20.length) return 1;
     return 0;
 }
@@ -50,7 +50,7 @@ int t_append(void) {
 
     h5l = hand5.length;
     v1 = ojr_rand(52) + 1;
-    ojs_append(&hand5, v1);
+    OJS_APPEND(&hand5, v1);
     if (hand5.length != (h5l + 1)) {
         if (hand5.length != hand5.allocation) return 1;
     } else {
@@ -112,7 +112,7 @@ int t_pop(void) {
     int v1, v2, h5l, h20l;
 
     h5l = hand5.length;
-    v1 = ojs_pop(&hand5);
+    v1 = OJS_POP(&hand5);
     if (0 == v1) {
         if (0 != h5l) return 1;
     } else {
@@ -170,7 +170,7 @@ int t_sort_reverse(void) {
     int j;
 
     ojs_append(&hand20, ojr_rand(20) + 18);
-    ojs_append(&hand20, ojr_rand(20) + 1);
+    OJS_APPEND(&hand20, ojr_rand(20) + 1);
     ojs_sort(&hand20);
     for (j = 1; j < hand20.length; ++j) {
         if (hand20.cards[j] < hand20.cards[j - 1]) return 1;
@@ -193,11 +193,11 @@ int t_equal(void) {
     ojs_append(&hand20, ojr_rand(52) + 1);
     if (ojs_equal(&hand5, &hand20)) return 1;
 
-    ojs_pop(&hand20);
+    OJS_POP(&hand20);
     if (! ojs_equal(&hand5, &hand20)) return 1;
 
     ojs_pop(&hand20);
-    ojs_append(&hand20, 53);
+    OJS_APPEND(&hand20, 53);
     if (ojs_equal(&hand5, &hand20)) return 1;
     return 0;
 }
@@ -228,14 +228,14 @@ int fuzz(int count) {
             ojs_clear(&hand5);
             break;
         case 2:
-            ojs_clear(&hand20);
+            OJS_CLEAR(&hand20);
             break;
         case 3:
             ojs_append(&hand5, ojr_rand(52) + 1);
             break;
         case 4:
             ojs_append(&hand20, ojr_rand(52) + 1);
-            ojs_append(&hand20, ojr_rand(52) + 1);
+            OJS_APPEND(&hand20, ojr_rand(52) + 1);
             break;
         case 5:
             if (0 != t_truncate()) return c;

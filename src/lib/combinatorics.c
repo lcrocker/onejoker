@@ -10,7 +10,8 @@
 #include "onejoker.h"
 #include "bctable.h"
 
-long long ojc_binomial(int n, int k) {
+__attribute__((hot, pure))
+long long ojc_binomial(const int n, int k) {
     int i;
     long long b;
     assert(n >= 0 && k >= 0);
@@ -41,12 +42,12 @@ long long ojc_binomial(int n, int k) {
  * will stop after that many iterations.
  */
 long long ojc_iter_new(
-    oj_iterator_t *iter,    /* Iterator to initialize */
-    oj_sequence_t *deck,    /* Universe set of cards */
-    oj_sequence_t *hand,    /* Hand to put results into */
-    int k,                  /* Cards per hand */
-    int *hbuf,              /* Scratch array of <k> integers */
-    long long count)        /* Monte carlo limit */
+    oj_iterator_t * const iter,         /* Iterator to initialize */
+    oj_sequence_t * const deck,         /* Universe set of cards */
+    oj_sequence_t * const hand,         /* Hand to put results into */
+    const int k,                        /* Cards per hand */
+    int * const hbuf,                   /* Scratch array of <k> integers */
+    const long long count)             /* Monte carlo limit */
 {
     int i;
 
@@ -82,8 +83,10 @@ long long ojc_iter_new(
  *   while <next> { <stuff> };
  * In Python we call it from a generator.
  */
-int ojc_iter_next(oj_iterator_t *iter) {
-    int i, j, *a = iter->a, k = iter->k, n = iter->deck->length;
+__attribute__((hot))
+int ojc_iter_next(oj_iterator_t * const iter) {
+    int i, j, * const a = iter->a;
+    const int k = iter->k, n = iter->deck->length;
     assert(0 != iter && 0x10ACE0FF == iter->_johnnymoss);
 
     if (0 == iter->remaining) {
@@ -106,9 +109,11 @@ int ojc_iter_next(oj_iterator_t *iter) {
 
 #define SWAP(a,b) do{t=dp[a];dp[a]=dp[b];dp[b]=t;ip[dp[a]]=(a);ip[dp[b]]=(b);}while(0)
 
-int ojc_iter_next_random(oj_iterator_t *iter) {
-    int i, j, t, k = iter->k, n = iter->deck->length,
-        *dp = iter->deck->cards, *ip = iter->deck_invert;
+__attribute__((hot))
+int ojc_iter_next_random(oj_iterator_t * const iter) {
+    int i, j, t;
+    const int k = iter->k, n = iter->deck->length;
+    int * const dp = iter->deck->cards, * const ip = iter->deck_invert;
     assert(0 != iter && 0x10ACE0FF == iter->_johnnymoss);
 
     if (0 == iter->remaining) return 0;
@@ -129,7 +134,8 @@ int ojc_iter_next_random(oj_iterator_t *iter) {
  * All of these functions use colexicographical order, because that's the
  * simplest to calculate in most cases.
  */
-long long ojc_rank(oj_sequence_t *hand, oj_iterator_t *iter) {
+long long ojc_rank(const oj_sequence_t * const hand,
+oj_iterator_t * const iter) {
     int i, buf[64];
     long long r = 0;
     assert(0 != hand && 0 != iter);
@@ -147,7 +153,8 @@ long long ojc_rank(oj_sequence_t *hand, oj_iterator_t *iter) {
     return r;
 }
 
-void ojc_hand_at(long long rank, oj_sequence_t *hand, oj_iterator_t *iter) {
+void ojc_hand_at(long long rank, oj_sequence_t * const hand,
+oj_iterator_t * const iter) {
     int i, buf[64], v = iter->deck->length;
     long long b;
     assert(0 != hand && 0 != iter);

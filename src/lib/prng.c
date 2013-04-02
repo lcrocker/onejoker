@@ -28,7 +28,7 @@ static int _seeded = 0;
 #define STATE_SIZE 512
 static uint16_t *sptr, state[2 * STATE_SIZE];
 
-int ojr_seed(int seed) {
+int ojr_seed(const int seed) {
     uint32_t s[4];
     time_t t;
 #ifdef _WIN32
@@ -96,6 +96,7 @@ int ojr_seed(int seed) {
 
 /* Need more random bits.
  */
+__attribute__((hot))
 static void reload(void) {
     int i;
     uint64_t t;
@@ -116,6 +117,7 @@ static void reload(void) {
 
 /* Return next 16 random bits from buffer.
  */
+__attribute__((hot))
 uint16_t ojr_next16(void) {
     assert(_seeded);
     if (sptr == state) reload();
@@ -134,7 +136,8 @@ uint32_t ojr_next32(void) {
 /* Return a well-balanced random integer from 0 to limit-1.
  * Limited to 16 bits!
  */
-int ojr_rand(int limit) {
+__attribute__((hot))
+int ojr_rand(const int limit) {
     int v, m = limit - 1;
     assert(_seeded);
     assert(limit > 0);

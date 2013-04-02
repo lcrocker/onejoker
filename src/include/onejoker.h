@@ -4,6 +4,10 @@
 #ifndef _ONEJOKER_H
 #define _ONEJOKER_H
 
+#ifndef __GNUC__
+#define __attribute__()
+#endif
+
 #include <stdint.h>
 
 extern int _oj_johnnymoss; /* Initialization check. */
@@ -96,47 +100,63 @@ typedef struct _oj_poker_hand_info {
 /* General library functions */
 
 extern int oj_init_library(int seed);
+
+/* Text I/O */
+
 extern char *oj_cardname(int c);
 extern char *oj_rankname(int r);
 extern char *oj_suitname(int s);
-extern char *oj_cardname_long(int c);
+extern char *oj_cardname_long(int c, char *buf, int size);
+extern char *ojs_text(oj_sequence_t * const sp);
 
 /* PRNG functions */
 
-extern int ojr_seed(int seed);
+extern int ojr_seed(const int seed);
 extern uint16_t ojr_next16(void);
 extern uint32_t ojr_next32(void);
-extern int ojr_rand(int limit);
+extern int ojr_rand(const int limit);
 
 /* Sequences */
 
-extern void ojs_clear(oj_sequence_t *sp);
-extern void ojs_truncate(oj_sequence_t *sp, int size);
-extern int ojs_new(oj_sequence_t *sp, int size, int *buf);
-extern int ojs_append(oj_sequence_t *sp, int card);
-extern int ojs_extend(oj_sequence_t *destp, oj_sequence_t *srcp, int count);
-extern int ojs_delete(oj_sequence_t *sp, int index);
-extern int ojs_insert(oj_sequence_t *sp, int index, int card);
-extern int ojs_pop(oj_sequence_t *sp);
-extern int ojs_remove(oj_sequence_t *sp, int card);
-extern int ojs_index(oj_sequence_t *sp, int card);
-extern void _ojs_sort_int_array(int n, int *cp);
-extern void ojs_sort(oj_sequence_t *sp);
-extern void ojs_reverse(oj_sequence_t *sp);
-extern int ojs_equal(oj_sequence_t *sp1, oj_sequence_t *sp2);
-extern int ojs_fill(oj_sequence_t *sp, int count, oj_deck_type_t dt);
-extern void ojs_shuffle(oj_sequence_t *sp);
-extern char *ojs_text(oj_sequence_t *sp);
+extern int ojs_new(oj_sequence_t * const sp, const int size,
+    int * const buf);
+extern void ojs_clear(oj_sequence_t * const sp);
+#define OJS_CLEAR(p) ((p)->length=0)
+extern void ojs_truncate(oj_sequence_t * const sp, const int size);
+#define OJS_TRUNCATE(p,s) (((s)<(p)->length)?((p)->length=(s)):0)
+extern int ojs_append(oj_sequence_t * const sp, const int card);
+#define OJS_APPEND(p,c) (((p)->length == (p)->allocation)?0:\
+((p)->cards[(p)->length++]=(c)))
+extern int ojs_extend(oj_sequence_t * const destp,
+    const oj_sequence_t * const srcp, int count);
+extern int ojs_insert(oj_sequence_t * const sp, const int index,
+    const int card);
+extern int ojs_pop(oj_sequence_t * const sp);
+#define OJS_POP(p) ((0==(p)->length)?0:(p)->cards[--(p)->length])
+extern int ojs_delete(oj_sequence_t * const sp, const int index);
+extern int ojs_remove(oj_sequence_t * const sp, const int card);
+extern int ojs_index(const oj_sequence_t * const sp, const int card);
+extern void _ojs_sort_int_array(const int n, int * const cp);
+extern void ojs_sort(oj_sequence_t * const sp);
+extern void ojs_reverse(oj_sequence_t * const sp);
+extern int ojs_equal(const oj_sequence_t * const sp1,
+    const oj_sequence_t * const sp2);
+extern int ojs_fill(oj_sequence_t * const sp, const int count,
+    const oj_deck_type_t dt);
+extern void ojs_shuffle(oj_sequence_t * const sp);
 
 /* Combinatorics */
 
-extern long long ojc_binomial(int n, int k);
-extern long long ojc_iter_new(oj_iterator_t *iter, oj_sequence_t *deck,
-    oj_sequence_t *hand, int k, int *hbuf, long long count);
-extern int ojc_iter_next(oj_iterator_t *iter);
-extern int ojc_iter_next_random(oj_iterator_t *iter);
-extern long long ojc_rank(oj_sequence_t *hand, oj_iterator_t *iter);
-extern void ojc_hand_at(long long rank, oj_sequence_t *hand, oj_iterator_t *iter);
+extern long long ojc_binomial(const int n, int k);
+extern long long ojc_iter_new(oj_iterator_t * const iter,
+    oj_sequence_t * const deck, oj_sequence_t * const hand,
+    const int k, int * const hbuf, const long long count);
+extern int ojc_iter_next(oj_iterator_t * const iter);
+extern int ojc_iter_next_random(oj_iterator_t * const iter);
+extern long long ojc_rank(const oj_sequence_t * const hand,
+    oj_iterator_t * const iter);
+extern void ojc_hand_at(long long rank, oj_sequence_t * const hand,
+    oj_iterator_t * const iter);
 
 /* Poker functions */
 

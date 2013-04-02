@@ -5,7 +5,7 @@ CC=gcc
 LD=gcc
 CFLAGS=-Wall -I../include
 LDFLAGS=-shared -lm
-SOURCES=onejoker.c deckinfo.c prng.c sequence.c combinatorics.c poker.c
+SOURCES=onejoker.c text.c deckinfo.c prng.c sequence.c combinatorics.c poker.c
 OBJECTS=$(SOURCES:.c=.o)
 
 ifeq ($(OS),Windows_NT)

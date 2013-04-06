@@ -28,6 +28,9 @@ static int _seeded = 0;
 #define STATE_SIZE 512
 static uint16_t *sptr, state[2 * STATE_SIZE];
 
+/* Seed the PRNG. If we are passed 0, generate a good seed from system
+ * entropy. Otherwise, give a reproducible sequence.
+ */
 int ojr_seed(const int seed) {
     uint32_t s[4];
     time_t t;
@@ -55,7 +58,7 @@ int ojr_seed(const int seed) {
         _seeded = 1;
         return 0;
     }
-    /* Fetch seed from system randomness.
+    /* Fetch seed from system entropy.
      */
 #ifdef _WIN32
     do {
@@ -152,4 +155,18 @@ int ojr_rand(const int limit) {
         v = ojr_next16() & m;
     } while (v >= limit);
     return v;
+}
+
+#define SWAP(a,b) do{t=cp[a];cp[a]=cp[b];cp[b]=t;}while(0)
+
+/* Randomly permute an array of integers, ensuring that each possible
+ * permutation is equally likely.
+ */
+void ojr_fisher_yates(const int n, int * const cp) {
+    int i, j, t;
+
+    for (i = n; i > 1; --i) {
+        j = ojr_rand(i);
+        SWAP(i - 1, j);
+    }
 }

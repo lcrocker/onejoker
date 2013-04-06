@@ -115,6 +115,7 @@ extern int ojr_seed(const int seed);
 extern uint16_t ojr_next16(void);
 extern uint32_t ojr_next32(void);
 extern int ojr_rand(const int limit);
+extern void ojr_fisher_yates(const int n, int * const cp);
 
 /* Sequences */
 

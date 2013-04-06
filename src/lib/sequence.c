@@ -233,14 +233,7 @@ const oj_deck_type_t dt) {
 
 /* Standard Fisher-Yates shuffle.
  */
-__attribute__((hot))
 void ojs_shuffle(oj_sequence_t * const sp) {
-    int i, j, t, * const cp = sp->cards;
     assert(0 != sp && 0x10ACE0FF == sp->_johnnymoss);
-
-    for (i = sp->length; i > 1; --i) {
-        j = ojr_rand(i);
-        SWAP(i - 1, j);
-    }
+    ojr_fisher_yates(sp->length, sp->cards);
 }
-

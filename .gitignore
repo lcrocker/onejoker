@@ -18,4 +18,4 @@ __pycache__
 *.out
 *.app
 
-build
+build.log

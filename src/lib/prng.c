@@ -48,6 +48,7 @@ int ojr_seed(const int seed) {
     y = 987654321;
     z = 43219876;
     c = 6543217;
+    _seeded = 0;
 
     /* If we were passed a nonzero seed, mix those bits in with the
      * defaults to get a repeatable sequence.
@@ -74,12 +75,10 @@ int ojr_seed(const int seed) {
     } while (0);
 #else
     fn = open("/dev/urandom", O_RDONLY);
-    do {
-        if (-1 == fn) break;
-        if (16 != read(fn, s, 16)) break;
+    if (-1 != fn) {
+        if (16 == read(fn, s, 16)) _seeded = 1;
         close(fn);
-        _seeded = 1;
-    } while (0);
+    }
 #endif
     if (_seeded) {
         x = s[0];

@@ -1,38 +1,17 @@
-# Makefile for src/lib/ directory of OneJoker project.
+# Token Makefile that just calls the real build script
 #
-SHELL=/bin/sh
-CC=gcc
-LD=gcc
-CFLAGS=-Wall -I../include
-LDFLAGS=-shared -lm
-SOURCES=onejoker.c text.c deckinfo.c prng.c sequence.c combinatorics.c poker.c
-OBJECTS=$(SOURCES:.c=.o)
 
-ifeq ($(OS),Windows_NT)
-LIB=onejoker.dll
-LDFLAGS+= -lcrypt32
-else
-LIB=libonejoker.so
-LDFLAGS+= -nostartfiles
-endif
+all: library
 
-$(LIB): $(OBJECTS)
-	$(LD) $(LDFLAGS) $(OBJECTS) -o $(LIB)
+.PHONY: library
+library:
+	python3 ../../build.py library
 
-$(OBJECTS): ../include/onejoker.h
-combinatorics.o: bctable.h
-poker.o: ldctables.h
-
-.SUFFIXES:
-
-%.o : %.c
-	$(CC) -c $(CFLAGS) $< -o $@
-
-all: lib
-
-.PHONY: lib
-lib: $(LIB)
+.PHONY: tests
+tests:
+	python3 ../../build.py tests
 
 .PHONY: clean
 clean:
-	rm -f *.o *.dll *.so
+	python3 ../../build.py cleanlibrary
+

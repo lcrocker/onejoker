@@ -1,20 +1,21 @@
-# Top-level Makefile for OneJoker project.
+# Token Makefile that just calls the real build script
 #
-ifeq ($(OS),Windows_NT)
-MAKE=make
-endif
 
-all: lib
+all: library
 
-.PHONY: lib
-lib:
-	$(MAKE) -C src/lib lib
+.PHONY: library
+library:
+	python3 ./build.py library
+
+.PHONY: tests
+tests:
+	python3 ./build.py tests
 
 .PHONY: test
-test: lib
-	$(MAKE) -C src/tests test
+test:
+	python3 ./build.py tests
 
 .PHONY: clean
 clean:
-	$(MAKE) -C src/lib clean
-	$(MAKE) -C src/tests clean
+	python3 ./build.py clean
+

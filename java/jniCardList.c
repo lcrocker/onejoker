@@ -19,26 +19,40 @@ JNIEXPORT jboolean JNICALL Java_com_onejoker_onejoker_CardList_nAppend
 
 JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nDelete
 (JNIEnv *env, jclass cls, jobject b, jint i) {
+    jbyte *ptr = (*env)->GetDirectBufferAddress(env, b);
+    return ojs_delete((oj_sequence_t *)ptr, i);
 }
 
 JNIEXPORT jboolean JNICALL Java_com_onejoker_onejoker_CardList_nEquals
 (JNIEnv *env, jclass cls, jobject b, jobject c) {
+    jbyte *ptr = (*env)->GetDirectBufferAddress(env, b);
+    jbyte *cmp = (*env)->GetDirectBufferAddress(env, c);
+    return ojs_equal((oj_sequence_t *)ptr, (oj_sequence_t *)cmp);
 }
 
 JNIEXPORT jboolean JNICALL Java_com_onejoker_onejoker_CardList_nExtend
 (JNIEnv *env, jclass cls, jobject d, jobject s, jint c) {
+    jbyte *dp = (*env)->GetDirectBufferAddress(env, d);
+    jbyte *sp = (*env)->GetDirectBufferAddress(env, s);
+    return 0 != ojs_extend((oj_sequence_t *)dp, (oj_sequence_t *)sp, c);
 }
 
 JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nFill
 (JNIEnv *env, jclass cls, jobject b, jint c, jint t) {
+    jbyte *ptr = (*env)->GetDirectBufferAddress(env, b);
+    return ojs_fill((oj_sequence_t *)ptr, c, t);
 }
 
 JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nFNVHash
 (JNIEnv *env, jclass cls, jobject b) {
+    jbyte *ptr = (*env)->GetDirectBufferAddress(env, b);
+    return ojs_fnv_hash((oj_sequence_t *)ptr);
 }
 
 JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nIndex
 (JNIEnv *env, jclass cls, jobject b, jint c) {
+    jbyte *ptr = (*env)->GetDirectBufferAddress(env, b);
+    return ojs_index((oj_sequence_t *)ptr, c);
 }
 
 JNIEXPORT void JNICALL Java_com_onejoker_onejoker_CardList_nNew
@@ -49,18 +63,26 @@ JNIEXPORT void JNICALL Java_com_onejoker_onejoker_CardList_nNew
 
 JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nPop
 (JNIEnv *env, jclass cls, jobject b) {
+    jbyte *ptr = (*env)->GetDirectBufferAddress(env, b);
+    return ojs_pop((oj_sequence_t *)ptr);
 }
 
 JNIEXPORT jboolean JNICALL Java_com_onejoker_onejoker_CardList_nRemove
 (JNIEnv *env, jclass cls, jobject b, jint c) {
+    jbyte *ptr = (*env)->GetDirectBufferAddress(env, b);
+    return ojs_remove((oj_sequence_t *)ptr, c);
 }
 
 JNIEXPORT void JNICALL Java_com_onejoker_onejoker_CardList_nReverse
 (JNIEnv *env, jclass cls, jobject b) {
+    jbyte *ptr = (*env)->GetDirectBufferAddress(env, b);
+    ojs_reverse((oj_sequence_t *)ptr);
 }
 
 JNIEXPORT void JNICALL Java_com_onejoker_onejoker_CardList_nShuffle
 (JNIEnv *env, jclass cls, jobject b) {
+    jbyte *ptr = (*env)->GetDirectBufferAddress(env, b);
+    ojs_shuffle((oj_sequence_t *)ptr);
 }
 
 JNIEXPORT void JNICALL Java_com_onejoker_onejoker_CardList_nSort

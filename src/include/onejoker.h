@@ -121,6 +121,7 @@ extern void ojr_fisher_yates(const int n, int * const cp);
 
 extern int ojs_new(oj_sequence_t * const sp, const int size,
     int * const buf);
+extern uint32_t ojs_fnv_hash(const oj_sequence_t * const sp);
 extern void ojs_clear(oj_sequence_t * const sp);
 #define OJS_CLEAR(p) ((p)->length=0)
 extern void ojs_truncate(oj_sequence_t * const sp, const int size);

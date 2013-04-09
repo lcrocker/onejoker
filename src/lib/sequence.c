@@ -5,20 +5,20 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stddef.h>
 #include <assert.h>
 #include <string.h>
 
 #include "onejoker.h"
 
-/* Initialize an empty sequence object with the given buffer.
- */
+/* Initialize an empty sequence object with the given buffer. */
 int ojs_new(oj_sequence_t * const sp, const int size, int * const buf) {
     assert(0 != sp && 0 != size && 0 != buf);
 
     sp->_johnnymoss = 0x10ACE0FF;
     sp->allocation = size;
-    sp->cards = buf;
     sp->length = 0;
+    sp->cards = buf;
     return size;
 }
 
@@ -29,6 +29,17 @@ void ojs_clear(oj_sequence_t * const sp) {
 /* Python doesn't have this one, but it's handy for our uses */
 void ojs_truncate(oj_sequence_t * const sp, const int size) {
     if (size < sp->length) sp->length = size;
+}
+
+uint32_t ojs_fnv_hash(const oj_sequence_t * const sp) {
+    int i;
+    uint32_t h = 2166136261U;
+
+    for (i = 0; i < sp->length; ++i) {
+        h *= 16777619;
+        h ^= sp->cards[i];
+    }
+    return h;
 }
 
 __attribute((hot))

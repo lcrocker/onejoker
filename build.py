@@ -18,8 +18,8 @@ g_inclusions = {
 }
 g_tests = [ "t_random", "t_sequence", "t_iters" ]
 
-g_jni_sources = [ "jni.c" ]
-g_java_classes = [ "Context", "Sequence", "Iterator", "Game" ]
+g_jni_sources = [ "jniCardList.c" ]
+g_java_classes = [ "CardContext", "CardList", "CardCombinations", "CardGame" ]
 
 g_cflags = "-Wall"
 g_ldflags = ""
@@ -184,7 +184,7 @@ def build_library():
     for sf in sources:
         b, x = os.path.splitext(sf)
         obj = b + ".o"
-        objects.append(obj)
+        objects.append(os.path.basename(obj))
 
         deps = [sf]
         if sf in g_inclusions:

@@ -18,8 +18,9 @@ g_inclusions = {
 }
 g_tests = [ "t_random", "t_sequence", "t_iters" ]
 
-g_jni_sources = [ "jniCardList.c" ]
-g_java_classes = [ "CardContext", "CardList", "CardCombinations", "CardGame" ]
+g_jni_sources = [ "jniCard.c", "jniCardList.c" ]
+g_java_classes = [ "Card", "CardList", "CardCombinations", "CardGame" ]
+g_java_tests = [ "Test001" ]
 
 g_cflags = "-Wall"
 g_ldflags = ""
@@ -35,8 +36,9 @@ g_debug_cflags = " ".join([g_cflags, "-g", "-pg", "-DDEBUG"])
 g_release_cflags = " ".join([g_cflags, "-O3", "-DNDEBUG"])
 g_debug_ldflags = g_ldflags
 g_release_ldflags = g_ldflags
+g_javac_release_flags = ""
+g_javac_debug_flags = "-g"
 
-g_javac_flags = "-g"
 g_extra_clean = [ "~*", "*.bak", "gmon.out" ]
 
 # Evertything above is stuff that might have to be configured for your system.
@@ -84,7 +86,7 @@ def cd(dir = None):
         dir = os.path.join(g_root, dir)
 
     info("cd \"{0}\".".format(dir))
-    if not g_config.quiet:
+    if g_config.verbose:
         print("cd {0}".format(dir))
     os.chdir(dir)
 
@@ -181,12 +183,13 @@ def build_library():
 
     needed = []
     objects = []
+    header = os.path.join(g_root, "src", "include", "onejoker.h")
     for sf in sources:
         b, x = os.path.splitext(sf)
-        obj = b + ".o"
-        objects.append(os.path.basename(obj))
+        obj = os.path.basename(b + ".o")
+        objects.append(obj)
 
-        deps = [sf]
+        deps = [sf, header]
         if sf in g_inclusions:
             deps.extend(g_inclusions[sf])
         if older(obj, deps):
@@ -209,6 +212,36 @@ def compile_tests(needed):
         cmd = "gcc {0} -L. -o {1} {2} -lonejoker -lm".format(flags, exe, src)
         system(cmd)
         info("Built {0}.".format(exe))
+
+def build_java():
+    cd("java")
+    jdir = os.path.join(g_root, "java", "com", "onejoker", "onejoker")
+
+    needed = []
+    for name in g_java_classes:
+        src = os.path.join(jdir, "{0}.java".format(name))
+        cls = os.path.join(jdir, "{0}.class".format(name))
+        if older(cls, [src]):
+            needed.append(src)
+
+    if 0 != len(needed):
+        flags = g_javac_release_flags if g_config.release else g_javac_debug_flags;
+        cmd = "javac {0} {1}".format(flags, " ".join(needed))
+        system(cmd)
+
+    needed = []
+    for name in g_java_classes:
+        cls = os.path.join(jdir, "{0}.class".format(name))
+        hdr = "com_onejoker_onejoker_{0}.h".format(name)
+        if older(hdr, [cls]):
+            needed.append("com.onejoker.onejoker.{0}".format(name))
+
+    if 0 != len(needed):
+        cmd = "javah -jni {0}".format(" ".join(needed))
+        system(cmd)
+
+def build_python():
+    pass
 
 def run_tests():
     build_library()
@@ -238,47 +271,44 @@ def run_tests():
         system("./{0}".format(exe))
     info("Tests passed.")
 
-def build_java():
+def run_java_tests():
+    g_config.java = True
+    build_library()
+    build_java()
     cd("java")
     jdir = os.path.join(g_root, "java", "com", "onejoker", "onejoker")
 
     needed = []
-    for name in g_java_classes:
+    for name in g_java_tests:
         src = os.path.join(jdir, "{0}.java".format(name))
         cls = os.path.join(jdir, "{0}.class".format(name))
         if older(cls, [src]):
             needed.append(src)
 
     if 0 != len(needed):
-        cmd = "javac {0} {1}".format(g_javac_flags, " ".join(needed))
+        flags = g_javac_release_flags if g_config.release else g_javac_debug_flags;
+        cmd = "javac {0} {1}".format(flags, " ".join(needed))
         system(cmd)
 
-    needed = []
-    for name in g_java_classes:
-        cls = os.path.join(jdir, "{0}.class".format(name))
-        hdr = "com_onejoker_onejoker_{0}.h".format(name)
-        if older(hdr, [cls]):
-            needed.append("com.onejoker.onejoker.{0}".format(name))
-
-    if 0 != len(needed):
-        cmd = "javah -jni {0}".format(" ".join(needed))
+    libdir = os.path.join(g_root, "src", "lib");
+    for cls in g_java_tests:
+        ea = "" if g_config.release else "-ea"
+        cmd = "java {0} -Djava.library.path={1} com.onejoker.onejoker.{2}".format(ea, libdir, cls);
         system(cmd)
 
-def build_python():
+def run_python_tests():
     pass
 
-
 target_aliases = {
-    "test": "tests", "lib": "library", "all": "library",
-    "cleantest": "cleantests", "cleanlib": "cleanlibrary", "cleansrc": "cleanlibrary",
-    "jni": "java"
+    "test": "tests", "lib": "library", "all": "library", "jni": "java"
 }
 
 target_functions = {
     "library": build_library, "tests": run_tests,
-    "cleanlibrary": clean_library, "cleanpython": clean_python,
-    "cleanjava": clean_java, "cleantests": clean_tests,
-    "clean": clean_all, "java": build_java, "python": build_python
+    "libclean": clean_library, "pyclean": clean_python,
+    "javaclean": clean_java, "testclean": clean_tests,
+    "clean": clean_all, "java": build_java, "python": build_python,
+    "javatests": run_java_tests, "pytests": run_python_tests
 }
 
 class BuildApp(object):

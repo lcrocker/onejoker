@@ -1,13 +1,14 @@
 # Token Makefile that just calls the real build script
 #
 
-all: module
-
-.PHONY: module
-module:
+.PHONY: all
+all:
 	python3 ../build.py python
 
 .PHONY: clean
 clean:
-	python3 ../build.py cleanpython
+	python3 ../build.py pyclean
 
+.PHONY: test
+test:
+	python3 ../build.py pytests

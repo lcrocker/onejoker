@@ -6,18 +6,34 @@ public class Test001 {
     static {
         System.loadLibrary("onejoker");
     }
+    private static void constructors() {
+        CardList cl1, cl2, cl3;
+
+        cl1 = new CardList(10);
+        cl2 = new CardList(20, "Ah Kd 10s 5c 9d");
+        cl1.add("AhKdTs5c9d");
+        cl3 = new CardList("3d 7s 5d");
+
+        assert 5 == cl1.size();
+        assert 3 == cl3.size();
+        assert cl1.equals(cl2);
+        System.out.printf("%s\n", cl1.toString());
+
+        cl3.add(5);
+        assert 3 == cl3.size();
+        cl2.clear();
+        assert 0 == cl2.size();
+        for (int i = 0; i < 5; ++i) { cl2.add(Card.rand(52) + 1); }
+
+        java.util.Iterator<Card> iter = cl2.iterator();
+        while (iter.hasNext()) {
+            Card c = iter.next();
+            System.out.printf("%d %s ", c.value(), c.name());
+        }
+        System.out.printf("\n%s\n", cl2.toString());
+    }
+
     public static void main(String[] args) {
-        System.out.printf("** 1\n");
-        CardList s = new CardList(10);
-        System.out.printf("** 2, %d\n", s.size());
-
-        s.add(45);
-        s.add(12);
-        System.out.printf("** 3 %d %d %d\n", s.size(), s.get(0), s.get(1));
-
-        s.set(1, 5);
-        System.out.printf("** 4 %d %d %d\n", s.size(), s.get(0), s.get(1));
-        s.sort();
-        System.out.printf("** 5 %d %d %d\n", s.size(), s.get(0), s.get(1));
+        constructors();
     }
 }

@@ -1,3 +1,8 @@
+/* OneJoker library <https://github.com/lcrocker/OneJoker>
+ *
+ * Native interface for CardList class.
+ */
+
 #include <stdio.h>
 #include <stddef.h>
 #include <jni.h>
@@ -53,6 +58,12 @@ JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nIndex
 (JNIEnv *env, jclass cls, jobject b, jint c) {
     jbyte *ptr = (*env)->GetDirectBufferAddress(env, b);
     return ojs_index((oj_sequence_t *)ptr, c);
+}
+
+JNIEXPORT jboolean JNICALL Java_com_onejoker_onejoker_CardList_nInsert
+(JNIEnv *env, jclass cls, jobject b, jint i, jint c) {
+    jbyte *ptr = (*env)->GetDirectBufferAddress(env, b);
+    return 0 != ojs_insert((oj_sequence_t *)ptr, i, c);
 }
 
 JNIEXPORT void JNICALL Java_com_onejoker_onejoker_CardList_nNew

@@ -81,6 +81,14 @@ JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nIndex
 
 /*
  * Class:     com_onejoker_onejoker_CardList
+ * Method:    nInsert
+ * Signature: (Ljava/nio/ByteBuffer;II)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_onejoker_onejoker_CardList_nInsert
+  (JNIEnv *, jclass, jobject, jint, jint);
+
+/*
+ * Class:     com_onejoker_onejoker_CardList
  * Method:    nNew
  * Signature: (Ljava/nio/ByteBuffer;I)V
  */

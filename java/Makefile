@@ -9,5 +9,9 @@ headers:
 
 .PHONY: clean
 clean:
-	python3 ../build.py cleanjava
+	python3 ../build.py javaclean
 
+
+.PHONY: test
+test:
+	python3 ../build.py javatests

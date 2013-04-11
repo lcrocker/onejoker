@@ -16,7 +16,7 @@ g_inclusions = {
     "combinatorics.c": [ "bctable.h" ],
     "poker.c": [ "ldctables.h" ]
 }
-g_tests = [ "t_random", "t_sequence", "t_iters" ]
+g_tests = [ "t_random", "t_sequence", "t_iters", "t_004" ]
 
 g_jni_sources = [ "jniCard.c", "jniCardList.c" ]
 g_java_classes = [ "Card", "CardList", "CardCombinations", "CardGame" ]
@@ -243,7 +243,7 @@ def build_java():
 def build_python():
     pass
 
-def run_tests():
+def build_c_tests():
     build_library()
     cd("src/tests")
 
@@ -267,11 +267,16 @@ def run_tests():
     compile_tests(needed)
     info("Built {0}.".format(g_libfile))
 
-    for exe in files.values():
+def run_c_tests():
+    build_c_tests()
+    cd("src/tests")
+
+    ext = ".exe" if "nt" == os.name else ""
+    for exe in [ "{0}{1}".format(f, ext) for f in g_tests ]:
         system("./{0}".format(exe))
     info("Tests passed.")
 
-def run_java_tests():
+def build_java_tests():
     g_config.java = True
     build_library()
     build_java()
@@ -290,25 +295,60 @@ def run_java_tests():
         cmd = "javac {0} {1}".format(flags, " ".join(needed))
         system(cmd)
 
+def run_java_tests():
+    build_java_tests()
+    cd("java")
+
     libdir = os.path.join(g_root, "src", "lib");
     for cls in g_java_tests:
         ea = "" if g_config.release else "-ea"
         cmd = "java {0} -Djava.library.path={1} com.onejoker.onejoker.{2}".format(ea, libdir, cls);
         system(cmd)
 
+def build_python_tests():
+    pass
+
 def run_python_tests():
     pass
 
+def build_all_tests():
+    build_c_tests()
+    build_java_tests()
+    build_python_tests()
+
+def run_all_tests():
+    run_c_tests()
+    run_java_tests()
+    run_python_tests()
+
 target_aliases = {
-    "test": "tests", "lib": "library", "all": "library", "jni": "java"
+    "test": "runtests",
+    "lib": "library",
+    "all": "library",
+    "jni": "java"
 }
 
 target_functions = {
-    "library": build_library, "tests": run_tests,
-    "libclean": clean_library, "pyclean": clean_python,
-    "javaclean": clean_java, "testclean": clean_tests,
-    "clean": clean_all, "java": build_java, "python": build_python,
-    "javatests": run_java_tests, "pytests": run_python_tests
+    "library": build_library,
+    "cleanlibrary": clean_library,
+
+    "ctests": build_c_tests,
+    "runctests": run_c_tests,
+    "cleantests": clean_tests,
+
+    "java": build_java,
+    "javatests": build_java_tests,
+    "runjavatests": run_java_tests,
+    "cleanjava": clean_java,
+
+    "python": build_python,
+    "pytests": build_python_tests,
+    "runpytests": run_python_tests,
+    "pyclean": clean_python,
+
+    "tests": build_all_tests,
+    "runtests": run_all_tests,
+    "clean": clean_all,
 }
 
 class BuildApp(object):

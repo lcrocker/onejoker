@@ -57,21 +57,37 @@ char *oj_cardname_long(int c, char *buf, int size) {
     return buf;
 }
 
-/* Standard warnings here about returning pointers to mutable buffers.
+/* Put a string representation of the card sequence into the given buffer,
+ * clipping if necessary. Return the buffer, or NULL if it was too small for
+ * anything useful.
  */
-static char _oj_htbuf[162];
+char *ojs_text(oj_sequence_t *sp, char *buf, int bsize) {
+    int i, sl = sp->length, last = 0, clipat = sl + 1;
+    char *cn, *bp = buf;
+    assert(0 != sl && 0 != bsize);
 
-char *ojs_text(oj_sequence_t *sp) {
-    int i;
-    char *cn, *bp = _oj_htbuf;
-    assert(sp->length <= 54);
+    if ((sl <= 2 && bsize < (3 * sl + 2)) ||
+        (sl > 2 && bsize < 10)) return NULL;
+    if (bsize < (3 * sl + 2)) clipat = (bsize - 7) / 3;
 
-    for (i = 0; i < sp->length; ++i) {
-        if (0 != i) *bp++ = ' ';
+    last = 0;
+    for (i = 0; i < sl; ++i) {
+        last = (i == (sl - 1));
+        if ((!last) && (i >= clipat)) continue;
+
+        if (0 == i) {
+            *bp++ = '(';
+        } else if (last && i >= clipat) {
+            *bp++ = '.'; *bp++ = '.'; *bp++ = '.';
+        } else {
+            *bp++ = ' ';
+        }
         cn = oj_cardname(sp->cards[i]);
         *bp++ = *cn++;
         *bp++ = *cn;
     }
+    *bp++ = ')';
     *bp = 0;
-    return _oj_htbuf;
+    assert((bp - buf) < bsize);
+    return buf;
 }

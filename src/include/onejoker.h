@@ -28,15 +28,6 @@ typedef struct _oj_deck_info {
 /* Defined in decktypes.c */
 extern oj_deck_info_t oj_deck_info[];
 
-/* Poker games. A "game" in this sense is just a hand evaluation method, not a
- * type of game in the sense of order of play or betting methods and so on.
- * Just how is one hand judged better than another.
- */
-typedef enum _oj_poker_game {
-    oj_pg_standard = 0, oj_pg_acetofive = 1, oj_pg_deucetoseven = 2,
-    oj_pg_acetosix = 3, oj_pg_badugi = 4
-} oj_poker_game_t;
-
 /* This is the sequence type used by the client. Mostly just a
  * typical array-like thing. Client is responsible for allocating
  * memory and initializing, and we check for this in several places.
@@ -107,7 +98,7 @@ extern char *oj_cardname(int c);
 extern char *oj_rankname(int r);
 extern char *oj_suitname(int s);
 extern char *oj_cardname_long(int c, char *buf, int size);
-extern char *ojs_text(oj_sequence_t * const sp);
+extern char *ojs_text(oj_sequence_t *sp, char *buf, int size);
 
 /* PRNG functions */
 

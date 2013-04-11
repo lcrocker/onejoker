@@ -13,37 +13,30 @@
 oj_sequence_t gdeck;
 int gdbuf[60];
 
-int poker_eval() {
-    int v1, hbuf[8], ibuf[8];
+int do_text() {
+    int i, sl, bl, hbuf[30];
+    char sbuf[60], *s;
     oj_sequence_t hand;
-    oj_iterator_t iter;
-    oj_poker_hand_info_t pi;
 
-    ojs_new(&gdeck, 60, gdbuf);
-    ojs_fill(&gdeck, 52, oj_dt_standard);
+    sl = 1 + ojr_rand(10) + ojr_rand(10) + ojr_rand(10);
+    bl = 1 + ojr_rand(20) + ojr_rand(20) + ojr_rand(20);
+    ojs_new(&hand, sl, hbuf);
 
-    ojs_new(&hand, 8, hbuf);
-    ojc_iter_new(&iter, &gdeck, &hand, 5, ibuf, 100000LL);
+    for (i = 0; i < sl; ++i) ojs_append(&hand, i + 1);
+    s = ojs_text(&hand, sbuf, bl);
+    printf("%2d %2d :%-*s:\n", sl, bl, bl-1, s);
 
-    while (ojc_iter_next_random(&iter)) {
-        v1 = ojp_eval5(&hand);
-        ojp_hand_info(&pi, &hand, v1);
-
-        printf("<%s>%5d %s\n", ojs_text(&hand), v1, ojp_hand_description(&pi));
-/*
-        if (0 == (0x1FFFF & iter.remaining)) {
-            printf("%10lld %d\n", iter.total - (iter.remaining + 1), v1);
-        }
-*/
-    }
     return 0;
 }
 
 int main(int argc, char *argv[]) {
     int i;
 
-    for (i = 0; i < 1; ++i) {
-        poker_eval();
+    ojs_new(&gdeck, 60, gdbuf);
+    ojs_fill(&gdeck, 52, oj_dt_standard);
+
+    for (i = 0; i < 1000; ++i) {
+        do_text();
     }
     return EXIT_SUCCESS;
 }

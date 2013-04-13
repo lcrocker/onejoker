@@ -21,9 +21,10 @@ g_clib_tests = {
 g_jni_classes = {
     "Card":             [],
     "CardList":         [],
+    "DeckType":         [],
 }
 g_java_classes = [
-    "Card", "CardList", "CardCombinations" , "CardGame",
+    "Card", "DeckType", "CardList", "CardCombinations" , "CardGame",
 ]
 g_java_tests = {
     "Test001":          [],
@@ -210,6 +211,8 @@ def build_java_tests():
         system(cmd)
 
 def run_java_tests():
+    build_c_library()
+    build_java_tests()
     cd("build/java")
     libdir = rp("build/clib")
     ea = "" if g_config.release else "-ea"

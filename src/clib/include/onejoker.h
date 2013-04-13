@@ -91,6 +91,7 @@ typedef struct _oj_poker_hand_info {
 /* General library functions */
 
 extern int oj_init_library(int seed);
+extern int oj_dt_ncards(int type);
 
 /* Text I/O */
 

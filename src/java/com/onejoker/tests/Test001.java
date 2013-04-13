@@ -28,12 +28,21 @@ public class Test001 {
         java.util.Iterator<Card> iter = cl2.iterator();
         while (iter.hasNext()) {
             Card c = iter.next();
-            System.out.printf("%d %s ", c.value(), c.name());
+            System.out.printf("%d %s ", c.intValue(), c.name());
         }
         System.out.printf("\n%s\n", cl2.toString());
     }
 
+    private static void decktypes() {
+        CardList cl1, cl2;
+
+        cl1 = new CardList(60);
+        cl1.fill(DeckType.STRIPPED40);
+        System.out.printf("%d %s\n", DeckType.STANDARD.size(), cl1.toString());
+    }
+
     public static void main(String[] args) {
         constructors();
+        decktypes();
     }
 }

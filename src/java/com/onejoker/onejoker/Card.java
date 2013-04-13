@@ -1,7 +1,7 @@
 /* OneJoker library <https://github.com/lcrocker/OneJoker>
  *
- * Cards are generally passed around as plain ints, not objects. This Card
- * class mainly provides utility functions and constants.
+ * Immutable class Card is basically a wrapper around a single integer value
+ * like Integer, but with some specialized utilities.
  */
 package com.onejoker.onejoker;
 
@@ -10,23 +10,27 @@ import java.util.regex.Pattern;
 import java.util.Hashtable;
 import java.util.ArrayList;
 
-public class Card {
-    private int mValue;
+public final class Card {
+    private final int mValue;
 
     public Card(int v) { mValue = v; }
     public Card(int r, int s) { mValue = (r << 2) + s + 1; }
-    public Card(String s) { mValue = fromString(s); }
+    public Card(String s) { mValue = parseInt(s); }
 
-    public int value() { return mValue; }
-    public int rank() { return (mValue - 1) >>> 2; }
-    public int suit() { return (mValue - 1) & 3; }
+    public int intValue() { return mValue; }
+    public int hashCode() { return mValue; }
+    public int intRank() { return (mValue - 1) >>> 2; }
+    public int intSuit() { return (mValue - 1) & 3; }
     public String name() { return cardnames[mValue]; }
 
     public static int rank(int c) { return (c - 1) >>> 2; }
+    public static int rank(Card c) { return (c.mValue - 1) >>> 2; }
     public static int suit(int c) { return (c - 1) & 3; }
+    public static int suit(Card c) { return (c.mValue - 1) & 3; }
     public static String name(int c) { return cardnames[c]; }
+    public static String name(Card c) { return cardnames[c.mValue]; }
 
-    public static int fromString(String str) {
+    public static int parseInt(String str) {
         Matcher m = mPat.matcher(str);
         if (m.find()) {
             String j = m.group(2);
@@ -38,21 +42,21 @@ public class Card {
             String s = m.group(5).toLowerCase();
             return (mRanks.get(r) << 2) + mSuits.get(s) + 1;
         }
-        return 0;
+        throw new NumberFormatException("Unrecognized card value");
     }
 
-    public static ArrayList<Integer> listFromString(String str) {
-        ArrayList<Integer> cards = new ArrayList<Integer>();
+    public static ArrayList<Card> listFromString(String str) {
+        ArrayList<Card> cards = new ArrayList<Card>();
         Matcher m = mPat.matcher(str);
         while (m.find()) {
             String j = m.group(2);
             if (null != j) {
-                if ('2' == j.charAt(1)) cards.add(54);
-                else cards.add(53);
+                if ('2' == j.charAt(1)) cards.add(new Card(54));
+                else cards.add(new Card(53));
             } else {
                 String r = m.group(4).toLowerCase();
                 String s = m.group(5).toLowerCase();
-                cards.add((mRanks.get(r) << 2) + mSuits.get(s) + 1);
+                cards.add(new Card((mRanks.get(r) << 2) + mSuits.get(s) + 1));
             }
         }
         return cards;
@@ -82,11 +86,11 @@ public class Card {
     public static final int JOKER2 = 54;
 
     public static final String[] cardnames = { "XX",
-        "2c","2d","2h","2s","3c","3d","3h","3s","4c","4d","4h","4s",
-        "5c","5d","5h","5s","6c","6d","6h","6s","7c","7d","7h","7s",
-        "8c","8d","8h","8s","9c","9d","9h","9s","Tc","Td","Th","Ts",
-        "Jc","Jd","Jh","Js","Qc","Qd","Qh","Qs","Kc","Kd","Kh","Ks",
-        "Ac","Ad","Ah","As","Jk","J2"
+        "2c","2d","2h","2s", "3c","3d","3h","3s", "4c","4d","4h","4s",
+        "5c","5d","5h","5s", "6c","6d","6h","6s", "7c","7d","7h","7s",
+        "8c","8d","8h","8s", "9c","9d","9h","9s", "Tc","Td","Th","Ts",
+        "Jc","Jd","Jh","Js", "Qc","Qd","Qh","Qs", "Kc","Kd","Kh","Ks",
+        "Ac","Ad","Ah","As", "Jk","J2"
     };
     private static final Hashtable<String, Integer> mRanks =
         new Hashtable<String, Integer>();

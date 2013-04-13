@@ -17,5 +17,5 @@ run:
 
 .PHONY: clean
 clean:
-	python3 ../../build.py cleantests
+	python3 ../../build.py cleanctests
 

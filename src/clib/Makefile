@@ -13,5 +13,5 @@ tests:
 
 .PHONY: clean
 clean:
-	python3 ../../build.py cleanlibrary
+	python3 ../../build.py cleanclib
 

@@ -25,7 +25,7 @@ portable, and smarter than any such generic tool. Anything you might need to
 change for your installation should be at the top of the script, but it should
 run without any changes on most systems. Just type:
 
-    python3 ./build.py
+    python3 ./build.py library
 
 And it should figure things out. If you have Java installed and JAVA_HOME set,
 it will include the JNI functions unless you specifically add "--nojava" to the

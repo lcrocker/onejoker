@@ -1,23 +1,16 @@
-#!/usr/bin/env python3
 # OneJoker library <https://github.com/lcrocker/OneJoker>
-#
-# Functions for text I/O of cards. Uses regular expression module.
-#
 
 import sys, re
-if sys.version < "3.0":
-    print("Python 3 required.")
-    sys.exit(1)
-
 from ctypes import *
 from ctypes.util import find_library
+
 ojlib = CDLL(find_library("onejoker"))
 ojlib.oj_cardname.restype = c_char_p
 ojlib.oj_rankname.restype = c_char_p
 ojlib.oj_suitname.restype = c_char_p
 
 _cnamepattern = re.compile("""
-    [\\s\\(\\)]*
+    [^A-Za-z0-9]*
     (
         (jk|j2|joker)
         |

@@ -2,29 +2,29 @@
 # Build script for OneJoker library <https://github.com/lcrocker/OneJoker>.
 #
 import os, sys, argparse, glob
+from collections import OrderedDict;
 
-g_clib_objects = {
-    "onejoker":         [],
-    "prng":             [],
-    "sequence":         [],
-    "text":             [],
-    "deckinfo":         [],
-    "combinatorics":    [ "bctable.h" ],
-    "poker":            [ "ldctables.h" ],
-}
-g_clib_tests = {
-    "t_basic":          [ [], [] ],
-#    "t_random":         [ [], [ "m" ] ],
-#    "t_sequence":       [ [], [] ],
-#    "t_iters":          [ [], [ "m" ] ],
-#    "t_004":            [ [], [] ],
-}
+g_clib_objects = OrderedDict([
+    ("onejoker",         []),
+    ("prng",             []),
+    ("text",             []),
+    ("deckinfo",         []),
+    ("sequence",         []),
+    ("combinatorics",    [ "bctable.h" ]),
+    ("poker",            [ "ldctables.h" ]),
+])
+g_clib_tests = OrderedDict([
+    ("t_basic",          [ [], [] ]),
+#    ("t_random",         [ [], [ "m" ] ]),
+#    ("t_sequence",       [ [], [] ]),
+#    ("t_iters",          [ [], [ "m" ] ]),
+])
 g_jni_classes = [ "Card", "CardList", "DeckType", ]
 g_java_classes = [
     "Card", "DeckType", "CardList", "CardCombinations" , "CardGame",
 ]
-g_java_tests = [ "Basic", ] # "Test001" ]
-g_python_files = [ "__init__", "core", "text" ]
+g_java_tests = [ "Basic" ]
+g_python_files = [ "__init__", "core", "text", "cardlist", "combinations" ]
 g_python_tests = [ "basic" ]
 
 g_root_dir = os.path.dirname(os.path.abspath(__file__))
@@ -249,6 +249,7 @@ def build_python_tests():
         system(cmd)
 
 def run_python_tests():
+    build_c_library()
     build_python_tests()
     for t in g_python_tests:
         cmd = "python3 {0}/{1}.py".format(rp("build/python/tests"), t)
@@ -260,6 +261,7 @@ def build_all_tests():
     build_python_tests()
 
 def run_all_tests():
+    build_all_tests()
     run_c_tests()
     run_java_tests()
     run_python_tests()
@@ -298,27 +300,27 @@ def clean_all():
 target_aliases = {
     "test": "runtests",
     "lib": "library",
-    "jni": "javaheaders"
+    "clean": "cleanall"
 }
 
-target_functions = {
-    "library": build_c_library,
-    "ctests": build_c_tests,
-    "runctests": run_c_tests,
-    "javaclasses": build_java_classes,
-    "javaheaders": build_java_headers,
-    "javatests": build_java_tests,
-    "runjavatests": run_java_tests,
-    "python": build_python_package,
-    "pytests": build_python_tests,
-    "runpytests": run_python_tests,
-    "tests": build_all_tests,
-    "runtests": run_all_tests,
-    "cleanjava": clean_java,
-    "cleanpython": clean_python,
-    "cleanclib": clean_clib,
-    "clean": clean_all,
-}
+target_functions = OrderedDict([
+    ("library",         build_c_library),
+    ("python",          build_python_package),
+    ("javaclasses",     build_java_classes),
+    ("ctests",          build_c_tests),
+    ("pytests",         build_python_tests),
+    ("javatests",       build_java_tests),
+    ("alltests",        build_all_tests),
+    ("javaheaders",     build_java_headers),
+    ("runctests",       run_c_tests),
+    ("runjavatests",    run_java_tests),
+    ("runpytests",      run_python_tests),
+    ("runtests",        run_all_tests),
+    ("cleanclib",       clean_clib),
+    ("cleanpython",     clean_python),
+    ("cleanjava",       clean_java),
+    ("cleanall",        clean_all),
+])
 
 class BuildApp(object):
     def __init__(self):
@@ -335,8 +337,9 @@ class BuildApp(object):
             f()
 
     def parse_command_line(self):
+        alltargets = ", ".join(target_functions.keys())
         p = argparse.ArgumentParser(description = "Build OneJoker library",
-            epilog = "Common targets: library, test, clean")
+            epilog = "Targets: {0}".format(alltargets))
         p.add_argument("-v", "--verbose", action = "store_true",
             help = "show extra information")
         p.add_argument("-q", "--quiet", action = "store_true",
@@ -350,11 +353,12 @@ class BuildApp(object):
         p.add_argument("target", nargs = "*",
             help = "what to build")
         p.parse_args(namespace = g_config)
+        self.parser = p
 
     def run(self):
         self.parse_command_line()
         if 0 == len(g_config.target):
-            return
+            self.parser.print_help()
 
         cwd = os.getcwd()
         for t in g_config.target:

@@ -9,9 +9,9 @@ library:
 
 .PHONY: tests
 tests:
-	python3 ./build.py ctests javatests pytests
+	python3 ./build.py runtests
 
 .PHONY: clean
 clean:
-	python3 ./build.py clean
+	python3 ./build.py cleanall
 

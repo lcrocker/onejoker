@@ -101,6 +101,8 @@ extern char *oj_rankname(int r);
 extern char *oj_suitname(int s);
 extern char *oj_cardname_long(int c, char *buf, int size);
 extern char *ojs_text(oj_sequence_t *sp, char *buf, int size);
+extern int oj_cardval(char *str);
+extern int oj_cardvals(char *str, int *arr, int size);
 
 /* PRNG functions */
 

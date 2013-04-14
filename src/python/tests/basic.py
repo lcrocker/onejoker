@@ -12,9 +12,9 @@ if sys.version < "3.0":
 
 here = os.path.dirname(os.path.abspath(__file__))
 upone = os.path.dirname(here)
-sys.path.append(upone)
+sys.path.insert(1, upone)
 
-import onejoker.core as oj, onejoker.text as ot
+import onejoker as oj
 
 class App(object):
     def cards_and_decks(self):

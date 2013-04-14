@@ -112,7 +112,7 @@ public final class Card {
         mSuits.put("h", HEART); mSuits.put("s", SPADE);
     }
     private static final Pattern mPat = Pattern.compile(
-    "\\s*((jk|j2|joker)|((2|3|4|5|6|7|8|9|10|t|j|q|k|a)\\s*(c|d|h|s)))",
+    "[^A-Za-z0-9]*((jk|j2|joker)|((2|3|4|5|6|7|8|9|10|t|j|q|k|a)\\s*(c|d|h|s)))",
     Pattern.CASE_INSENSITIVE);
 
     public static native int seed(int s);

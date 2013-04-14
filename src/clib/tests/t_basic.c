@@ -49,7 +49,49 @@ int cards_and_decks() {
     return 0;
 }
 
+extern char *oj_cardname(int c);
+extern char *oj_rankname(int r);
+extern char *oj_suitname(int s);
+extern char *oj_cardname_long(int c, char *buf, int size);
+extern char *ojs_text(oj_sequence_t *sp, char *buf, int size);
+extern int oj_cardval(char *str);
+extern int oj_cardvals(char *str, int *arr, int size);
+
 int text_functions() {
+    int v, arr[20];
+    char t[60];
+    oj_sequence_t seq;
+
+    if (0 != strcmp("Jd",
+        oj_cardname(OJ_CARD(OJR_JACK, OJS_DIAMOND)))) return 1;    
+    if (0 != strcmp("Tc",
+        oj_cardname(OJ_CARD(OJR_TEN, OJS_CLUB)))) return 2;    
+    if (0 != strcmp("5h",
+        oj_cardname(OJ_CARD(OJR_FIVE, OJS_HEART)))) return 3;    
+    if (0 != strcmp("JK", oj_cardname(OJ_JOKER))) return 4;
+
+    if (OJ_CARD(OJR_DEUCE, OJS_SPADE) != oj_cardval("2s")) return 5;
+    if (OJ_CARD(OJR_FOUR, OJS_CLUB) != oj_cardval(" 4 c")) return 6;
+    if (OJ_CARD(OJR_SIX, OJS_DIAMOND) != oj_cardval("**6d")) return 7;
+    if (OJ_CARD(OJR_QUEEN, OJS_SPADE) != oj_cardval("qS")) return 8;
+    if (OJ_JOKER2 != oj_cardval("J2")) return 9;
+
+    ojs_new(&seq, 20, arr);
+    ojs_append(&seq, oj_cardval("3s"));
+    ojs_append(&seq, oj_cardval("Ad"));
+    ojs_append(&seq, oj_cardval("Jc"));
+    ojs_append(&seq, oj_cardval("7d"));
+    ojs_append(&seq, oj_cardval("10s"));
+
+    ojs_text(&seq, t, 60);
+    if (0 != strcmp("(3s Ad Jc 7d Ts)", t)) return 10;
+    v = oj_cardvals("KsKc5c9d2hQcJk", arr, 20);
+    if (7 != v) return 11;
+    if (OJ_CARD(OJR_KING, OJS_SPADE) != arr[0]) return 12;
+    if (OJ_CARD(OJR_QUEEN, OJS_CLUB) != arr[5]) return 13;
+    ojs_text(&seq, t, 60);
+    if (0 != strcmp("(Ks Kc 5c 9d 2h)", t)) return 14;
+
     return 0;
 }
 

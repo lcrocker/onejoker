@@ -43,8 +43,8 @@ c_joker = 53
 c_joker2 = 54
 
 dt_standard = 0
-dt_1joker = 1
-dt_2jokers = 2
+dt_onejoker = 1
+dt_twojokers = 2
 dt_stripped32 = 3
 dt_stripped40 = 4
 dt_stripped40j = 5
@@ -205,6 +205,16 @@ class Sequence(Structure):
     def shuffle(self):
         ojlib.ojs_sort(byref(self))
 
+# End of class Sequence
+
+def decksize(t):
+    return ojlib.ojd_ncards(t)
+
+def newdeck(t):
+    n = ojlib.ojd_ncards(t)
+    d = Sequence(n)
+    d.fill(n, t)
+    return d
 
 class Iterator(Structure):
     _fields_ = [
@@ -248,7 +258,6 @@ class Iterator(Structure):
 class PokerGame(object):
     def __init__(self):
         pass
-
 
 def poker_eval5(hand):
     return ojlib.ojp_eval5(byref(hand))

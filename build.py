@@ -13,22 +13,19 @@ g_clib_objects = {
     "poker":            [ "ldctables.h" ],
 }
 g_clib_tests = {
-    "t_random":         [ [], [ "m" ] ],
-    "t_sequence":       [ [], [] ],
-    "t_iters":          [ [], [ "m" ] ],
-    "t_004":            [ [], [] ],
+    "t_basic":          [ [], [] ],
+#    "t_random":         [ [], [ "m" ] ],
+#    "t_sequence":       [ [], [] ],
+#    "t_iters":          [ [], [ "m" ] ],
+#    "t_004":            [ [], [] ],
 }
-g_jni_classes = {
-    "Card":             [],
-    "CardList":         [],
-    "DeckType":         [],
-}
+g_jni_classes = [ "Card", "CardList", "DeckType", ]
 g_java_classes = [
     "Card", "DeckType", "CardList", "CardCombinations" , "CardGame",
 ]
-g_java_tests = {
-    "Test001":          [],
-}
+g_java_tests = [ "Basic", ] # "Test001" ]
+g_python_files = [ "__init__", "core", "text" ]
+g_python_tests = [ "basic" ]
 
 g_root_dir = os.path.dirname(os.path.abspath(__file__))
 g_java_home = os.environ.get("JAVA_HOME", "")
@@ -86,14 +83,13 @@ def build_c_objects():
         incdirs.append(os.path.join(g_java_home, "include"))
         incdirs.append(rp("src/java"))
 
-        for obj, deps in g_jni_classes.items():
+        for obj in g_jni_classes:
             object = rp("build/clib", "jni{0}.o".format(obj))
             dependents = [
                 rp("src/clib/jni", "jni{0}.c".format(obj)),
                 rp("src/clib/include/onejoker.h"),
                 rp("src/java/", "com_onejoker_onejoker_{0}.h".format(obj))
             ]
-            dependents.extend([ rp("src/clib/jni", f) for f in deps ])
             if older(object, dependents):
                 needed.append(dependents[0])
 
@@ -118,7 +114,7 @@ def build_c_library():
         for f in g_clib_objects.keys() ]
     if "" != g_java_home and not g_config.nojava:
         objects.extend([ rp("build/clib", "jni{0}.o".format(f)) \
-            for f in g_jni_classes.keys() ])
+            for f in g_jni_classes ])
 
     if older(rp("build/clib", libfile), objects):
         cd("build/clib")
@@ -217,18 +213,46 @@ def run_java_tests():
     libdir = rp("build/clib")
     ea = "" if g_config.release else "-ea"
     for cls in g_java_tests:
-        cmd = "java {0} -Djava.library.path={1} com.onejoker.onejoker.{2}" \
+        cmd = "java {0} -Djava.library.path={1} com.onejoker.tests.{2}" \
             .format(ea, libdir, cls);
         system(cmd)
 
-def build_python():
-    pass
+def build_python_package():
+    src = rp("src/python/onejoker")
+    dest = rp("build/python/onejoker")
+
+    needed = []
+    for f in g_python_files:
+        tgt = os.path.join(dest, "{0}.py".format(f))
+        deps = [ os.path.join(src, "{0}.py".format(f)) ]
+        if older(tgt, deps):
+            needed.append(deps[0])
+
+    if 0 != len(needed):
+        cmd = "cp {0} {1}".format(" ".join(needed), dest)
+        system(cmd)
 
 def build_python_tests():
-    pass
+    build_python_package()
+    src = rp("src/python/tests")
+    dest = rp("build/python/tests")
+
+    needed = []
+    for f in g_python_tests:
+        tgt = os.path.join(dest, "{0}.py".format(f))
+        deps = [ os.path.join(src, "{0}.py".format(f)) ]
+        if older(tgt, deps):
+            needed.append(deps[0])
+
+    if 0 != len(needed):
+        cmd = "cp {0} {1}".format(" ".join(needed), dest)
+        system(cmd)
 
 def run_python_tests():
-    pass
+    build_python_tests()
+    for t in g_python_tests:
+        cmd = "python3 {0}/{1}.py".format(rp("build/python/tests"), t)
+        system(cmd)
 
 def build_all_tests():
     build_c_tests()
@@ -285,7 +309,7 @@ target_functions = {
     "javaheaders": build_java_headers,
     "javatests": build_java_tests,
     "runjavatests": run_java_tests,
-    "python": build_python,
+    "python": build_python_package,
     "pytests": build_python_tests,
     "runpytests": run_python_tests,
     "tests": build_all_tests,

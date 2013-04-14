@@ -222,9 +222,10 @@ const oj_sequence_t * const sp2) {
  */
 int ojs_fill(oj_sequence_t * const sp, const int count,
 const oj_deck_type_t dt) {
-    oj_deck_info_t *di = &oj_deck_info[dt];
+    oj_sequence_t *dp = ojd_deck(dt);
     int c, remaining;
     assert(0 != sp && 0x10ACE0FF == sp->_johnnymoss);
+    assert(0 != dp && 0x10ACE0FF == dp->_johnnymoss);
 
     sp->length = 0;
     remaining = count;
@@ -232,8 +233,8 @@ const oj_deck_type_t dt) {
 
     do {
         c = remaining;
-        if (c > di->size) c = di->size;
-        memmove(sp->cards + sp->length, di->cards, c * sizeof(int));
+        if (c > dp->length) c = dp->length;
+        memmove(sp->cards + sp->length, dp->cards, c * sizeof(int));
 
         sp->length += c;
         remaining -= c;

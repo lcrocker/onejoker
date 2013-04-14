@@ -12,22 +12,6 @@
 
 extern int _oj_johnnymoss; /* Initialization check. */
 
-/* Deck types. Numbers are assigned here because they are used
- * to index the internal deck information structure array.
- */
-typedef enum _oj_deck_type {
-    oj_dt_standard = 0, oj_dt_1joker = 1, oj_dt_2jokers = 2,
-    oj_dt_stripped32 = 3, oj_dt_stripped40 = 4, oj_dt_stripped40j = 5
-} oj_deck_type_t;
-
-typedef struct _oj_deck_info {
-    int size;
-    int *cards;
-} oj_deck_info_t;
-
-/* Defined in decktypes.c */
-extern oj_deck_info_t oj_deck_info[];
-
 /* This is the sequence type used by the client. Mostly just a
  * typical array-like thing. Client is responsible for allocating
  * memory and initializing, and we check for this in several places.
@@ -38,6 +22,17 @@ typedef struct _oj_sequence {
     int length;
     int *cards;
 } oj_sequence_t;
+
+/* Deck types. Numbers are assigned here because they are used
+ * to index the internal deck information structure array.
+ */
+typedef enum _oj_deck_type {
+    OJD_STANDARD = 0, OJD_ONEJOKER = 1, OJD_TWOJOKERS = 2,
+    OJD_STRIPPED32 = 3, OJD_STRIPPED40 = 4, OJD_STRIPPED40J = 5
+} oj_deck_type_t;
+
+/* Defined in decktypes.c */
+extern oj_sequence_t oj_common_decks[];
 
 /* Structure that maintains the internal state of an iterator.
  */
@@ -91,7 +86,13 @@ typedef struct _oj_poker_hand_info {
 /* General library functions */
 
 extern int oj_init_library(int seed);
-extern int oj_dt_ncards(int type);
+
+/* Deck types */
+
+extern int ojd_ntypes(void);
+extern int ojd_ncards(int type);
+extern oj_sequence_t *ojd_deck(int type);
+extern oj_sequence_t *ojd_deck_by_name(char *name);
 
 /* Text I/O */
 

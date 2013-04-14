@@ -1,14 +1,14 @@
 /* OneJoker library <https://github.com/lcrocker/OneJoker>
  *
- * Enumeration of deck types. Uses the fill function from CardList, which
- * calls into the C library, to get the 
+ * Enumeration of deck types. Uses the fill function from CardList,
+ * which calls into the C library, to get the cards.
  */
 package com.onejoker.onejoker;
 
 public enum DeckType {
     STANDARD(0, 52), ONEJOKER(1, 53), TWOJOKERS(2, 54),
     STRIPPED32(3, 32), STRIPPED40(4, 40), STRIPPED40J(5, 41);
-    private final static int NTYPES = 6;
+    private final static int NTYPES = DeckType.nTypes();
 
     private final int mValue;
     private final int mSize;
@@ -29,6 +29,9 @@ public enum DeckType {
     }
     public static CardList getDeck(int type) { return mDecks[type]; }
     public static CardList getDeck(DeckType t) { return mDecks[t.mValue]; }
+    public static int deckSize(int type) { return DeckType.nCards(type); }
+    public static int deckSize(DeckType t) { return DeckType.nCards(t.value()); }
 
     private static native int nCards(int type);
+    private static native int nTypes();
 }

@@ -19,10 +19,14 @@ public final class Card {
 
     public int intValue() { return mValue; }
     public int hashCode() { return mValue; }
-    public int intRank() { return (mValue - 1) >>> 2; }
-    public int intSuit() { return (mValue - 1) & 3; }
+    public int rank() { return (mValue - 1) >>> 2; }
+    public int suit() { return (mValue - 1) & 3; }
     public String name() { return cardnames[mValue]; }
+    public boolean equals(Card c) { return this.mValue == c.mValue; }
+    public boolean equals(int c) { return this.mValue == c; }
+    public boolean equals(String s) { return this.mValue == Card.parseInt(s); }
 
+    public static int intValue(int r, int s) { return (r << 2) + s + 1; }
     public static int rank(int c) { return (c - 1) >>> 2; }
     public static int rank(Card c) { return (c.mValue - 1) >>> 2; }
     public static int suit(int c) { return (c - 1) & 3; }

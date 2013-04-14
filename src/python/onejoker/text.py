@@ -17,7 +17,7 @@ ojlib.oj_rankname.restype = c_char_p
 ojlib.oj_suitname.restype = c_char_p
 
 _cnamepattern = re.compile("""
-    \\s*
+    [\\s\\(\\)]*
     (
         (jk|j2|joker)
         |

@@ -11,14 +11,17 @@ h3. @oj_cardlist_t@
 - @int _johnnymoss@ :=
 Set to 0x10ACE0FF on initialization so that functions can check for
 initialized structures.
+=:
 
 - @int allocation@ :=
 How many ints are available at the address pointed to by `cards`.
 Fixed during the lifetime of the structure.
+=:
 
 - @int length@ :=
 Number of currently active cards.
 Any values in the @cards@ array beyond this are ignored.
+=:
 
 - @int pflags@ :=
 "Persistent" flags for general use.
@@ -27,52 +30,67 @@ Any values in the @cards@ array beyond this are ignored.
 values (duplicates are allowed by default).
 This option should be used only if necessary, as it slows down many
 list functions.
+=:
 
 - @int eflags@ :=
 "Ephemeral" flags cleared when contents change.
+=:
 
 - @uint64_t mask@ :=
 Contents bitmap for unique-card lists.
+=:
 
 - @void *user_info@ :=
 Pointer to whatever extras the client needs.
+=:
 
 - @int *cards@ :=
 Actual array of card values.
 Only the first @length@ are meaningful.
+=:
 
 h3. @oj_combiner_t@
 
 - @int _johnnymoss@ :=
 Set to 0x10ACE0FF on initialization so that functions can check for
 initialized structures.
+=:
 
 - @int k@ :=
 Subset size; that is, the combiner object represents the set of combinations
 of @k@ cards chosen from @deck@.
+=:
 
 - @int map[]@ :=
 Scratch array of 0-based indices into deck.
+=:
 
 - @int deck_invert[]@ :=
 Inverse array to @deck@.
+=:
 
 - @long long total@ :=
 Number of combinations, equal to (@deck->length@ choose @k@).
+=:
 
 - @long long rank@ :=
 Colexicographical rank of current combination.
+=:
 
 - @long long remaining@ :=
 Iterations remaining for random combinations.
+=:
 
 - @oj_cardlist_t *deck@ :=
 Total set of cards from which to take combinations.
 Is never modified, so can be read-only.
+=:
 
 - @oj_cardlist_t *hand@ :=
 Set to current combination.
 Must be writable, and have room for @k@ cards.
+=:
 
 - @void * user_info@ :=
 Kept with structure for whatever the client needs.
+=:

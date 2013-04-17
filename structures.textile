@@ -1,4 +1,5 @@
 ---
+layout: default
 title: OneJoker C Structures
 ---
 
@@ -9,27 +10,21 @@ Details about the C structures used by the OneJoker library:
 h3. @oj_cardlist_t@
 
 - @int _johnnymoss@ :=
-Set to 0x10ACE0FF on initialization so that functions can check for
-initialized structures.
+Set to 0x10ACE0FF on initialization so that functions can check for initialized structures.
 =:
 
 - @int allocation@ :=
-How many ints are available at the address pointed to by `cards`.
-Fixed during the lifetime of the structure.
+How many ints are available at the address pointed to by @cards@. Fixed during the lifetime of the structure.
 =:
 
 - @int length@ :=
-Number of currently active cards.
-Any values in the @cards@ array beyond this are ignored.
+Number of currently active cards. Any values in the @cards@ array beyond this are ignored.
 =:
 
 - @int pflags@ :=
 "Persistent" flags for general use.
 * OJF_RDONLY protects a list from being overwritten.
-* OJF_UNIQUE indicates that this list is intended to contain unique card
-values (duplicates are allowed by default).
-This option should be used only if necessary, as it slows down many
-list functions.
+* OJF_UNIQUE indicates that this list is intended to contain unique card values (duplicates are allowed by default). This option should be used only if necessary, as it slows down many list functions.
 =:
 
 - @int eflags@ :=
@@ -45,20 +40,17 @@ Pointer to whatever extras the client needs.
 =:
 
 - @int *cards@ :=
-Actual array of card values.
-Only the first @length@ are meaningful.
+Actual array of card values. Only the first @length@ are meaningful.
 =:
 
 h3. @oj_combiner_t@
 
 - @int _johnnymoss@ :=
-Set to 0x10ACE0FF on initialization so that functions can check for
-initialized structures.
+Set to 0x10ACE0FF on initialization so that functions can check for initialized structures.
 =:
 
 - @int k@ :=
-Subset size; that is, the combiner object represents the set of combinations
-of @k@ cards chosen from @deck@.
+Subset size. That is, the combiner object represents the set of combinations of @k@ cards chosen from @deck@.
 =:
 
 - @int map[]@ :=
@@ -82,13 +74,11 @@ Iterations remaining for random combinations.
 =:
 
 - @oj_cardlist_t *deck@ :=
-Total set of cards from which to take combinations.
-Is never modified, so can be read-only.
+Total set of cards from which to take combinations. Is never modified, so can be read-only.
 =:
 
 - @oj_cardlist_t *hand@ :=
-Set to current combination.
-Must be writable, and have room for @k@ cards.
+Set to current combination. Must be writable, and have room for @k@ cards.
 =:
 
 - @void * user_info@ :=

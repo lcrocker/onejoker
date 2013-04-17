@@ -10,56 +10,74 @@
 
 #include <stdint.h>
 
-extern int _oj_johnnymoss; /* Initialization check. */
+extern int _oj_johnnymoss;      /* Library initialization check. */
 
-/* This is the sequence type used by the client. Mostly just a
- * typical array-like thing. Client is responsible for allocating
- * memory and initializing, and we check for this in several places.
+/*
+ * STRUCTURES
  */
-typedef struct _oj_sequence {
-    int _johnnymoss;  /* Initialization check. */
-    int allocation;
-    int length;
-    int *cards;
-} oj_sequence_t;
 
-/* Deck types. Numbers are assigned here because they are used
- * to index the internal deck information structure array.
+/* Different types of card decks. Have to keep the specific numbers here
+ * to stay in sync with the other language bindings.
  */
 typedef enum _oj_deck_type {
-    OJD_STANDARD = 0, OJD_ONEJOKER = 1, OJD_TWOJOKERS = 2,
-    OJD_STRIPPED32 = 3, OJD_STRIPPED40 = 4, OJD_STRIPPED40J = 5
+    OJD_STANDARD = 0,           /* Normal 52-card deck */
+    OJD_ONEJOKER = 1,           /* 53 */
+    OJD_TWOJOKERS = 2,          /* 54 */
+    OJD_STRIPPED32 = 3,         /* Remove 2..6 (Skat) */
+    OJD_STRIPPED40 = 4,         /* Remove 8,9,10 (Pan) */
+    OJD_STRIPPED40J = 5,        /* (Mexican poker) */
+    OJD_PINOCLE = 6,            /* 9s and up (Pinochle) */
 } oj_deck_type_t;
 
-/* Defined in decktypes.c */
-extern oj_sequence_t oj_common_decks[];
-
-/* Structure that maintains the internal state of an iterator.
+/* Simple ordered sequence of cards.
  */
-typedef struct _oj_iterator {
-    int _johnnymoss; /* Initialization check */
-    int k;
-    int *a;
-    long long total, count, remaining;
-    oj_sequence_t *deck;
-    oj_sequence_t *hand;
-    int deck_invert[64];
-} oj_iterator_t;
+typedef struct _oj_cardlist {
+    int _johnnymoss;            /* Initialization check. */
+    int allocation;             /* Maximum size--fixed. */
+    int length;                 /* Current content size */
+    int pflags;                 /* Persistent flags */
+    int eflags;                 /* Ephemeral flags */
+    uint64_t mask;              /* Bitmask for unique lists */
+    void *user_info;            /* Whatever the caller adds */
+    int *cards;                 /* Actual contents */
+} oj_cardlist_t;
 
-/* Information needed to display value of poker hand.
+#define OJF_RDONLY 1
+#define OJF_UNIQUE 2
+#define OJF_SORTED 1
+
+/* Tracking combinations of <k> cards from set of <n>.
+ */
+typedef struct _oj_combiner {
+    int _johnnymoss;            /* Initialization check */
+    int k;                      /* Combination size */
+    int flags;                  /* General purpose */
+    int map[56];                /* 0-based indices into deck */
+    int deck_invert[56];        /* Inverse array used for ranking */
+    long long total;            /* Total combinations */
+    long long rank;             /* Colex rank of current comb. */
+    long long remaining;        /* Countdown */
+    oj_cardlist_t *deck;        /* Universe of combinations */
+    oj_cardlist_t *hand;        /* Current combination */
+    void *user_info;            /* Whatever caller adds */
+} oj_combiner_t;
+
+#define OJF_VALIDMAP 1
+#define OJF_VALIDRANK 2
+
+/* Information needed to display poker hands to humans in nice ways.
  */
 typedef struct _oj_poker_hand_info {
     int _johnnymoss;
-    int val, group;
-    int nranks;
-    int ranks[5];
+    int val;                    /* Equiv. class rank */
+    int group;                  /* SF, Quads, etc. */
+    int nranks;                 /* # of significant ranks within group */
+    int ranks[5];               /* The ranks */
 } oj_poker_hand_info_t;
 
-#define OJ_RANK(c) (((c)-1)>>2)
-#define OJ_SUIT(c) (((c)-1)&3)
-#define OJ_CARD(r,s) ((((r)<<2)|(s))+1)
-#define OJ_JOKER 53
-#define OJ_JOKER2 54
+/*
+ * CONSTANTS
+ */
 
 #define OJR_DEUCE 0
 #define OJR_TWO 0
@@ -83,83 +101,111 @@ typedef struct _oj_poker_hand_info {
 #define OJS_HEART 2
 #define OJS_SPADE 3
 
-/* General library functions */
+#define OJ_JOKER 53
+#define OJ_BLACKJOKER 53
+#define OJ_REDJOKER 54
+
+/* Error codes */
+#define OJE_NOTFOUND (-1)
+#define OJE_RDONLY (-2)
+#define OJE_FULL (-3)
+#define OJE_DUPLICATE (-4)
+#define OJE_BADINDEX (-5)
+
+/*
+ * MACROS
+ */
+
+/* Get rank, suit value from card */
+#define OJ_RANK(c) (((c) - 1) >> 2)
+#define OJ_SUIT(c) (((c) - 1) & 3)
+
+/* Build card value from rank, suit */
+#define OJ_CARD(r,s) ((((r) << 2) | (s)) + 1)
+
+/* Fast macro versions of a few cardlist functions. These don't respect flags
+ * or do other error checking that the functions do, so use with care.
+ */
+#define OJL_CLEAR(p) ((p)->length=0)
+#define OJL_TRUNCATE(p,s) (((s)<(p)->length)?((p)->length=(s)):0)
+#define OJL_APPEND(p,c) (((p)->length == (p)->allocation)?0:\
+((p)->cards[(p)->length++]=(c)))
+#define OJL_POP(p) ((0==(p)->length)?0:(p)->cards[--(p)->length])
+
+/*
+ * PROTOTYPES
+ */
 
 extern int oj_init_library(int seed);
 
-/* Deck types */
-
+/* deckinfo.c */
 extern int ojd_ntypes(void);
-extern int ojd_ncards(int type);
-extern oj_sequence_t *ojd_deck(int type);
-extern oj_sequence_t *ojd_deck_by_name(char *name);
+extern int ojd_size(oj_deck_type_t t);
+extern oj_cardlist_t *ojd_deck(oj_deck_type_t t);
 
-/* Text I/O */
+/* text.c */
+extern char *ojt_card(int c);
+extern char *ojt_rank(int r);
+extern char *ojt_suit(int s);
+extern char *ojt_fullname(int c, char *buf, int size);
+extern int ojt_val(char *str);
+extern int ojt_vals(char *str, int *arr, int size);
 
-extern char *oj_cardname(int c);
-extern char *oj_rankname(int r);
-extern char *oj_suitname(int s);
-extern char *oj_cardname_long(int c, char *buf, int size);
-extern char *ojs_text(oj_sequence_t *sp, char *buf, int size);
-extern int oj_cardval(char *str);
-extern int oj_cardvals(char *str, int *arr, int size);
-
-/* PRNG functions */
-
-extern int ojr_seed(const int seed);
+/* prng.c */
+extern int ojr_seed(int seed);
 extern uint16_t ojr_next16(void);
 extern uint32_t ojr_next32(void);
 extern int ojr_rand(const int limit);
-extern void ojr_fisher_yates(const int n, int * const cp);
+extern void ojr_shuffle(int *array, int size, int count);
 
-/* Sequences */
+/* cardlist.c */
+extern int ojl_new(oj_cardlist_t *sp, int *buf, int size);
+extern int ojl_build_mask(oj_cardlist_t *sp, uint64_t *mp);
+extern int ojl_clear(oj_cardlist_t *sp);
+extern int ojl_truncate(oj_cardlist_t *sp, int size);
+extern int ojl_size(oj_cardlist_t *sp);
+extern int ojl_get(oj_cardlist_t *sp, int index);
+extern int ojl_set(oj_cardlist_t *sp, int index, int card);
+extern int ojl_pflag(oj_cardlist_t *sp, int mask);
+extern int ojl_set_pflag(oj_cardlist_t *sp, int mask);
+extern int ojl_clear_pflag(oj_cardlist_t *sp, int mask);
+extern int ojl_eflag(oj_cardlist_t *sp, int mask);
+extern int ojl_set_eflag(oj_cardlist_t *sp, int mask);
+extern int ojl_clear_eflag(oj_cardlist_t *sp, int mask);
+extern void *ojl_get_user_info(oj_cardlist_t *sp);
+extern void ojl_set_user_info(oj_cardlist_t *sp, void *udp);
+extern uint32_t ojl_hash(oj_cardlist_t *sp);
+extern int ojl_append(oj_cardlist_t *sp, int card);
+extern int ojl_extend(oj_cardlist_t *destp, oj_cardlist_t *srcp, int count);
+extern int ojl_insert(oj_cardlist_t *sp, int index, int card);
+extern int ojl_pop(oj_cardlist_t *sp);
+extern int ojl_delete(oj_cardlist_t *sp, int index);
+extern int ojl_index(oj_cardlist_t *sp, int card);
+extern int ojl_remove(oj_cardlist_t *sp, int card);
+extern int ojl_copy(oj_cardlist_t *destp, oj_cardlist_t *srcp);
+extern int ojl_sort(oj_cardlist_t *sp);
+extern int ojl_reverse(oj_cardlist_t *sp);
+extern int ojl_equal(oj_cardlist_t *sp1, oj_cardlist_t *sp2);
+extern int ojl_fill(oj_cardlist_t *sp, int count, oj_deck_type_t dt);
+extern int ojl_shuffle(oj_cardlist_t *sp);
+extern char *ojl_text(oj_cardlist_t *sp, char *buf, int size);
 
-extern int ojs_new(oj_sequence_t * const sp, const int size,
-    int * const buf);
-extern uint32_t ojs_fnv_hash(const oj_sequence_t * const sp);
-extern void ojs_clear(oj_sequence_t * const sp);
-#define OJS_CLEAR(p) ((p)->length=0)
-extern void ojs_truncate(oj_sequence_t * const sp, const int size);
-#define OJS_TRUNCATE(p,s) (((s)<(p)->length)?((p)->length=(s)):0)
-extern int ojs_append(oj_sequence_t * const sp, const int card);
-#define OJS_APPEND(p,c) (((p)->length == (p)->allocation)?0:\
-((p)->cards[(p)->length++]=(c)))
-extern int ojs_extend(oj_sequence_t * const destp,
-    const oj_sequence_t * const srcp, int count);
-extern int ojs_insert(oj_sequence_t * const sp, const int index,
-    const int card);
-extern int ojs_pop(oj_sequence_t * const sp);
-#define OJS_POP(p) ((0==(p)->length)?0:(p)->cards[--(p)->length])
-extern int ojs_delete(oj_sequence_t * const sp, const int index);
-extern int ojs_remove(oj_sequence_t * const sp, const int card);
-extern int ojs_index(const oj_sequence_t * const sp, const int card);
-extern void _ojs_sort_int_array(const int n, int * const cp);
-extern void ojs_sort(oj_sequence_t * const sp);
-extern void ojs_reverse(oj_sequence_t * const sp);
-extern int ojs_equal(const oj_sequence_t * const sp1,
-    const oj_sequence_t * const sp2);
-extern int ojs_fill(oj_sequence_t * const sp, const int count,
-    const oj_deck_type_t dt);
-extern void ojs_shuffle(oj_sequence_t * const sp);
+/* Combiner */
 
-/* Combinatorics */
-
-extern long long ojc_binomial(const int n, int k);
-extern long long ojc_iter_new(oj_iterator_t * const iter,
-    oj_sequence_t * const deck, oj_sequence_t * const hand,
-    const int k, int * const hbuf, const long long count);
-extern int ojc_iter_next(oj_iterator_t * const iter);
-extern int ojc_iter_next_random(oj_iterator_t * const iter);
-extern long long ojc_rank(const oj_sequence_t * const hand,
-    oj_iterator_t * const iter);
-extern void ojc_hand_at(long long rank, oj_sequence_t * const hand,
-    oj_iterator_t * const iter);
+extern long long ojc_binomial(int n, int k);
+extern int ojc_new(oj_combiner_t *comb, oj_cardlist_t *deck,
+    oj_cardlist_t *hand, int k, long long count);
+extern int ojc_next(oj_combiner_t *comb);
+extern int ojc_next_random(oj_combiner_t *comb);
+extern long long ojc_colex_rank(oj_cardlist_t *hand, oj_combiner_t *comb);
+extern int ojc_colex_hand_at(long long rank, oj_cardlist_t *hand,
+    oj_combiner_t *comb);
 
 /* Poker functions */
 
-extern int ojp_eval5(oj_sequence_t *sp);
-extern int ojp_best5(oj_sequence_t *sp, oj_sequence_t *bh);
-extern int ojp_hand_info(oj_poker_hand_info_t *ip, oj_sequence_t *sp, int val);
+extern int ojp_eval5(oj_cardlist_t *sp);
+extern int ojp_best5(oj_cardlist_t *sp, oj_cardlist_t *bh);
+extern int ojp_hand_info(oj_poker_hand_info_t *ip, oj_cardlist_t *sp, int val);
 extern char *ojp_hand_description(oj_poker_hand_info_t *pi);
 
 /* Blackjack functions */

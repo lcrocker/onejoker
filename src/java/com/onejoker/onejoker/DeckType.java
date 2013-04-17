@@ -7,7 +7,9 @@ package com.onejoker.onejoker;
 
 public enum DeckType {
     STANDARD(0, 52), ONEJOKER(1, 53), TWOJOKERS(2, 54),
-    STRIPPED32(3, 32), STRIPPED40(4, 40), STRIPPED40J(5, 41);
+    STRIPPED32(3, 32), STRIPPED40(4, 40), STRIPPED40J(5, 41),
+    PINOCHLE(6, 24);
+
     private final static int NTYPES = DeckType.nTypes();
 
     private final int mValue;

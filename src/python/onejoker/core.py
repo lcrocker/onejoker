@@ -7,7 +7,6 @@ from ctypes.util import find_library
 
 ojlib = CDLL(find_library("onejoker"))
 ojlib.ojc_binomial.restype = c_longlong
-ojlib.ojc_rank.restype = c_longlong
 
 def rank(c):
     return (c - 1) >> 2
@@ -25,10 +24,10 @@ def rand(limit):
     return ojlib.ojr_rand(limit)
 
 def decksize(t):
-    return ojlib.ojd_ncards(t)
+    return ojlib.ojd_size(t)
 
 def newdeck(t):
-    n = ojlib.ojd_ncards(t)
+    n = ojlib.ojd_size(t)
     d = CardList(n)
     d.fill(n, t)
     return d
@@ -41,10 +40,6 @@ def binomial(n, k):
         b *= (n - (k - i));
         b //= i
     return b
-
-class PokerGame(object):
-    def __init__(self):
-        pass
 
 def poker_eval5(hand):
     return ojlib.ojp_eval5(byref(hand))

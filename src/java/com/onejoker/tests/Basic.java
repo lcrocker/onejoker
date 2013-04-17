@@ -13,7 +13,7 @@ public class Basic {
         if (30 != Card.intValue(Card.NINE, Card.DIAMOND)) return 2;
         if (43 != (new Card(Card.QUEEN, Card.HEART)).intValue()) return 3;
         if (52 != Card.intValue(Card.ACE, Card.SPADE)) return 4;
-        if (54 != Card.JOKER2) return 5;
+        if (54 != Card.REDJOKER) return 5;
 
         if (Card.TREY != Card.rank(7)) return 6;
         if (Card.DIAMOND != (new Card(26)).suit()) return 7;

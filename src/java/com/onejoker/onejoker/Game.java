@@ -2,5 +2,5 @@
  */
 package com.onejoker.onejoker;
 
-public class CardCombinations {
+public class Game {
 }

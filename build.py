@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-# Build script for OneJoker library <https://github.com/lcrocker/OneJoker>.
-#
+# OneJoker library <https://github.com/lcrocker/OneJoker>.
+# Build script.
+
 import os, sys, argparse, glob
 from collections import OrderedDict;
 
@@ -9,22 +10,22 @@ g_clib_objects = OrderedDict([
     ("prng",             []),
     ("text",             []),
     ("deckinfo",         []),
-    ("sequence",         []),
-    ("combinatorics",    [ "bctable.h" ]),
+    ("cardlist",         []),
+    ("combiner",         [ "bctable.h" ]),
     ("poker",            [ "ldctables.h" ]),
 ])
 g_clib_tests = OrderedDict([
     ("t_basic",          [ [], [] ]),
-#    ("t_random",         [ [], [ "m" ] ]),
+    ("t_random",         [ ["stats.c"], [ "m" ] ]),
 #    ("t_sequence",       [ [], [] ]),
 #    ("t_iters",          [ [], [ "m" ] ]),
 ])
 g_jni_classes = [ "Card", "CardList", "DeckType", ]
 g_java_classes = [
-    "Card", "DeckType", "CardList", "CardCombinations" , "CardGame",
+    "Card", "DeckType", "CardList", "Combiner" , "Game",
 ]
 g_java_tests = [ "Basic" ]
-g_python_files = [ "__init__", "core", "text", "cardlist", "combinations" ]
+g_python_files = [ "__init__", "core", "text", "cardlist", "combiner" ]
 g_python_tests = [ "basic" ]
 
 g_root_dir = os.path.dirname(os.path.abspath(__file__))
@@ -134,17 +135,18 @@ def build_c_tests():
             rp("src/clib/tests", "{0}.c".format(obj)),
             rp("src/clib/include/onejoker.h")
         ]
-        dependents.extend([ rp("src/clib/tests", f) for f in deps[0] ])
+        extrasource = [ rp("src/clib/tests", f) for f in deps[0] ]
+        dependents.extend(extrasource)
         if older(executable, dependents):
             if not here:
                 cd("build/clib")
                 here = True
 
             flags = g_release_cflags if g_config.release else g_debug_cflags
-            cmd = "gcc {0} -L. {1} -o {2} {3} -lonejoker {4}".format(
+            cmd = "gcc {0} -L. {1} -o {2} {3} {4} -lonejoker {5}".format(
                 flags,
                 " ".join("-I{0}".format(f) for f in incdirs),
-                executable, dependents[0],
+                executable, dependents[0], " ".join(extrasource),
                 " ".join("-l{0}".format(f) for f in deps[1]))
             system(cmd)
 
@@ -178,8 +180,8 @@ def build_java_headers():
     needed = []
     for cls in g_java_classes:
         tgt = rp("build/java", "com_onejoker_onejoker_{0}.h".format(cls))
-        deps = [ rp("build/java/com/onejoker/onejoker"),
-            "{0}.class".format(cls) ]
+        deps = [ rp("build/java/com/onejoker/onejoker",
+            "{0}.class".format(cls)) ]
         if older(tgt, deps):
             needed.append("com.onejoker.onejoker.{0}".format(cls))
 

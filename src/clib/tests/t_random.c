@@ -10,32 +10,31 @@
 #include <math.h>
 
 #include "onejoker.h"
+#include "stats.h"
 
 /* Quickly verify that giving a non-zero seed gives us a repeatable sequence,
  * and that a zero seed doesn't.
  */
-static uint32_t vals[6][100];
 
-int allequal(x, y, s, n) {
+int allequal(int *a, int *b, int n) {
     int i;
-    for (i = s; i < n; ++i) {
-        if (vals[x][i] != vals[y][i]) return 0;
-    }
+    for (i = 0; i < n; ++i) { if (a[i] != b[i]) return 0; }
     return 1;
 }
 
 int seed_test(void) {
     int i, j;
     int seeds[] = { 0x12345678, 0x9ABCDEF0, 0, 0x12345678, 0x9ABCDEF0, 0 };
+    uint32_t vals[6][100];
 
     for (i = 0; i < 6; ++i) {
         ojr_seed(seeds[i]);
         for (j = 0; j < 100; ++j) { vals[i][j] = ojr_next32(); }
     }
-    if (! allequal(0, 3, 0, 100)) return 10;
-    if (! allequal(1, 4, 0, 100)) return 20;
+    if (! allequal(vals[0], vals[3], 100)) return 10;
+    if (! allequal(vals[1], vals[4], 100)) return 20;
     for (i = 0; i < 10; ++i) {
-        if (allequal(2, 5, 10 * i, 10 * i + 10)) return 30;
+        if (allequal(vals[2] + 10 * i, vals[5] + 10 * i, 10)) return 30;
     }
     return 0;
 }
@@ -44,37 +43,114 @@ int seed_test(void) {
  * buckets with a few million of them and measure the variance from the
  * expected value.
  */
-double balance_test(long count) {
-    int i, j, n, v, bcount[] = { 5, 7, 13, 31, 52, 53, 54 };
-    long k, buckets[54];
-    double exp, d, t, sd, z, maxz;
+int balance_test(int count) {
+    int i, j, v, n, bcount[] = { 7, 31, 52, 53, };
+    struct buckets *bp;
     assert(count > 1);
 
-    maxz = 0.0;
-    for (i = 0; i < 7; ++i) {
+    fprintf(stderr, "Balance test count = %d...\n", count);
+    for (i = 0; i < 4; ++i) {
         n = bcount[i];
+        bp = create_buckets(n);
 
-        for (j = 0; j < n; ++j) buckets[j] = 0;
-        for (k = 0; k < count; ++k) {
+        for (j = 0; j < count; ++j) {
             v = ojr_rand(n);
-            assert(v >= 0 && v < n);
-            ++buckets[v];
+            add_value(bp, v);
         }
+        calculate_stats(bp);
+        fprintf(stderr, "%3d buckets: mean = %10.2f, stddev = %7.2f (%4.2f %%), maxz = %4.2f\n",
+            n, bp->mean, bp->stddev, (100.0 * bp->stddev) / bp->mean, bp->maxz);
 
-        t = 0.0;
-        exp = ((double)count / (double)n);
-        for (j = 0; j < n; ++j) {
-            d = (double)(buckets[j]) - exp;
-            t += d * d;
-        }
-        sd = sqrt( t / (double)(n - 1) );
-
-        for (j = 0; j < n; ++j) {
-            z = fabs(((double)(buckets[j]) - exp) / sd);
-            if (z > maxz) maxz = z;
-        }
+        if ((bp->stddev / bp->mean) > 0.005) return 1;
+        if (bp->maxz > 4.0) return 2;
+        free_buckets(bp);
     }
-    return maxz;
+    return 0;
+}
+
+/* Myrvold and Ruskey linear-time permutation rank algorithm.
+ */
+#define SWAP(a,b) do{t=(a);(a)=(b);(b)=t;}while(0)
+
+int _mr_rank1(int n, int *vec, int *inv) {
+    int s, t;
+    if (n < 2) return 0;
+
+    s = vec[n-1];
+    SWAP(vec[n-1], vec[inv[n-1]]);
+    SWAP(inv[s], inv[n-1]);
+    return s + n * _mr_rank1(n-1, vec, inv);
+}
+
+int get_rank(oj_cardlist_t *sp) {
+    int i, vec[10], inv[10], n = sp->length;
+    assert(n <= 10);
+
+    for (i = 0; i < n; ++i) {
+        vec[i] = sp->cards[i] - 1;
+        inv[sp->cards[i] - 1] = i;
+    }
+    return _mr_rank1(n, vec, inv);
+}
+
+int shuffle_test(int count) {
+    int i, j, r, dbuf[20], hbuf[20];
+    char cbuf[64];
+    oj_cardlist_t deck, hand;
+    struct buckets *bp;
+    oj_combiner_t comb;
+
+    ojl_new(&deck, dbuf, 20);
+    ojl_new(&hand, hbuf, 20);
+    fprintf(stderr, "Shuffle test count = %d...\n", count);
+
+    ojl_fill(&hand, 4, OJD_STANDARD);
+    bp = create_buckets(24);
+
+    for (i = 0; i < count; ++i) {
+        ojl_shuffle(&hand);
+        r = get_rank(&hand);
+        add_value(bp, r);
+    }
+    calculate_stats(bp);
+    fprintf(stderr, "%3d buckets: mean = %10.2f, stddev = %7.2f (%4.2f %%), maxz = %4.2f\n",
+        24, bp->mean, bp->stddev, (100.0 * bp->stddev) / bp->mean, bp->maxz);
+
+    if ((bp->stddev / bp->mean) > 0.005) return 1;
+    if (bp->maxz > 4.0) return 2;
+    free_buckets(bp);
+    return 0;
+}
+
+int montecarlo_test(int count) {
+    int i, j, r, dbuf[20], hbuf[20];
+    char cbuf[64];
+    oj_cardlist_t deck, hand;
+    struct buckets *bp;
+    oj_combiner_t comb;
+
+    ojl_new(&deck, dbuf, 20);
+    ojl_new(&hand, hbuf, 20);
+    fprintf(stderr, "Monte Carlo test count = %d...\n", count);
+
+    ojl_fill(&deck, 6, OJD_STANDARD);
+    ojc_new(&comb, &deck, &hand, 3, (long long)count);
+
+    assert(20LL == comb.total);
+    bp = create_buckets(20);
+
+    while (ojc_next_random(&comb)) {
+        r = (int)ojc_colex_rank(&hand, &comb);
+        add_value(bp, r);
+    }
+    calculate_stats(bp);
+    fprintf(stderr, "%3d buckets: mean = %10.2f, stddev = %7.2f (%4.2f %%), maxz = %4.2f\n",
+        20, bp->mean, bp->stddev, (100.0 * bp->stddev) / bp->mean, bp->maxz);
+
+    if ((bp->stddev / bp->mean) > 0.005) return 1;
+    if (bp->maxz > 4.0) return 2;
+    free_buckets(bp);
+    return 0;
 }
 
 /* This function never returns! It continuously feeds random bits to stdout,
@@ -94,26 +170,23 @@ void feed_dieharder(void) {
 
 int main(int argc, char *argv[]) {
     int r, failed = 0;
-    double fit;
 
-    r = seed_test();
-    failed |= r;
-    fprintf(stderr, "Seed test returned %d (%s).\n", r, (r ? "fail" : "pass"));
+    failed |= (r = seed_test());
+    fprintf(stderr, "Seed test %sed.\n", (r ? "fail" : "pass"));
 
-    fit = balance_test(1000000);
-    if (fit > 3.9) failed |= 1;
-    fprintf(stderr, "Balance test maximum z-value = %.2f.\n", fit);
+    failed |= (r = balance_test(10000000));
+    fprintf(stderr, "Balance test %sed.\n", (r ? "fail" : "pass"));
+
+    failed |= (r = shuffle_test(10000000));
+    fprintf(stderr, "Shuffle test %sed.\n", (r ? "fail" : "pass"));
+
+    failed |= (r = montecarlo_test(10000000));
+    fprintf(stderr, "Monte Carlo test %sed.\n", (r ? "fail" : "pass"));
 
     if ((argc > 1) && (0 == strcmp("-d", argv[1]))) {
         fprintf(stderr, "Feeding dieharder tests...\n");
         feed_dieharder();
         /* Never exits */
-    }
-    fprintf(stderr, "Randomization tests ");
-    if (failed) {
-        fprintf(stderr, "failed. Code = %d\n", failed);
-    } else {
-        fprintf(stderr, "passed.\n");
     }
     return failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }

@@ -22,7 +22,7 @@ class App(object):
         if 30 != oj.card(oj.r_nine, oj.s_diamond): return 2
         if 43 != oj.card(oj.r_queen, oj.s_heart): return 3
         if 52 != oj.card(oj.r_ace, oj.s_spade): return 4
-        if 54 != oj.c_joker2: return 5
+        if 54 != oj.c_redjoker: return 5
 
         if oj.r_trey != oj.rank(7): return 6
         if oj.s_diamond != oj.suit(26): return 7

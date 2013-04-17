@@ -14,38 +14,36 @@
  * python directory. Call this when yoou know the hand is exactly five cards
  * and you want the value quickly.
  */
-int ojp_eval5(oj_sequence_t *sp) {
+int ojp_eval5(oj_cardlist_t *sp) {
     return ldc4[ ldc3[ ldc2[ ldc1[
         52 * (sp->cards[0] - 1) + sp->cards[1] ]
            + sp->cards[2] ] + sp->cards[3] ] + sp->cards[4] ];
 }
 
-static oj_iterator_t piter;
-static oj_sequence_t phand;
-static int hbuf[8], ibuf[8];
+static oj_combiner_t piter;
+static oj_cardlist_t phand;
+static int hbuf[8];
 
 /* Given a sequence of any length, find the best 5-card hand and its value.
  */
-int ojp_best5(oj_sequence_t *sp, oj_sequence_t *bh) {
+int ojp_best5(oj_cardlist_t *sp, oj_cardlist_t *bh) {
     int v, best;
     assert(0 != sp && sp->length >= 5);
-    assert(0 != bh && bh->allocation >= 5);
+    assert(0 != bh && bh->allocation >= 5 && (!(bh->pflags & OJF_RDONLY)));
 
     if (5 == sp->length) {
-        bh->length = 5;
-        memmove(bh->cards, sp->cards, 5 * sizeof(int));
+        ojl_copy(bh, sp);
         return ojp_eval5(sp);
     }
-    ojs_new(&phand, 5, hbuf);
-    ojc_iter_new(&piter, sp, &phand, 5, ibuf, 0LL);
+    ojl_new(&phand, hbuf, 5);
+    ojc_new(&piter, sp, &phand, 5, 0LL);
 
     best = 9999;
-    while (ojc_iter_next(&piter)) {
+    while (ojc_next(&piter)) {
         v = ojp_eval5(piter.hand);
         if (v < best) {
             best = v;
-            bh->length = 5;
-            memmove(bh->cards, sp->cards, 5 * sizeof(int));
+            ojl_copy(bh, piter.hand);
         }
     }
     return best;
@@ -55,7 +53,7 @@ int ojp_best5(oj_sequence_t *sp, oj_sequence_t *bh) {
  * user-friendly way. This is a big ugly glob of special cases, but there's
  * really not much way to simplify it that I can think of.
  */
-int ojp_hand_info(oj_poker_hand_info_t *pi, oj_sequence_t *sp, int val) {
+int ojp_hand_info(oj_poker_hand_info_t *pi, oj_cardlist_t *sp, int val) {
     int i, t[5];
     assert(0 != pi && 0 != sp);
     assert(5 == sp->length);
@@ -63,8 +61,8 @@ int ojp_hand_info(oj_poker_hand_info_t *pi, oj_sequence_t *sp, int val) {
     if (-1 == val) val = ojp_eval5(sp);
     pi->val = val;
 
-    ojs_sort(sp);
-    ojs_reverse(sp);
+    ojl_sort(sp);
+    ojl_reverse(sp);
 
     if (val < 11) {
         pi->group = 0;  /* Straight Flush */
@@ -181,7 +179,7 @@ char *ojp_hand_group_name(int g) {
 
 static char _hdbuf[48];
 
-#define RN(x) (oj_rankname(pi->ranks[x]))
+#define RN(x) (ojt_rank(pi->ranks[x]))
 #define RNP(x) ((OJR_SIX==pi->ranks[x])?"es":"s")
 
 char *ojp_hand_description(oj_poker_hand_info_t *pi) {

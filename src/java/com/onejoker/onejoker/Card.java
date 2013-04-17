@@ -87,14 +87,14 @@ public final class Card {
     public static final int SPADE = 3;
 
     public static final int JOKER = 53;
-    public static final int JOKER2 = 54;
+    public static final int REDJOKER = 54;
 
     public static final String[] cardnames = { "XX",
         "2c","2d","2h","2s", "3c","3d","3h","3s", "4c","4d","4h","4s",
         "5c","5d","5h","5s", "6c","6d","6h","6s", "7c","7d","7h","7s",
         "8c","8d","8h","8s", "9c","9d","9h","9s", "Tc","Td","Th","Ts",
         "Jc","Jd","Jh","Js", "Qc","Qd","Qh","Qs", "Kc","Kd","Kh","Ks",
-        "Ac","Ad","Ah","As", "Jk","J2"
+        "Ac","Ad","Ah","As", "JK","JR"
     };
     private static final Hashtable<String, Integer> mRanks =
         new Hashtable<String, Integer>();
@@ -112,9 +112,9 @@ public final class Card {
         mSuits.put("h", HEART); mSuits.put("s", SPADE);
     }
     private static final Pattern mPat = Pattern.compile(
-    "[^A-Za-z0-9]*((jk|j2|joker)|((2|3|4|5|6|7|8|9|10|t|j|q|k|a)\\s*(c|d|h|s)))",
+    "[^A-Za-z0-9]*((jk|jr|joker)|((2|3|4|5|6|7|8|9|10|t|j|q|k|a)\\s*(c|d|h|s)))",
     Pattern.CASE_INSENSITIVE);
 
-    public static native int seed(int s);
+    public static native void seed(int s);
     public static native int rand(int lim);
 }

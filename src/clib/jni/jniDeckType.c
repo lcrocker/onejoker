@@ -8,11 +8,11 @@
 #include "com_onejoker_onejoker_DeckType.h"
 
 JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_DeckType_nTypes
-(JNIEnv *env, jclass cls, jint t) {
+(JNIEnv *env, jclass cls) {
     return ojd_ntypes();
 }
 
 JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_DeckType_nCards
 (JNIEnv *env, jclass cls, jint t) {
-    return ojd_ncards(t);
+    return ojd_size(t);
 }

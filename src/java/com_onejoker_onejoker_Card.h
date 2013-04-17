@@ -45,14 +45,14 @@ extern "C" {
 #define com_onejoker_onejoker_Card_SPADE 3L
 #undef com_onejoker_onejoker_Card_JOKER
 #define com_onejoker_onejoker_Card_JOKER 53L
-#undef com_onejoker_onejoker_Card_JOKER2
-#define com_onejoker_onejoker_Card_JOKER2 54L
+#undef com_onejoker_onejoker_Card_REDJOKER
+#define com_onejoker_onejoker_Card_REDJOKER 54L
 /*
  * Class:     com_onejoker_onejoker_Card
  * Method:    seed
- * Signature: (I)I
+ * Signature: (I)V
  */
-JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_Card_seed
+JNIEXPORT void JNICALL Java_com_onejoker_onejoker_Card_seed
   (JNIEnv *, jclass, jint);
 
 /*

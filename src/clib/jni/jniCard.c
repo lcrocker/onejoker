@@ -9,13 +9,12 @@
 #include "onejoker.h"
 #include "com_onejoker_onejoker_Card.h"
 
-JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_Card_seed
-(JNIEnv *env, jclass cls, jint s) {
-    return ojr_seed(s);
+JNIEXPORT void JNICALL Java_com_onejoker_onejoker_Card_seed
+(JNIEnv *env, jclass cls, jint seed) {
+	ojr_seed(seed);
 }
 
 JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_Card_rand
-(JNIEnv *env, jclass cls, jint lim) {
-    return ojr_rand(lim);
+(JNIEnv *env, jclass cls, jint limit) {
+	return ojr_rand(limit);
 }
-

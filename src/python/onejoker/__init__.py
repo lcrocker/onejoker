@@ -5,7 +5,7 @@ from .core import rank, suit, card, seed, rand, decksize, newdeck, \
 	binomial, poker_eval5, poker_best5
 from .text import cardname, cardnames, rankname, suitname, cardnum, cardnums
 from .cardlist import CardList
-from .combinations import Combinations
+from .combiner import Combiner
 
 r_deuce = 0
 r_trey = 1
@@ -28,7 +28,7 @@ s_heart = 2
 s_spade = 3
 
 c_joker = 53
-c_joker2 = 54
+c_redjoker = 54
 
 dt_standard = 0
 dt_onejoker = 1
@@ -36,6 +36,7 @@ dt_twojokers = 2
 dt_stripped32 = 3
 dt_stripped40 = 4
 dt_stripped40j = 5
+dt_pinochle = 6
 
 pg_standard = 0
 pg_acetofive = 1

@@ -5,14 +5,14 @@ from ctypes import *
 from ctypes.util import find_library
 
 ojlib = CDLL(find_library("onejoker"))
-ojlib.oj_cardname.restype = c_char_p
-ojlib.oj_rankname.restype = c_char_p
-ojlib.oj_suitname.restype = c_char_p
+ojlib.ojt_card.restype = c_char_p
+ojlib.ojt_rank.restype = c_char_p
+ojlib.ojt_suit.restype = c_char_p
 
 _cnamepattern = re.compile("""
     [^A-Za-z0-9]*
     (
-        (jk|j2|joker)
+        (jk|jr|joker)
         |
         (
             (2|3|4|5|6|7|8|9|10|t|j|q|k|a)
@@ -21,9 +21,9 @@ _cnamepattern = re.compile("""
         )
     )""", re.IGNORECASE | re.VERBOSE)
 
-_cardnames = [ (ojlib.oj_cardname(c).decode()) for c in range(1, 54) ]
-_ranknames = [ (ojlib.oj_rankname(r).decode()) for r in range(14) ]
-_suitnames = [ (ojlib.oj_suitname(s).decode()) for s in range(4) ]
+_cardnames = [ (ojlib.ojt_card(c).decode()) for c in range(1, 54) ]
+_ranknames = [ (ojlib.ojt_rank(r).decode()) for r in range(14) ]
+_suitnames = [ (ojlib.ojt_suit(s).decode()) for s in range(4) ]
 
 def cardname(c):
     assert(c >= 1 and c <= 54);
@@ -42,7 +42,7 @@ def suitname(s):
 
 def _cardnum(groups):
     if groups[1]:
-        if "j2" == groups[1].lower():
+        if "jr" == groups[1].lower():
             return 54
         else:
             return 53

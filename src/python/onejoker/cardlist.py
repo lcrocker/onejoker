@@ -6,17 +6,36 @@ from ctypes.util import find_library
 ojlib = CDLL(find_library("onejoker"))
 from . import text
 
+class ReadOnlyError(Exception):
+    pass
+class ListFullError(Exception):
+    pass
+class DuplicateError(Exception):
+    pass
+
+def ojerror(e):
+    if (e >= 0): return e
+    if -2 == e: raise ReadOnlyError()
+    if -3 == e: raise ListFullError()
+    if -4 == e: raise DuplicateError()
+    if -5 == e: raise IndexError
+    assert(False)
+
 class CardList(Structure):
     _fields_ = [
         ("_johnnymoss", c_int),
         ("allocation", c_int),
         ("length", c_int),
-        ("cards", POINTER(c_int))
+        ("pflags", c_int),
+        ("eflags", c_int),
+        ("mask", c_longlong),
+        ("user_info", c_void_p),
+        ("cards", POINTER(c_int)),
     ]
 
     def __init__(self, allocation, init = None):
         self.buf = cast(create_string_buffer(4 * allocation), POINTER(c_int))
-        ojlib.ojs_new(byref(self), allocation, self.buf)
+        ojlib.ojl_new(byref(self), self.buf, allocation)
         if init:
             self.append(init)
 
@@ -33,7 +52,7 @@ class CardList(Structure):
 
     def __eq__(self, other):
         if isinstance(other, CardList):
-            return ojlib.ojs_equal(byref(self), byref(other))
+            return ojlib.ojl_equal(byref(self), byref(other))
         else:
             if isinstance(other, str):
                 other = text.cardnums(other)
@@ -50,84 +69,74 @@ class CardList(Structure):
             raise IndexError
         if isinstance(val, str):
             val = cardnum(val)
-        self.cards[index] = val
+        ojerror(ojlib.ojl_set(byref(self), val))
 
     def __contains__(self, val):
         if isinstance(val, str):
             val = text.cardnum(val)
-        return (-1 != ojlib.ojs_index(byref(self), val))
+        return (-1 != ojlib.ojl_index(byref(self), val))
 
     def clear(self):
-        self.length = 0
+        ojerror(ojlib.ojl_clear(byref(self)))
 
     def delete(self, index):
-        return ojlib.ojs_delete(byref(self), index)
+        return ojerror(ojlib.ojl_delete(byref(self), index))
 
     def truncate(self, length):
-        if (length <= self.length):
-            self.length = length
+        return ojerror(ojlib.ojl_truncate(byref(self), length))
 
     def append(self, arg):
         if isinstance(arg, str):
             for c in text.cardnums(arg):
-                ojlib.ojs_append(byref(self), c)
+                ojerror(ojlib.ojl_append(byref(self), c))
         elif hasattr(arg, "__iter__"):
             for v in arg:
-                ojlib.ojs_append(byref(self), v)
+                ojerror(ojlib.ojl_append(byref(self), v))
         else:
-            ojlib.ojs_append(byref(self), arg)
-
-    def set(self, arg):
-        self.length = 0
-        self.append(arg)
+            ojerror(ojlib.ojl_append(byref(self), arg))
 
     def insert(self, index, arg):
         if isinstance(arg, str):
             for c in text.cardnums(arg):
-                ojlib.ojs_insert(byref(self), index, c)
+                ojerror(ojlib.ojl_insert(byref(self), index, c))
                 index += 1
         elif hasattr(arg, "__iter__"):
             for v in arg:
-                ojlib.ojs_insert(byref(self), index, v)
+                ojerror(ojlib.ojl_insert(byref(self), index, v))
                 index += 1
         else:
-            ojlib.ojs_insert(byref(self), index, arg)
+            ojerror(ojlib.ojl_insert(byref(self), index, arg))
 
     def remove(self, arg):
         if isinstance(arg, str):
             for c in text.cardnums(arg):
-                v = ojlib.ojs_remove(byref(self), c)
+                v = ojerror(ojlib.ojl_remove(byref(self), c))
             return v
         elif hasattr(arg, "__iter__"):
             for v in arg:
-                v = ojlib.ojs_remove(byref(self), v)
+                v = ojerror(ojlib.ojl_remove(byref(self), v))
             return v
         else:
-            return ojlib.ojs_remove(byref(self), arg)
+            return ojerror(ojlib.ojl_remove(byref(self), arg))
 
     def pop(self):
-        return ojlib.ojs_pop(byref(self))
+        return error(ojlib.ojl_pop(byref(self)))
 
     def index(self, card):
         if isinstance(card, str):
             card = text.cardnum(card)
-        return ojlib.ojs_index(byref(self), card)
+        return ojlib.ojl_index(byref(self), card)
 
     def fill(self, count = 52, type = None):
         if type is None:
-            d = { 32: dt_stripped32, 40: dt_stripped40,
-                41: dt_stripped40j, 53: dt_1joker, 54: dt_2jokers }
-            if count in d:
-                type = d[count]
-            else:
-                type = dt_standard
-        ojlib.ojs_fill(byref(self), count, type)
+            type = dt_standard
+        ojerror(ojlib.ojl_fill(byref(self), count, type))
 
     def sort(self):
-        ojlib.ojs_sort(byref(self))
+        ojerror(ojlib.ojl_sort(byref(self)))
 
     def reverse(self):
-        ojlib.ojs_sort(byref(self))
+        ojerror(ojlib.ojl_sort(byref(self)))
 
     def shuffle(self):
-        ojlib.ojs_sort(byref(self))
+        ojerror(ojlib.ojl_sort(byref(self)))

@@ -7,6 +7,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#undef com_onejoker_onejoker_CardList_ERDONLY
+#define com_onejoker_onejoker_CardList_ERDONLY -2L
+#undef com_onejoker_onejoker_CardList_EFULL
+#define com_onejoker_onejoker_CardList_EFULL -3L
+#undef com_onejoker_onejoker_CardList_EDUPLICATE
+#define com_onejoker_onejoker_CardList_EDUPLICATE -4L
+#undef com_onejoker_onejoker_CardList_EBADINDEX
+#define com_onejoker_onejoker_CardList_EBADINDEX -5L
 /*
  * Class:     com_onejoker_onejoker_CardList
  * Method:    nStructSize
@@ -17,19 +25,19 @@ JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nStructSize
 
 /*
  * Class:     com_onejoker_onejoker_CardList
- * Method:    nLengthOff
- * Signature: ()I
+ * Method:    nAppend
+ * Signature: (Ljava/nio/ByteBuffer;I)I
  */
-JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nLengthOff
-  (JNIEnv *, jclass);
+JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nAppend
+  (JNIEnv *, jclass, jobject, jint);
 
 /*
  * Class:     com_onejoker_onejoker_CardList
- * Method:    nAppend
- * Signature: (Ljava/nio/ByteBuffer;I)Z
+ * Method:    nClear
+ * Signature: (Ljava/nio/ByteBuffer;)I
  */
-JNIEXPORT jboolean JNICALL Java_com_onejoker_onejoker_CardList_nAppend
-  (JNIEnv *, jclass, jobject, jint);
+JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nClear
+  (JNIEnv *, jclass, jobject);
 
 /*
  * Class:     com_onejoker_onejoker_CardList
@@ -50,9 +58,9 @@ JNIEXPORT jboolean JNICALL Java_com_onejoker_onejoker_CardList_nEquals
 /*
  * Class:     com_onejoker_onejoker_CardList
  * Method:    nExtend
- * Signature: (Ljava/nio/ByteBuffer;Ljava/nio/ByteBuffer;I)Z
+ * Signature: (Ljava/nio/ByteBuffer;Ljava/nio/ByteBuffer;I)I
  */
-JNIEXPORT jboolean JNICALL Java_com_onejoker_onejoker_CardList_nExtend
+JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nExtend
   (JNIEnv *, jclass, jobject, jobject, jint);
 
 /*
@@ -65,10 +73,18 @@ JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nFill
 
 /*
  * Class:     com_onejoker_onejoker_CardList
- * Method:    nFNVHash
+ * Method:    nGet
+ * Signature: (Ljava/nio/ByteBuffer;I)I
+ */
+JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nGet
+  (JNIEnv *, jclass, jobject, jint);
+
+/*
+ * Class:     com_onejoker_onejoker_CardList
+ * Method:    nHash
  * Signature: (Ljava/nio/ByteBuffer;)I
  */
-JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nFNVHash
+JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nHash
   (JNIEnv *, jclass, jobject);
 
 /*
@@ -82,9 +98,9 @@ JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nIndex
 /*
  * Class:     com_onejoker_onejoker_CardList
  * Method:    nInsert
- * Signature: (Ljava/nio/ByteBuffer;II)Z
+ * Signature: (Ljava/nio/ByteBuffer;II)I
  */
-JNIEXPORT jboolean JNICALL Java_com_onejoker_onejoker_CardList_nInsert
+JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nInsert
   (JNIEnv *, jclass, jobject, jint, jint);
 
 /*
@@ -106,34 +122,58 @@ JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nPop
 /*
  * Class:     com_onejoker_onejoker_CardList
  * Method:    nRemove
- * Signature: (Ljava/nio/ByteBuffer;I)Z
+ * Signature: (Ljava/nio/ByteBuffer;I)I
  */
-JNIEXPORT jboolean JNICALL Java_com_onejoker_onejoker_CardList_nRemove
+JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nRemove
   (JNIEnv *, jclass, jobject, jint);
 
 /*
  * Class:     com_onejoker_onejoker_CardList
  * Method:    nReverse
- * Signature: (Ljava/nio/ByteBuffer;)V
+ * Signature: (Ljava/nio/ByteBuffer;)I
  */
-JNIEXPORT void JNICALL Java_com_onejoker_onejoker_CardList_nReverse
+JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nReverse
   (JNIEnv *, jclass, jobject);
 
 /*
  * Class:     com_onejoker_onejoker_CardList
- * Method:    nShuffle
- * Signature: (Ljava/nio/ByteBuffer;)V
+ * Method:    nSet
+ * Signature: (Ljava/nio/ByteBuffer;II)I
  */
-JNIEXPORT void JNICALL Java_com_onejoker_onejoker_CardList_nShuffle
+JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nSet
+  (JNIEnv *, jclass, jobject, jint, jint);
+
+/*
+ * Class:     com_onejoker_onejoker_CardList
+ * Method:    nShuffle
+ * Signature: (Ljava/nio/ByteBuffer;)I
+ */
+JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nShuffle
+  (JNIEnv *, jclass, jobject);
+
+/*
+ * Class:     com_onejoker_onejoker_CardList
+ * Method:    nSize
+ * Signature: (Ljava/nio/ByteBuffer;)I
+ */
+JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nSize
   (JNIEnv *, jclass, jobject);
 
 /*
  * Class:     com_onejoker_onejoker_CardList
  * Method:    nSort
- * Signature: (Ljava/nio/ByteBuffer;)V
+ * Signature: (Ljava/nio/ByteBuffer;)I
  */
-JNIEXPORT void JNICALL Java_com_onejoker_onejoker_CardList_nSort
+JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nSort
   (JNIEnv *, jclass, jobject);
+
+/*
+ * Class:     com_onejoker_onejoker_CardList
+ * Method:    nTruncate
+ * Signature: (Ljava/nio/ByteBuffer;I)I
+ */
+JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_CardList_nTruncate
+  (JNIEnv *, jclass, jobject, jint);
 
 #ifdef __cplusplus
 }

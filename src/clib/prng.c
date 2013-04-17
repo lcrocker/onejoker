@@ -22,16 +22,16 @@
 static uint32_t x, y, z, c;
 static int _seeded = 0;
 
-/* State vector and pointer. We calculate a bufferfull of random bits
+/* Ring buffer for random bits. We calculate a bufferfull of random bits
  * at a time, and fetch them from the buffer, refilling when needed.
  */
-#define STATE_SIZE 512
-static uint16_t *sptr, state[2 * STATE_SIZE];
+#define RB_SIZE 2048
+static uint16_t *rptr, ring[RB_SIZE / 2];
 
 /* Seed the PRNG. If we are passed 0, generate a good seed from system
  * entropy. Otherwise, give a reproducible sequence.
  */
-int ojr_seed(const int seed) {
+int ojr_seed(int seed) {
     uint32_t s[4];
     time_t t;
 #ifdef _WIN32
@@ -41,7 +41,7 @@ int ojr_seed(const int seed) {
 #endif
 
     /* Make sure we reload on first call */
-    sptr = state;
+    rptr = ring;
 
     /* Start with some reasonable defaults */
     x = 123456789;
@@ -63,9 +63,9 @@ int ojr_seed(const int seed) {
      */
 #ifdef _WIN32
     do {
-        if (!(CryptAcquireContext(&hCryptProv, "LDC",
-            0, PROV_RSA_FULL, 0))) {
-            if (!CryptAcquireContext(&hCryptProv, "LDC",
+        if (! CryptAcquireContext(&hCryptProv, "LDC",
+            0, PROV_RSA_FULL, 0)) {
+            if (! CryptAcquireContext(&hCryptProv, "LDC",
                 0, PROV_RSA_FULL, CRYPT_NEWKEYSET)) {
                 break;
             }
@@ -104,7 +104,7 @@ static void reload(void) {
     uint64_t t;
 
     assert(_seeded);
-    for (i = 0; i < STATE_SIZE; ++i) {
+    for (i = 0; i < (RB_SIZE / 4); ++i) {
         x = 314527869 * x + 1234567;
         y ^= y << 5;
         y ^= y >> 7;
@@ -112,9 +112,9 @@ static void reload(void) {
         t = 4294584393ull * z + c;
         c = t >> 32;
         z = t;
-        ((uint32_t *)state)[i] = x + y + z;
+        ((uint32_t *)ring)[i] = x + y + z;
     }
-    sptr = state + 2 * STATE_SIZE;
+    rptr = ring + (RB_SIZE / 2);
 }
 
 /* Return next 16 random bits from buffer.
@@ -122,17 +122,17 @@ static void reload(void) {
 __attribute__((hot))
 uint16_t ojr_next16(void) {
     assert(_seeded);
-    if (sptr == state) reload();
-    return *--sptr;
+    if (rptr == ring) reload();
+    return *--rptr;
 }
 
 /* Return next 32 random bits from buffer.
  */
 uint32_t ojr_next32(void) {
     assert(_seeded);
-    if (sptr < (state + 2)) reload();
-    sptr -= 2;
-    return *((uint32_t *)sptr);
+    if (rptr < (ring + 2)) reload();
+    rptr -= 2;
+    return *((uint32_t *)rptr);
 }
 
 /* Return a well-balanced random integer from 0 to limit-1.
@@ -156,16 +156,19 @@ int ojr_rand(const int limit) {
     return v;
 }
 
-#define SWAP(a,b) do{t=cp[a];cp[a]=cp[b];cp[b]=t;}while(0)
+#define SWAP(a,b) do{t=array[a];array[a]=array[b];array[b]=t;}while(0)
 
-/* Randomly permute an array of integers, ensuring that each possible
- * permutation is equally likely.
+/* Move to the top of the array a randomly-chosen combination of <count>
+ * elements, where each combination and permutation is equally likely.
+ * If <count> == <size>, this becomes a standard Fisher-Yates shuffle.
  */
-void ojr_fisher_yates(const int n, int * const cp) {
-    int i, j, t;
+void ojr_shuffle(int *array, int size, int count) {
+    int i, r, t;
 
-    for (i = n; i > 1; --i) {
-        j = ojr_rand(i);
-        SWAP(i - 1, j);
+    if (count == size) --count;
+
+    for (i = 0; i < count; ++i) {
+        r = ojr_rand(size - i);
+        if (i != r) SWAP(i, r);
     }
 }

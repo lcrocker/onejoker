@@ -6,33 +6,32 @@ from ctypes.util import find_library
 ojlib = CDLL(find_library("onejoker"))
 from .cardlist import CardList
 
-class Combinations(Structure):
+class Combiner(Structure):
     _fields_ = [
         ("_johnnymoss", c_int),
         ("k", c_int),
-        ("a", POINTER(c_int)),
+        ("flags", c_int),
+        ("map", c_int * 56),
+        ("deck_invert", c_int * 56),
         ("total", c_longlong),
-        ("count", c_longlong),
+        ("rank", c_longlong),
         ("remaining", c_longlong),
         ("deck", POINTER(CardList)),
         ("hand", POINTER(CardList)),
-        ("deck_invert", c_int * 64)
+        ("user_info", c_void_p),
     ]
 
     def __init__(self, deck, k):
         self.h = CardList(k)
-        self.buf = cast(create_string_buffer(4 * k), POINTER(c_int))
-        ojlib.ojc_iter_new(byref(self), byref(deck), byref(self.h),
-            k, self.buf, c_longlong(0))
+        ojlib.ojc_new(byref(self), byref(deck), byref(self.h), c_longlong(0))
 
     def all(self):
-        while ojlib.ojc_iter_next(byref(self)):
+        while ojlib.ojc_next(byref(self)):
             yield self.hand.contents
 
     def random(self, count):
-        self.count = count
         self.remaining = count
-        while ojlib.ojc_iter_next_random(byref(self)):
+        while ojlib.ojc_next_random(byref(self)):
             yield self.hand.contents
 
     def rank(self, hand):

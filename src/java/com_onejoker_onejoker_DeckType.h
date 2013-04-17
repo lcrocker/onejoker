@@ -7,8 +7,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#undef com_onejoker_onejoker_DeckType_NTYPES
-#define com_onejoker_onejoker_DeckType_NTYPES 6L
 /*
  * Class:     com_onejoker_onejoker_DeckType
  * Method:    nCards
@@ -16,6 +14,14 @@ extern "C" {
  */
 JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_DeckType_nCards
   (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     com_onejoker_onejoker_DeckType
+ * Method:    nTypes
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_onejoker_onejoker_DeckType_nTypes
+  (JNIEnv *, jclass);
 
 #ifdef __cplusplus
 }

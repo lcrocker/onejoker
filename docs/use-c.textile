@@ -1,6 +1,6 @@
 ---
 layout: docs
-title: OneJoker: Using the library from C
+title: "OneJoker: Using the library from C"
 ---
 
 h1. Using the library from C

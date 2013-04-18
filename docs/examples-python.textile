@@ -1,6 +1,6 @@
 ---
 layout: docs
-title: OneJoker: Python examples
+title: "OneJoker: Python examples"
 ---
 
 h1. Python examples

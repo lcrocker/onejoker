@@ -1,6 +1,6 @@
 ---
 layout: docs
-title: OneJoker: Java examples
+title: "OneJoker: Java examples"
 ---
 
 h1. Java examples

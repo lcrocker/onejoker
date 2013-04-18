@@ -1,6 +1,6 @@
 ---
 layout: docs
-title: OneJoker: Using the library from Python
+title: "OneJoker: Using the library from Python"
 ---
 
 h1. Using the library from Python

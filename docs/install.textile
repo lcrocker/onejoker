@@ -1,6 +1,6 @@
 ---
 layout: docs
-title: OneJoker: Intallation
+title: "OneJoker: Intallation"
 ---
 
 h1. Installing the library

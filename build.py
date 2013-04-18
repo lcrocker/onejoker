@@ -6,27 +6,28 @@ import os, sys, argparse, glob
 from collections import OrderedDict;
 
 g_clib_objects = OrderedDict([
-    ("onejoker",         []),
-    ("prng",             []),
-    ("text",             []),
-    ("deckinfo",         []),
-    ("cardlist",         []),
-    ("combiner",         [ "bctable.h" ]),
-    ("poker",            [ "ldctables.h" ]),
+    ("onejoker",        []),
+    ("prng",            []),
+    ("text",            []),
+    ("deckinfo",        []),
+    ("cardlist",        []),
+    ("combiner",        [ "bctable.h" ]),
+    ("poker",           [ "ldctables.h" ]),
 ])
 g_clib_tests = OrderedDict([
-    ("t_basic",          [ [], [] ]),
-    ("t_random",         [ ["stats.c"], [ "m" ] ]),
-#    ("t_sequence",       [ [], [] ]),
-#    ("t_iters",          [ [], [ "m" ] ]),
+    ("hello",           [ [], [], ]),
+    ("t_basic",         [ [], [], ]),
+    ("t_random",        [ ["stats.c"], [ "m" ] ]),
+#    ("t_sequence",      [ [], [] ]),
+#    ("t_iters",         [ [], [ "m" ] ]),
 ])
 g_jni_classes = [ "Card", "CardList", "DeckType", ]
 g_java_classes = [
     "Card", "DeckType", "CardList", "Combiner" , "Game",
 ]
-g_java_tests = [ "Basic", ]
+g_java_tests = [ "Hello", "Basic", ]
 g_python_files = [ "__init__", "core", "text", "cardlist", "combiner" ]
-g_python_tests = [ "basic" ]
+g_python_tests = [ "hello", "basic" ]
 
 g_root_dir = os.path.dirname(os.path.abspath(__file__))
 g_java_home = os.environ.get("JAVA_HOME", "")

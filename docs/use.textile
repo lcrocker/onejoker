@@ -1,0 +1,46 @@
+---
+layout: docs
+title: "OneJoker: Use"
+---
+
+h1. Using the library in your code
+
+h2. Python
+
+In Python, just import the module (giving it a short name is also handy):
+
+{% highlight python %}
+import onejoker as oj
+print (oj.name(oj.rand(52) + 1))
+{% endhighlight %}
+
+This should print the short name of a random card (e.g. "2c", "Ah", etc.) See some "examples":http://lcrocker.github.io/OneJoker/docs/examples-python.html of complete Python programs using the library.
+
+h2. Java
+
+In Java code, import the classes and load the library at the top of your main class:
+
+{% highlight java %}
+import com.onejoker.onejoker.*;
+
+public class Basic {
+    static {
+        System.loadLibrary("onejoker");
+    }
+    public static void main(String args[]) {
+    }
+}
+{% endhighlight %}
+
+See some "examples":http://lcrocker.github.io/OneJoker/docs/examples-java.html of complete Java programs using the library.
+
+h2. C
+
+When compiling your C code against the library, add @-lonejoker@ to the link command. If you've installed the library someplace like @/home/lib@, you may also have to add @-L/home/lib@ to tell the linker where to find it. In your C code, just include the single header:
+
+{% highlight cpp %}
+#include "onejoker.h"
+{% endhighlight %}
+
+See some "examples":http://lcrocker.github.io/OneJoker/docs/examples-c.html of complete C programs using the library.
+

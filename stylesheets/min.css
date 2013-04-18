@@ -22,8 +22,8 @@ header h1 {
   font-size: 480%;
 }
 
-p, ul, ol, table, pre, dl {
-  margin:0 0 20px;
+h1, h2, h3, h4, h5, h6 {
+  color:#000;
 }
 
 h1, h2, h3 {
@@ -31,15 +31,31 @@ h1, h2, h3 {
 }
 
 h1 {
-  font-size:28px;
+  font-size: 300%;
 }
 
 h2 {
-  color:#000;
+  font-size: 150%;
 }
 
-h3, h4, h5, h6 {
-  color:#000;
+header h1 {
+  margin-bottom: 0;
+}
+
+header h2 {
+  margin-top: 0;
+}
+
+section h2 {
+  margin-left: 1em;
+}
+
+section h3, section h4, section h5, section h6 {
+  margin-left: 2em;
+}
+
+section p, section ul, section ol, section table, section pre, section dl {
+  margin-left: 2.4em;
 }
 
 a {
@@ -65,14 +81,13 @@ blockquote {
 }
 
 code, pre {
-  font-family:Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
-  color:#333;
-  font-size:12px;
+  font-family: "Inconsolata", Bitstream Vera Sans Mono, Lucida Console, Terminal;
+  background: #FFFFEE;
 }
 
 pre {
   padding:8px 15px;
-  background: #f8f8f8;
+  background: #FFFFEE;
   border-radius:5px;
   border:1px solid #e5e5e5;
   overflow-x: auto;
@@ -106,12 +121,10 @@ header {
   background:#DDD;
   width:20em; /* 270px; */
   padding: 1em;
-  float:right;
-  /* position:fixed; */
   border-radius:1em;
 }
 
-header ul {
+ul.nobullets {
 	list-style-type: none;
 }
 
@@ -200,11 +213,20 @@ header ul.buttons a strong {
   color:#222;
 }
 
+footer {
+  margin-top: 2ex;
+  line-height: 90%;
+}
+
 section {
-  width: 45em; /* 500px; */
+  width: 45em;
   float:left;
-  position:fixed;
   padding-bottom:50px;
+}
+
+.column {
+  width: 20em;
+  float: right;
 }
 
 small {
@@ -216,14 +238,6 @@ hr {
   background:#e5e5e5;
   height:1px;
   margin:0 0 20px;
-}
-
-footer {
-  width:20em; /* 270px; */
-  float:right;
-  position:fixed;
-  bottom:50px;
-  line-height: 90%;
 }
 
 @media print, screen and (max-width: 960px) {
@@ -296,3 +310,66 @@ footer {
     color:#444;
   }
 }
+
+.hll { background-color: #ffffcc }
+.c { color: #408080; font-style: italic }
+.err { border: 1px solid #FF0000 }
+.k { color: #008000; font-weight: bold }
+.o { color: #666666 }
+.cm { color: #408080; font-style: italic }
+.cp { color: #7ABC00 }
+.c1 { color: #408080; font-style: italic }
+.cs { color: #408080; font-style: italic }
+.gd { color: #A00000 }
+.ge { font-style: italic }
+.gr { color: #FF0000 }
+.gh { color: #000080; font-weight: bold }
+.gi { color: #00A000 }
+.go { color: #808080 }
+.gp { color: #000080; font-weight: bold }
+.gs { font-weight: bold }
+.gu { color: #800080; font-weight: bold }
+.gt { color: #0040D0 }
+.kc { color: #008000; font-weight: bold }
+.kd { color: #008000; font-weight: bold }
+.kn { color: #008000; font-weight: bold }
+.kp { color: #008000 }
+.kr { color: #008000; font-weight: bold }
+.kt { color: #B00040 }
+.m { color: #666666 }
+.s { color: #BA2121 }
+.na { color: #7D9029 }
+.nb { color: #008000 }
+.nc { color: #0000FF; font-weight: bold }
+.no { color: #880000 }
+.nd { color: #AA22FF }
+.ni { color: #999999; font-weight: bold }
+.ne { color: #D2413A; font-weight: bold }
+.nf { color: #0000FF }
+.nl { color: #A0A000 }
+.nn { color: #0000FF; font-weight: bold }
+.nt { color: #008000; font-weight: bold }
+.nv { color: #19177C }
+.ow { color: #AA22FF; font-weight: bold }
+.w { color: #bbbbbb }
+.mf { color: #666666 }
+.mh { color: #666666 }
+.mi { color: #666666 }
+.mo { color: #666666 }
+.sb { color: #BA2121 }
+.sc { color: #BA2121 }
+.sd { color: #BA2121; font-style: italic }
+.s2 { color: #BA2121 }
+.se { color: #BB6622; font-weight: bold }
+.sh { color: #BA2121 }
+.si { color: #BB6688; font-weight: bold }
+.sx { color: #008000 }
+.sr { color: #BB6688 }
+.s1 { color: #BA2121 }
+.ss { color: #19177C }
+.bp { color: #008000 }
+.vc { color: #19177C }
+.vg { color: #19177C }
+.vi { color: #19177C }
+.il { color: #666666 }
+

@@ -30,8 +30,8 @@ g_python_tests = [ "basic" ]
 
 g_root_dir = os.path.dirname(os.path.abspath(__file__))
 g_java_home = os.environ.get("JAVA_HOME", "")
-g_debug_cflags = "-g -pg -DDEBUG"
-g_release_cflags = "-O3 -DNDEBUG"
+g_debug_cflags = "-fpic -g -DDEBUG"
+g_release_cflags = "-fpic -O3 -DNDEBUG"
 g_debug_javac_flags = "-g -Werror"
 g_release_javac_flags = "-g:none"
 

@@ -1,4 +1,4 @@
-# OneJoker library <https://github.com/lcrocker/OneJoker>
+# OneJoker library <http://lcrocker.github.io/OneJoker>
 
 import sys, itertools as it
 from .cardlist import CardList
@@ -26,7 +26,7 @@ def rand(limit):
 def decksize(t):
     return ojlib.ojd_size(t)
 
-def newdeck(t):
+def newdeck(t = 0):
     n = ojlib.ojd_size(t)
     d = CardList(n)
     d.fill(n, t)

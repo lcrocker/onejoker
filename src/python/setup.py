@@ -5,7 +5,7 @@ setup ( name = "onejoker",
         description = "OneJoker Card Game Library",
         author = "Lee Daniel Crocker",
         author_email = "lee@etceterology.com",
-        url = "http://www.onejoker.com/",
+        url = "http://lcrocker.github.io/OneJoker",
         packages = [ "onejoker" ],
         classifiers = [
             "Development Status :: 2 - Pre-Alpha",

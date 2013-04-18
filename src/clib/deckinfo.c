@@ -1,4 +1,4 @@
-/* OneJoker library <https://github.com/lcrocker/OneJoker/>
+/* OneJoker library <http://lcrocker.github.io/OneJoker/>
  * Information on types of card decks.
  */
 

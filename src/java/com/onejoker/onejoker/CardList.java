@@ -1,4 +1,4 @@
-/* OneJoker library <https://github.com/lcrocker/OneJoker>
+/* OneJoker library <http://lcrocker.github.io/OneJoker>
  *
  * CardList is designed to look more or less like a Java List class, but it is
  * really just a wrapper for the C structure, so you can't do everything you

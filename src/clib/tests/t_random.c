@@ -1,4 +1,6 @@
-/* Tests for pseudo-random number generator.
+/* OneJoker library <http://lcrocker.github.io/OneJoker>
+ *
+ * Tests for pseudo-random number generator.
  */
 
 #include <stdlib.h>

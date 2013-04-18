@@ -1,4 +1,4 @@
-"""OneJoker library <https://github.com/lcrocker/OneJoker>
+"""OneJoker library <http://lcrocker.github.io/OneJoker>
 """
 
 from .core import rank, suit, card, seed, rand, decksize, newdeck, \

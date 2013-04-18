@@ -1,4 +1,4 @@
-# OneJoker library <https://github.com/lcrocker/OneJoker>
+# OneJoker library <http://lcrocker.github.io/OneJoker>
 
 import sys, itertools as it
 from ctypes import *

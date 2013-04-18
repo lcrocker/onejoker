@@ -1,4 +1,4 @@
-# OneJoker library <https://github.com/lcrocker/OneJoker>
+# OneJoker library <http://lcrocker.github.io/OneJoker>
 
 import sys, itertools as it
 from ctypes import *
@@ -120,7 +120,7 @@ class CardList(Structure):
             return ojerror(ojlib.ojl_remove(byref(self), arg))
 
     def pop(self):
-        return error(ojlib.ojl_pop(byref(self)))
+        return ojerror(ojlib.ojl_pop(byref(self)))
 
     def index(self, card):
         if isinstance(card, str):
@@ -129,14 +129,14 @@ class CardList(Structure):
 
     def fill(self, count = 52, type = None):
         if type is None:
-            type = dt_standard
+            type = 0
         ojerror(ojlib.ojl_fill(byref(self), count, type))
 
     def sort(self):
         ojerror(ojlib.ojl_sort(byref(self)))
 
     def reverse(self):
-        ojerror(ojlib.ojl_sort(byref(self)))
+        ojerror(ojlib.ojl_reverse(byref(self)))
 
     def shuffle(self):
-        ojerror(ojlib.ojl_sort(byref(self)))
+        ojerror(ojlib.ojl_shuffle(byref(self)))

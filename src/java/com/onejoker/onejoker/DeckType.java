@@ -1,4 +1,4 @@
-/* OneJoker library <https://github.com/lcrocker/OneJoker>
+/* OneJoker library <http://lcrocker.github.io/OneJoker>
  *
  * Enumeration of deck types. Uses the fill function from CardList,
  * which calls into the C library, to get the cards.

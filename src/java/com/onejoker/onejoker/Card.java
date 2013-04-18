@@ -1,4 +1,4 @@
-/* OneJoker library <https://github.com/lcrocker/OneJoker>
+/* OneJoker library <http://lcrocker.github.io/OneJoker>
  *
  * Immutable class Card is basically a wrapper around a single integer value
  * like Integer, but with some specialized utilities.

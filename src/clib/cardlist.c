@@ -1,6 +1,6 @@
-/* OneJoker library <http://github.com/lcrocker/OneJoker/>
+/* OneJoker library <http://lcrocker.github.io/OneJoker>
  *
- * A cardlist is simply any ordered sequence of cardss. They are used for
+ * A cardlist is simply any ordered sequence of cards. They are used for
  * hands, full decks, multi-deck shoes, discards piles, community boards, or
  * anything else needed for your game. These functions are loosely modeled
  * after Python list methods.

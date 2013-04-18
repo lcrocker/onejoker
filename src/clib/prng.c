@@ -1,4 +1,4 @@
-/* OneJoker library <https://github.com/lcrocker/OneJoker/>
+/* OneJoker library <http://lcrocker.github.io/OneJoker>
  * Pseudo-random number generator based on the public domain JKISS by
  * David Jones of the UCL Bioinformatics Group.
  * <http://www.cs.ucl.ac.uk/staff/d.jones/GoodPracticeRNG.pdf>.
@@ -169,6 +169,6 @@ void ojr_shuffle(int *array, int size, int count) {
 
     for (i = 0; i < count; ++i) {
         r = ojr_rand(size - i);
-        if (i != r) SWAP(i, r);
+        if (i != i + r) SWAP(i, i + r);
     }
 }

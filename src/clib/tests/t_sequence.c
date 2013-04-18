@@ -1,4 +1,6 @@
-/* Test card sequence and name functions.
+/* OneJoker library <http://lcrocker.github.io/OneJoker>
+ *
+ * Test card sequence and name functions.
  */
 
 #include <stdlib.h>

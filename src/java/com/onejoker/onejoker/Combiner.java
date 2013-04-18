@@ -1,4 +1,4 @@
-/* OneJoker library <https://github.com/lcrocker/OneJoker>
+/* OneJoker library <http://lcrocker.github.com/OneJoker>
  */
 package com.onejoker.onejoker;
 

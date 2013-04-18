@@ -1,4 +1,6 @@
-/* OneJoker library <https://github.com/lcrocker/OneJoker>
+/* OneJoker library <http://lcrocker.github.io/OneJoker>
+ *
+ * Single include file for all objects in library.
  */
 
 #ifndef _ONEJOKER_H

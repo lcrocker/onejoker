@@ -1,8 +1,9 @@
+# OneJoker library <http://lcrocker.github.io/OneJoker>
 # Token Makefile that just calls the real build script
 #
 
-.PHONY: all
-all:
+.PHONY: module
+module:
 	python3 ../../build.py python
 
 .PHONY: tests

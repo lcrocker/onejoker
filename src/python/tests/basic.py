@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# OneJoker library <https://github.com/lcrocker/OneJoker>
+# OneJoker library <http://lcrocker.github.io/OneJoker>
 # Basic sanity checks for Python modules.
 
 import sys, os

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# OneJoker library <https://github.com/lcrocker/OneJoker>.
+# OneJoker library <http://lcrocker.github.io/OneJoker>.
 # Build script.
 
 import os, sys, argparse, glob
@@ -24,7 +24,7 @@ g_jni_classes = [ "Card", "CardList", "DeckType", ]
 g_java_classes = [
     "Card", "DeckType", "CardList", "Combiner" , "Game",
 ]
-g_java_tests = [ "Basic" ]
+g_java_tests = [ "Basic", ]
 g_python_files = [ "__init__", "core", "text", "cardlist", "combiner" ]
 g_python_tests = [ "basic" ]
 

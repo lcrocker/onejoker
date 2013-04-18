@@ -12,14 +12,18 @@ span.red {
 	color:#902;
 }
 
+.center {
+  text-align: center;
+}
+
 h1, h2, h3, h4, h5, h6 {
   color:#000;
-  margin:0 0 20px;
 }
 
 header h1 {
   font-family: 'Petrona', 'Helvetica Neue', Helvetica, Arial, serif;
   font-size: 480%;
+  margin-top: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -47,15 +51,19 @@ header h2 {
 }
 
 section h2 {
-  margin-left: 1em;
+  margin-left: 0;
 }
 
-section h3, section h4, section h5, section h6 {
-  margin-left: 2em;
+section h3 {
+  margin-left: 12pt;
+}
+
+section h4, section h5, section h6 {
+  margin-left: 24pt;
 }
 
 section p, section ul, section ol, section table, section pre, section dl {
-  margin-left: 2.4em;
+  margin-left: 24pt;
 }
 
 a {
@@ -135,12 +143,12 @@ header ul.buttons {
   padding:0;
 
   background: #eee;
-  background: -moz-linear-gradient(top, #f8f8f8 0%, #dddddd 100%);
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f8f8f8), color-stop(100%,#dddddd));
-  background: -webkit-linear-gradient(top, #f8f8f8 0%,#dddddd 100%);
-  background: -o-linear-gradient(top, #f8f8f8 0%,#dddddd 100%);
-  background: -ms-linear-gradient(top, #f8f8f8 0%,#dddddd 100%);
-  background: linear-gradient(top, #f8f8f8 0%,#dddddd 100%);
+  background: -moz-linear-gradient(top, #eeeeee 0%, #cccccc 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eeeeee), color-stop(100%,#cccccc));
+  background: -webkit-linear-gradient(top, #eeeeee 0%,#cccccc 100%);
+  background: -o-linear-gradient(top, #eeeeee 0%,#cccccc 100%);
+  background: -ms-linear-gradient(top, #eeeeee 0%,#cccccc 100%);
+  background: linear-gradient(top, #eeeeee 0%,#cccccc 100%);
 
   border-radius:5px;
   border:1px solid #d2d2d2;
@@ -168,8 +176,8 @@ header ul.buttons li:last-child a {
 
 header ul.buttons a {
   line-height:1;
-  font-size:11px;
-  color:#999;
+  font-size:75%;
+  color:#666;
   display:block;
   text-align:center;
   padding-top:6px;

@@ -3,15 +3,37 @@ layout: docs
 title: "OneJoker: Intallation"
 ---
 
-h1. Installation
+h1. Installing a pre-built library
 
-h2. Installing the shared library
+You can use the OneJoker library in your own code without having to build it from source by installing a pre-compiled binary.
+
+h2. Python 3
+
+Even if you plan to use to OneJoker library for Java or C programming, you will need to have the Python 3 language installed on your computer to run some of the utilities, including the installer.
 
 h3. Windows
 
-Download "this zipfile":/OneJoker/binaries/onejoker-win32-0.0.1.zip and unpack it. This will give you the file @onejoker.dll@. To use this in your code without installing it system-wide, just put it in the same directory with your @.exe@. To install it system-wide, copy it to the @system32@ directory.
+The "standard" implementation of Python 3 can be downloaded from ["python.org":http://python.org/download/releases/]. Many people prefer ["ActivePython":http://www.activestate.com/activepython/downloads]. Either will work just fine. Once you have installed Python 3, continue to ["downloading":#downloading], below.
 
-h3. Linux x86
+h3. Linux
+
+Most current Linux distributions come with Python 2 installed, but not Python 3, so you'll have to install it (the two get along pretty well together on the same machine). Complicating matters a little more, some distrubutions fail to include the standard "tkinter" module that is part of the language, requiring you to install that separately. On Ubuntu Linux, for example, you'll have to install two packages, like this:
+
+{% highlight bash %}
+sudo apt-get install python3 python3-tk
+{% endhighlight %}
+
+<a id="downloading"></a>
+
+h2. Downloading
+
+h3. Windows
+
+Download "this zipfile":/OneJoker/binaries/onejoker-win32-0.0.1.zip and unpack it. The installer is the program @install.pyw@. If you have Python 3 installed correctly, you can run this either by simply clicking on it or by typing @pythonw install.pyw@, assuming your PATH and other environment is set up to point to Python 3.
+
+The installer will make its best guess about where to install the C library, Java classes, and Python module. If your installation of those languages differs from that guess, change the directories as needed before pressing the "Install" button.
+
+h3. Linux
 
 h4. Option 1: Install to @/usr/local/lib@
 
@@ -41,10 +63,3 @@ ln -s libonejoker.so.0.0.1 libonejoker.so
 {% endhighlight %}
 
 Now either add the @/home/lib@ directory to @LD_LIBRARY_PATH@, or add it to @/etc/ld.conf@, and re-cache libraries with @ldconfig@.
-
-h2. Installing the Python module
-
-h2. See also
-
-*(nobullets) "Using the library":use.html in your code.
-

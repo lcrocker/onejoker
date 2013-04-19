@@ -1,0 +1,12 @@
+---
+layout: index
+title: OneJoker card game and simulation library
+---
+
+h1. Overview
+
+*OneJoker* is library of code useful for making card games and simulations. It can be used by programs in C, Java, and Python. You can use one of the pre-compiled libraries available below, or download and build the library for your particular platform.
+
+* See examples of code using the library in ["Python":docs/examples-python.html], ["Java":docs/examples-java.html], and ["C":docs/examples-c.html].
+* Download a pre-compiled ["binary":docs/install.html] of the library.
+* Read the library ["documentation":docs/index.html].

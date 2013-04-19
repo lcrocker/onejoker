@@ -1,2 +1,5 @@
+source: .
+include: [ docs, images, binaries, stylesheets, javascripts ]
+exclude: [ build, src ]
 pygments: true
 

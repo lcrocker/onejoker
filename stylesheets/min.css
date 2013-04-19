@@ -26,6 +26,9 @@ header h1 {
   margin-top: 0;
 }
 
+img#h1 { float: left; }
+img#h2 { float: right; }
+
 h1, h2, h3, h4, h5, h6 {
   color:#000;
 }
@@ -46,8 +49,16 @@ header h1 {
   margin-bottom: 0;
 }
 
-header h2 {
-  margin-top: 0;
+header #logo {
+  position: relative;
+  width: 100%;
+}
+
+#logo h2 {
+  position: absolute;
+  top: 50px;
+  left: 100px;
+  width: 100%;
 }
 
 section h2 {

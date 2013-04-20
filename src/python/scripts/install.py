@@ -1,65 +1,143 @@
 #!/usr/bin/env python3
 
 import sys, os
+from collections import OrderedDict
 
 try:
     from tkinter import *
-    from tkinter import ttk
+    from tkinter.ttk import *
 except ImportError:
     print(
-"""Your Python 3 installation is incomplete, and does not include the
-"tkinter" module. If you are running Ubuntu Linux, you need to install
-the "python3-tk" package to fix this. On other systems, you may need to
-install a different Python 3 implementation.
+"""
+Your Python 3 installation does not include the standard
+"tkinter" module. This is an optional package on some installations.
+On Windows, re-run the Python setup program and choose this option.
+On Ubuntu Linux, you need to install the "python3-tk" package.
 """);
     sys.exit(1)
 
+g_root = Tk()
+g_root.title("Choose installation directories")
+Style().theme_use("alt")
+g_xpad, g_ypad = 16, 16
+
+g_paths = OrderedDict([
+    ("library",     "Shared library"),
+    ("include",     "C header files"),
+    ("java",        "Java classes"),
+    ("python",      "Python module"),
+])
+
+class PathBox(object):
+    def __init__(self, name):
+        self.name = name
+        self.sv = StringVar()
+        self.iv = IntVar()
+        self.iv.set(1)
+        self.iv.trace("w", self.callback)
+        self.frame = None
+        self.check = None
+        self.label = None
+        self.entry = None
+
+    def set(self, text):
+        self.sv.set(text)
+
+    def focus(self):
+        self.entry.focus()
+
+    def callback(self, *args):
+        self.entry["state"] = ["!disabled"] \
+            if self.iv.get() else ["disabled"]
+
+    def getframe(self, p):
+        if self.frame is None:
+            f = Frame(p)
+            self.check = Checkbutton(f, variable = self.iv)
+            self.check.grid(row = 0, column = 0, sticky = "es")
+            s = Frame(f, width = "2pt")
+            s.grid(row = 0, column = 1)
+            self.label = Label(f, style = "TLabel",
+                text = g_paths[self.name])
+            self.label.grid(row = 0, column = 2, sticky = "ws")
+            s = Frame(f, height = "2pt")
+            s.grid(row = 1, column = 0)
+            self.entry = Entry(f, width = 40, style = "TEntry",
+                textvariable = self.sv, font = "Courier 12")
+            self.entry.grid(row = 2, column = 2, sticky = "wn")
+            s = Frame(f, width = g_xpad)
+            s.grid(row = 0, column = 3)
+            f.columnconfigure(0, weight = 0)
+            f.columnconfigure(1, weight = 2)
+            f.columnconfigure(2, weight = 3)
+            self.frame = f
+        return self.frame
+
 class App(object):
     def __init__(self):
-        pass
-
-    def cancel(self):
-        self.root.quit()
+        self.paths = {}
+        for name in g_paths.keys():
+            self.paths[name] = PathBox(name)
 
     def detect_environment(self):
-        pass
+        self.paths["library"].set("/usr/local/lib")
+        self.paths["include"].set("/usr/local/include")
+        self.paths["java"].set("/usr/local/jdk")
+        self.paths["python"].set("/usr/local/lib/python3.2")
+
+    def cancel(self):
+        g_root.quit()
 
     def install(self):
         print("Installed!")
-        self.root.quit()
+        g_root.quit()
+
+    def entrybox(self, p):
+        f = Frame(p, padding = 0)
+        for i, name in enumerate(g_paths):
+            if 0 != i:
+                s = Frame(f, height = g_ypad)
+                s.grid(row = 2 * i - 1, column = 0)
+            pf = self.paths[name].getframe(f)
+            pf.grid(row = 2 * i, column = 0, sticky = "nw")
+        return f
+
+    def buttonbox(self, p):
+        f = Frame(p, padding = 0)
+        b = Button(f, text = "Cancel", command = self.cancel)
+        b.grid(row = 0, column = 0, sticky = "ne")
+        s = Frame(f, width = g_xpad)
+        s.grid(row = 0, column = 1)
+        b = Button(f, text = "Install", command = self.install)
+        b.grid(row = 0, column = 2, sticky = "ne")
+        return f
 
     def build_window(self):
-        self.root.title("OneJoker Installer")
-        f = ttk.Frame(self.root, padding = "8 8 12 12")
-        f.grid(column = 0, row = 0, sticky = (N, W, E, S))
+        f = Frame(g_root, padding = 10)
+        f.grid(column = 0, row = 0, sticky = "wnes")
         f.columnconfigure(0, weight = 1)
         f.rowconfigure(0, weight = 1)
 
-        e1 = ttk.Entry(f, width = 40, textvariable = self.lpath)
-        e1.grid(column = 2, row = 1, sticky = (W, E))
+        # l1 = Label(f, style = "TLabel",
+        #     text = "Choose installation directories")
+        # l1.grid(row = 0, column = 0)
+        eb = self.entrybox(f)
+        eb.grid(row = 1, column = 0)
+        s = Frame(f, height = 2 * g_ypad)
+        s.grid(row = 2, column = 0)
+        bb = self.buttonbox(f)
+        bb.grid(row = 3, column = 0)
 
-        ttk.Label(f, text = "Shared library:").grid(
-            column = 2, row = 2, sticky = (W, E))
-        ttk.Button(f, text = "Cancel", command = self.cancel).grid(
-            column = 2, row = 3, sticky = W)
-        ttk.Button(f, text = "Install", command = self.install).grid(
-            column = 3, row = 3, sticky = W)
-
-        e1.focus()
-        self.root.bind("<Return>", self.install)
+        s = Style()
+        s.configure("TEntry", padding = 2)
+        s.configure("TLabel", font = "Helvetica 12")
+        s.configure("TButton", font = "Helvetica 12")
+        self.paths["library"].focus()
 
     def run_gui(self):
-        self.root = Tk()
-        self.root.minsize(width = 400, height = 300)
-        self.root.resizable(height = True, width = True)
-
-        self.lpath = StringVar()
-        self.ipath = StringVar()
-        self.jpath = StringVar()
-        self.ppath = StringVar()
-
         self.build_window()
-        self.root.mainloop()
+        g_root.bind("<Return>", self.install)
+        g_root.mainloop()
 
     def run(self):
         self.detect_environment()

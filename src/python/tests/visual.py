@@ -47,7 +47,7 @@ def fill_image():
 
         s = "{" + " ".join(cols) + "}"
         im.put(s, to = (0, line))
-        root.after(20, tickgen.__next__)
+        root.after(10, tickgen.__next__)
         yield
     root.after(2000, root.quit)
     yield # tkinter callbacks don't like getting StopIteration
@@ -55,11 +55,11 @@ def fill_image():
 tickgen = fill_image()
 
 root = Tk()
-im = PhotoImage(file = "sample.gif")
+im = PhotoImage(file = "jeenie11.ppm")
 c = Canvas(root, height = 512, width = 512)
 c.create_image((0, 0), anchor = NW, image = im)
 c.pack()
 fill_image()
 
-root.after(20, tickgen.__next__)
+tickgen.__next__()
 root.mainloop()

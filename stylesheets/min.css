@@ -5,7 +5,9 @@ body {
   font-family:"Petrona", serif;
   color:#222;
   font-weight:300;
-  background:#EEF0FF;
+  background:#cbdddd;
+  background-image:url("/images/BlueHexBG.jpg");
+  background-repeat:no-repeat;
 }
 
 span.red {
@@ -107,7 +109,7 @@ code, pre {
 pre {
   padding:8px 15px;
   background: #FFFFEE;
-  border-radius:5px;
+  border-radius:3px;
   border:1px solid #e5e5e5;
   overflow-x: auto;
 }
@@ -141,6 +143,7 @@ header {
   width:20em; /* 270px; */
   padding: 1em;
   border-radius:1em;
+  border:1px solid black;
 }
 
 ul.nobullets {

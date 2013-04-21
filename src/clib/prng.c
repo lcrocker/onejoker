@@ -1,4 +1,4 @@
-/* OneJoker library <http://lcrocker.github.io/OneJoker>
+/* OneJoker library <http://lcrocker.github.io/onejoker>
  * Pseudo-random number generator based on the public domain JKISS by
  * David Jones of the UCL Bioinformatics Group.
  * <http://www.cs.ucl.ac.uk/staff/d.jones/GoodPracticeRNG.pdf>.
@@ -17,6 +17,12 @@
 #endif
 
 #include "onejoker.h"
+
+/* TODO: at some point, make this into an independent library
+ * with more complete features, like keeping state in a structure
+ * to allow for multiple streams, keeping the system seeds for
+ * reuse, multiple algorithms, etc.
+ */
 
 /* Seed variables */
 static uint32_t x, y, z, c;
@@ -126,13 +132,32 @@ uint16_t ojr_next16(void) {
     return *--rptr;
 }
 
-/* Return next 32 random bits from buffer.
- */
 uint32_t ojr_next32(void) {
     assert(_seeded);
     if (rptr < (ring + 2)) reload();
     rptr -= 2;
     return *((uint32_t *)rptr);
+}
+
+uint64_t ojr_next64(void) {
+    assert(_seeded);
+    if (rptr < (ring + 4)) reload();
+    rptr -= 4;
+    return *((uint64_t *)rptr);
+}
+
+/* For those of you into floating point, return one in [0,1).
+ * Assumes ieee-64 floating point format.
+ */
+static union {
+    double d;
+    uint64_t i;
+} ieee;
+
+double ojr_next_double(void) {
+    uint64_t r = ojr_next64();
+    ieee.i = ((r >> 12) & 0xFFFFFFFFFFFFF) | 0x3FF0000000000000;
+    return ieee.d - 1.0;
 }
 
 /* Return a well-balanced random integer from 0 to limit-1.

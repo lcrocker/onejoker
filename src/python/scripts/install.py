@@ -6,6 +6,7 @@ from collections import OrderedDict
 try:
     from tkinter import *
     from tkinter.ttk import *
+    import tkinter.font as tfont
 except ImportError:
     print(
 """
@@ -63,7 +64,8 @@ class PathBox(object):
             s = Frame(f, height = "2pt")
             s.grid(row = 1, column = 0)
             self.entry = Entry(f, width = 40, style = "TEntry",
-                textvariable = self.sv, font = "Courier 12")
+                textvariable = self.sv,
+                font = ("Source Code Pro", 11))
             self.entry.grid(row = 2, column = 2, sticky = "wn")
             s = Frame(f, width = g_xpad)
             s.grid(row = 0, column = 3)
@@ -130,8 +132,8 @@ class App(object):
 
         s = Style()
         s.configure("TEntry", padding = 2)
-        s.configure("TLabel", font = "Helvetica 12")
-        s.configure("TButton", font = "Helvetica 12")
+        s.configure("TLabel", font = "Ubuntu 12")
+        s.configure("TButton", font = "Ubuntu 12")
         self.paths["library"].focus()
 
     def run_gui(self):

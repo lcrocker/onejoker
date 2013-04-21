@@ -122,6 +122,8 @@ int shuffle_test(int count) {
     if (bp->maxz > 4.0) return 2;
     free_buckets(bp);
     return 0;
+
+    /* TODO: something for full-deck shuffles */
 }
 
 int montecarlo_test(int count) {

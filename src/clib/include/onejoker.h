@@ -157,6 +157,8 @@ extern int ojt_vals(char *str, int *arr, int size);
 extern int ojr_seed(int seed);
 extern uint16_t ojr_next16(void);
 extern uint32_t ojr_next32(void);
+extern uint64_t ojr_next64(void);
+extern double ojr_next_double(void);
 extern int ojr_rand(const int limit);
 extern void ojr_shuffle(int *array, int size, int count);
 

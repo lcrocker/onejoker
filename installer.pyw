@@ -36,7 +36,7 @@ g_label_fonts = (
     ("Petrona", 12), ("Ubuntu", 12), ("Verdana", 12), ("Arial", 12)
 )
 g_entry_fonts = (
-    ("Source Code Pro", 12), ("Lucida Sans Mono", 12)
+    ("Source Code Pro", 11), ("Lucida Sans Mono", 11)
 )
 
 avail = tfont.families()
@@ -55,7 +55,7 @@ for f in g_entry_fonts:
         g_entry_font = (f[0], f[1])
         break
 if g_entry_font is None:
-    g_entry_font = ("Courier", 12)
+    g_entry_font = ("Courier", 11)
 
 if "nt" == os.name:
     Style().theme_use("winnative")
@@ -68,17 +68,20 @@ g_xpad, g_ypad = 16, 16
 
 opj = os.path.join
 
+def systemroot():
+    if "SystemRoot" in os.environ:
+        sr = os.environ["SystemRoot"]
+        return sr[0].lower() + sr[1:]
+    else:
+        d, p = os.path.splitdrive(os.getcwd())
+        return opj("{0}", "Windows").format(d)
+
 def find_library_path():
     if "posix" == os.name:
         return "/usr/local/lib"
 
     if "nt" == os.name:
-        if "SystemRoot" in os.environ:
-            sr = os.environ["SystemRoot"]
-        else:
-            d, p = os.path.splitdrive(os.getcwd())
-            sr = opj("{0}", "Windows").format(d)
-        return opj(sr, "System32")
+        return opj(systemroot(), "System32")
 
 def find_include_path():
     if "posix" == os.name:
@@ -86,13 +89,13 @@ def find_include_path():
 
     if "nt" == os.name:
         d, p = os.path.splitdrive(os.getcwd())
-        p = opj("{0}", "MinGW").format(d)
+        p = "{0}\\MinGW".format(d)
         if os.path.exists(p): return opj(p, "include")
 
-        p = opj("{0}", "Cygwin").format(d)
+        p = "{0}\\Cygwin".format(d)
         if os.path.exists(p): return opj(p, "include")
 
-        p = opj("{0}", "Program Files", "Microsoft SDKs", "Windows").format(d)
+        p = "{0}\\Program Files\\Microsoft SDKs\\Windows".format(d)
         if os.path.exists(p):
             dl = [f for f in os.listdir(p) if os.path.isdir(opj(p, f))]
             last = sorted(dl)[-1]
@@ -102,35 +105,39 @@ def find_include_path():
 
 def find_java_path():
     if "JAVA_HOME" in os.environ:
-        return opj(os.environ["JAVA_HOME"], "lib")
+        return opj(os.environ["JAVA_HOME"], "jre", "lib", "ext")
 
-    if "posix" == os.name:
-        return "/usr/local/jdk"
+    if sys.platform.startswith("linux"):
+        return "/usr/java/packages/lib/ext"
+
+    if sys.platform.startswith("solaris"):
+        return "/usr/jdk/packages/lib/ext"
 
     if "nt" == os.name:
         d, p = os.path.splitdrive(os.getcwd())
-        p = opj("{0}", "Program Files", "Java").format(d)
+        p = "{0}\\Program Files\\Java".format(d)
         dl = [f for f in os.listdir(p) if os.path.isdir(opj(p, f))]
         dl2 = [f for f in dl if f.startswith("jdk")]
         if dl2:
-            last = sorted(dl2)[-1]
+            return opj(p, sorted(dl2)[-1], "jre\\lib\\ext")
+        elif dl:
+            return opj(p, sorted(dl)[-1], "lib\\ext")
         else:
-            last = sorted(dl)[-1]
-        return opj(p, last, "lib")
+            return opj(systemroot(), "Sun\\Java\\lib\\ext")
 
 def find_python_path():
     if "posix" == os.name:
-        mj, mn = sys.version_info.major, sys.version_info.minor
+        major, minor = sys.version_info.major, sys.version_info.minor
         return "/usr/local/lib/python{0}.{1}/site-packages" \
-            .format(mj, mn)
+            .format(major, minor)
 
     if "nt" == os.name:
         p = os.path.dirname(sys.executable)
-        return opj(p, "lib", "site-packages")
+        return opj(p, "lib\\site-packages")
 
 
 g_paths = OrderedDict([
-    ("library",     "Shared library"),
+    ("library",     "Library"),
     ("include",     "C header files"),
     ("java",        "Java classes"),
     ("python",      "Python module"),
@@ -146,6 +153,7 @@ class PathBox(object):
         self.frame = None
         self.check = None
         self.label = None
+        self.status = None
         self.entry = None
 
     def set(self, text):
@@ -153,6 +161,9 @@ class PathBox(object):
 
     def focus(self):
         self.entry.focus()
+
+    def setstatus(self, msg):
+        self.status.configure(text = msg)
 
     def callback(self, *args):
         self.entry["state"] = ["!disabled"] \
@@ -165,19 +176,24 @@ class PathBox(object):
             self.check.grid(row = 0, column = 0, sticky = "es")
             s = Frame(f, width = "2pt")
             s.grid(row = 0, column = 1)
-            self.label = Label(f, style = "TLabel",
-                text = g_paths[self.name])
+            self.label = Label(f, text = g_paths[self.name])
             self.label.grid(row = 0, column = 2, sticky = "ws")
+            self.status = Label(f, text = "", foreground = "#C03")
+            self.status.grid(row = 0, column = 3, sticky = "es")
+
             s = Frame(f, height = "2pt")
             s.grid(row = 1, column = 0)
-            self.entry = Entry(f, width = 40, style = "TEntry",
+            self.entry = Entry(f, width = 50, style = "TEntry",
                 textvariable = self.sv, font = g_entry_font)
-            self.entry.grid(row = 2, column = 2, sticky = "wn")
+            self.entry.grid(row = 2, column = 2, sticky = "wn",
+                columnspan = 2)
             s = Frame(f, width = g_xpad)
-            s.grid(row = 0, column = 3)
+            s.grid(row = 0, column = 4)
             f.columnconfigure(0, weight = 0)
             f.columnconfigure(1, weight = 2)
             f.columnconfigure(2, weight = 3)
+            f.columnconfigure(3, weight = 3)
+            f.columnconfigure(4, weight = 0)
             self.frame = f
         return self.frame
 

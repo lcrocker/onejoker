@@ -1,4 +1,5 @@
-
+#!/usr/bin/env python3
+#
 import sys, os
 from collections import OrderedDict
 
@@ -168,6 +169,7 @@ class PathBox(object):
     def callback(self, *args):
         self.entry["state"] = ["!disabled"] \
             if self.iv.get() else ["disabled"]
+        self.setstatus("OK")
 
     def getframe(self, p):
         if self.frame is None:

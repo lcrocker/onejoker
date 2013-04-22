@@ -89,41 +89,67 @@ int get_rank(oj_cardlist_t *sp) {
     assert(n <= 10);
 
     for (i = 0; i < n; ++i) {
-        vec[i] = sp->cards[i] - 1;
-        inv[sp->cards[i] - 1] = i;
+        vec[i] = OJL_GET(sp, i) - 1;
+        inv[OJL_GET(sp, i) - 1] = i;
     }
     return _mr_rank1(n, vec, inv);
 }
 
 int shuffle_test(int count) {
-    int i, j, r, dbuf[20], hbuf[20];
+    int i, j, r, h, b, dbuf[54], hbuf[20];
     char cbuf[64];
     oj_cardlist_t deck, hand;
-    struct buckets *bp;
+    struct buckets *bp[5];
     oj_combiner_t comb;
 
-    ojl_new(&deck, dbuf, 20);
+    ojl_new(&deck, dbuf, 52);
     ojl_new(&hand, hbuf, 20);
     fprintf(stderr, "Shuffle test count = %d...\n", count);
 
     ojl_fill(&hand, 4, OJD_STANDARD);
-    bp = create_buckets(24);
+    bp[0] = create_buckets(24);
 
     for (i = 0; i < count; ++i) {
         ojl_shuffle(&hand);
         r = get_rank(&hand);
-        add_value(bp, r);
+        add_value(bp[0], r);
     }
-    calculate_stats(bp);
+    calculate_stats(bp[0]);
     fprintf(stderr, "%3d buckets: mean = %10.2f, stddev = %7.2f (%4.2f %%), maxz = %4.2f\n",
-        24, bp->mean, bp->stddev, (100.0 * bp->stddev) / bp->mean, bp->maxz);
+        24, bp[0]->mean, bp[0]->stddev, (100.0 * bp[0]->stddev) / bp[0]->mean, bp[0]->maxz);
 
-    if ((bp->stddev / bp->mean) > 0.005) return 1;
-    if (bp->maxz > 4.0) return 2;
-    free_buckets(bp);
+    if ((bp[0]->stddev / bp[0]->mean) > 0.005) return 1;
+    if (bp[0]->maxz > 4.0) return 2;
+    free_buckets(bp[0]);
+
+    for (b = 0; b < 5; ++b) bp[b] = create_buckets(52);
+    ojl_fill(&deck, 52, OJD_STANDARD);
+
+    for (i = 0; i < count; ++i) {
+        ojl_fill(&deck, 52, OJD_STANDARD);
+        ojl_shuffle(&deck);
+
+        add_value(bp[0], OJL_GET(&deck, 0));
+        add_value(bp[1], OJL_GET(&deck, 13));
+        add_value(bp[2], OJL_GET(&deck, 26));
+        add_value(bp[3], OJL_GET(&deck, 38));
+        add_value(bp[4], OJL_GET(&deck, 51));
+
+        if (0 == (i & 0x3FFFF)) {
+            fprintf(stderr, "\r%10d\r", count - i);
+            fflush(stderr);
+        }
+    }
+    for (b = 0; b < 5; ++b) {
+        calculate_stats(bp[b]);
+        fprintf(stderr, "%3d buckets: mean = %10.2f, stddev = %7.2f (%4.2f %%), maxz = %4.2f\n",
+            52, bp[b]->mean, bp[b]->stddev, (100.0 * bp[b]->stddev) / bp[b]->mean, bp[b]->maxz);
+
+        if ((bp[b]->stddev / bp[b]->mean) > 0.005) return 3;
+        if (bp[b]->maxz > 4.0) return 4;
+        free_buckets(bp[b]);
+    }
     return 0;
-
-    /* TODO: something for full-deck shuffles */
 }
 
 int montecarlo_test(int count) {

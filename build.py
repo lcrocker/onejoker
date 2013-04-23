@@ -31,8 +31,13 @@ g_python_tests = [ "hello", "basic" ]
 
 g_root_dir = os.path.dirname(os.path.abspath(__file__))
 g_java_home = os.environ.get("JAVA_HOME", "")
-g_debug_cflags = "-fpic -g -DDEBUG"
-g_release_cflags = "-fpic -O3 -DNDEBUG"
+
+g_debug_cflags = "-g -DDEBUG"
+g_release_cflags = "-O3 -DNDEBUG"
+if "nt" != os.name:
+    g_debug_cflags = "-fpic " + g_debug_cflags
+    g_release_cflags = "-fpic " + g_release_cflags
+
 g_debug_javac_flags = "-g -Werror"
 g_release_javac_flags = "-g:none"
 
@@ -175,6 +180,17 @@ def build_java_classes():
         cmd = "javac {0} -d {1} {2}".format(flags,
             rp("build/java"), " ".join(needed))
         system(cmd)
+
+    deps = []
+    for cls in g_java_classes:
+        deps.append( rp("build/java/com/onejoker/onejoker",
+            "{0}.class".format(cls)) )
+    jf = rp("build/java", "onejoker.jar")
+    if older(jf, deps):
+        cd("build/java")
+        classes = " ".join("com/onejoker/onejoker/{0}.class".format(c) \
+            for c in g_java_classes)
+        system("jar cf onejoker.jar {0}".format(classes))
 
 def build_java_headers():
     build_java_classes()

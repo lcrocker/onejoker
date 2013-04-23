@@ -29,9 +29,9 @@ g_root = Tk()
 g_root.title("Choose installation directories")
 
 if "nt" == os.name:
-    g_root.wm_iconbitmap("oj-icon.ico")
+    g_root.wm_iconbitmap(bitmap = "oj-icon.ico")
 else:
-    g_root.wm_iconbitmap("@oj-icon.xbm")
+    g_root.wm_iconbitmap(bitmap = "@oj-icon.xbm")
 
 g_label_fonts = (
     ("Petrona", 12), ("Ubuntu", 12), ("Verdana", 12), ("Arial", 12)

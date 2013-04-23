@@ -58,8 +58,10 @@ def cd(dir):
     os.chdir(rp(dir))
 
 def system(cmd):
-    if not g_config.quiet:
+    if g_config.dryrun or not g_config.quiet:
         print(cmd)
+    if g_config.dryrun:
+        return
     r = os.system(cmd)
     if r:
         error("\"{0}\" returned error {1}.".format(cmd, r))
@@ -188,9 +190,7 @@ def build_java_classes():
     jf = rp("build/java", "onejoker.jar")
     if older(jf, deps):
         cd("build/java")
-        classes = " ".join("com/onejoker/onejoker/{0}.class".format(c) \
-            for c in g_java_classes)
-        system("jar cf onejoker.jar {0}".format(classes))
+        system("jar cf onejoker.jar com")
 
 def build_java_headers():
     build_java_classes()
@@ -212,27 +212,27 @@ def build_java_tests():
     needed = []
 
     for cls in g_java_tests:
-        tgt = rp("build/java/com/onejoker/tests", "{0}.class".format(cls))
-        deps = [ rp("src/java/com/onejoker/tests", "{0}.java".format(cls)) ]
+        tgt = rp("build/java/tests", "{0}.class".format(cls))
+        deps = [ rp("src/java/tests", "{0}.java".format(cls)) ]
         if older(tgt, deps):
             needed.append(deps[0])
 
     if 0 != len(needed):
-        cd("build/java")
+        cd("build/java/tests")
         flags = g_release_javac_flags if g_config.release \
             else g_debug_javac_flags
         cmd = "javac {0} -d {1} {2}".format(flags,
-            rp("build/java"), " ".join(needed))
+            rp("build/java/tests"), " ".join(needed))
         system(cmd)
 
 def run_java_tests():
     build_c_library()
     build_java_tests()
-    cd("build/java")
+    cd("build/java/tests")
     libdir = rp("build/clib")
     ea = "" if g_config.release else "-ea"
     for cls in g_java_tests:
-        cmd = "java {0} -Djava.library.path={1} com.onejoker.tests.{2}" \
+        cmd = "java {0} -cp \".:..\" -Djava.library.path={1} {2}" \
             .format(ea, libdir, cls);
         system(cmd)
 
@@ -367,8 +367,10 @@ class BuildApp(object):
             help = "optimize build for release")
         p.add_argument("-d", "--debug", dest = "release", action = "store_false",
             help = "build for debugging (default)")
-        p.add_argument("-n", "--nojava", action = "store_true",
+        p.add_argument("-j", "--nojava", action = "store_true",
             help = "remove Java support from library")
+        p.add_argument("-n", "--dryrun", action = "store_true",
+            help = "show commands without executing")
         p.add_argument("target", nargs = "*",
             help = "what to build")
         p.parse_args(namespace = g_config)

@@ -478,6 +478,8 @@ int ojl_fill(oj_cardlist_t *sp, int count, oj_deck_type_t dt) {
     return sp->length;
 }
 
+/* TODO: implement simultaneous fill-and-shuffle using inside-out F-Y? */
+
 /* Standard Fisher-Yates shuffle.
  */
 int ojl_shuffle(oj_cardlist_t * sp) {

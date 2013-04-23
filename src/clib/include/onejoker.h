@@ -133,6 +133,8 @@ typedef struct _oj_poker_hand_info {
 #define OJL_APPEND(p,c) (((p)->length == (p)->allocation)?0:\
 ((p)->cards[(p)->length++]=(c)))
 #define OJL_POP(p) ((0==(p)->length)?0:(p)->cards[--(p)->length])
+#define OJL_GET(p,i) ((p)->cards[i])
+#define OJL_SET(p,i,c) ((p)->cards[i]=(c))
 
 /*
  * PROTOTYPES

@@ -190,6 +190,7 @@ int ojr_rand(const int limit) {
 void ojr_shuffle(int *array, int size, int count) {
     int i, r, t;
 
+    if (count < 2) return;
     if (count == size) --count;
 
     for (i = 0; i < count; ++i) {

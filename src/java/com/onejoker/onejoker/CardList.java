@@ -15,9 +15,8 @@ public class CardList {
     private static int mStructSize;
 
     private static native int nStructSize();
-    static {
-        mStructSize = nStructSize();
-    }
+    static { mStructSize = nStructSize(); }
+
     public CardList(int size) {
         mBuf = ByteBuffer.allocateDirect(mStructSize + 4 * size);
         nNew(mBuf, size);

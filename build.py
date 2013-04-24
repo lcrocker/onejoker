@@ -57,6 +57,11 @@ def cd(dir):
         print("cd {0}".format(rp(dir)))
     os.chdir(rp(dir))
 
+def mkdir(dir):
+    d = rp(dir)
+    if not os.path.exists(d):
+        os.mkdir(d)
+
 def system(cmd):
     if g_config.dryrun or not g_config.quiet:
         print(cmd)
@@ -74,6 +79,18 @@ def older(target, dependents):
         if os.path.getmtime(d) > tt:
             return True
     return False
+
+def make_build_tree():
+    cd("")
+    mkdir("build")
+    mkdir("build/clib")
+    mkdir("build/java")
+    mkdir("build/java/com")
+    mkdir("build/java/com/onejoker")
+    mkdir("build/java/com/onejoker/onejoker")
+    mkdir("build/python")
+    mkdir("build/python/onejoker")
+    mkdir("build/python/tests")
 
 def build_c_objects():
     incdirs = [ rp("src/clib"), rp("src/clib/include") ]
@@ -160,7 +177,7 @@ def build_c_tests():
                 " ".join("-I\"{0}\"".format(f) for f in incdirs),
                 executable, dependents[0],
                 " ".join("\"{0}\"".format(f) for f in extrasource),
-                " ".join("-l\"{0}\"".format(f) for f in deps[1]),
+                " ".join("-l{0}".format(f) for f in deps[1]),
                 rp("build/clib"))
             system(cmd)
 
@@ -190,15 +207,24 @@ def build_java_classes():
             " ".join("\"{0}\"".format(f) for f in needed))
         system(cmd)
 
+def build_jar():
+    build_c_library()
+    build_java_classes()
     if False:
-        deps = []
-        for cls in g_java_classes:
-            deps.append( rp("build/java/com/onejoker/onejoker",
-                "{0}.class".format(cls)) )
-        jf = rp("build/java", "onejoker.jar")
-        if older(jf, deps):
-            cd("build/java")
-            system("jar cf onejoker.jar com")
+        if "nt" == os.name:
+            libfile = rp("build/clib/onejoker.dll")
+        else:
+            libfile = rp("build/clib/libonejoker.so")
+        system("cp {0} {1}".format(libfile, rp("build/java")))
+
+    deps = []
+    for cls in g_java_classes:
+        deps.append( rp("build/java/com/onejoker/onejoker",
+            "{0}.class".format(cls)) )
+    jf = rp("build/java", "onejoker.jar")
+    if older(jf, deps):
+        cd("build/java")
+        system("jar cf onejoker.jar com")
 
 def build_java_headers():
     build_java_classes()
@@ -220,32 +246,32 @@ def build_java_tests():
     needed = []
 
     for cls in g_java_tests:
-        tgt = rp("build/java/tests", "{0}.class".format(cls))
+        tgt = rp("build/java", "{0}.class".format(cls))
         deps = [ rp("src/java/tests", "{0}.java".format(cls)) ]
         if older(tgt, deps):
             needed.append(deps[0])
 
     if 0 != len(needed):
-        cd("build/java/tests")
+        cd("build/java")
         flags = g_release_javac_flags if g_config.release \
             else g_debug_javac_flags
         cmd = "javac {0} -cp {1} -d {2} {3}".format(flags,
-            rp("build/java"), rp("build/java/tests"),
+            rp("build/java"), rp("build/java"),
             " ".join("\"{0}\"".format(f) for f in needed))
         system(cmd)
 
 def run_java_tests():
     build_c_library()
     build_java_tests()
-    cd("build/java/tests")
+    cd("build/java")
     libdir = rp("build/clib")
 
-    ea = "" if g_config.release else "-ea"
     if "nt" == os.name:
-        cp = ";".join((rp("build/java/tests"), rp("build/java")))
+        cp = ";".join((rp("build/java"), rp("build/java/onejoker.jar")))
     else:
-        cp = ":".join((rp("build/java/tests"), rp("build/java")))
+        cp = ":".join((rp("build/java"), rp("build/java/onejoker.jar")))
 
+    ea = "" if g_config.release else "-ea"
     for cls in g_java_tests:
         cmd = "java {0} -cp \"{1}\" -Djava.library.path={2} {3}" \
             .format(ea, cp, libdir, cls);
@@ -264,7 +290,7 @@ def build_python_package():
 
     if 0 != len(needed):
         cmd = "cp {0} {1}".format(
-            " ".join("\"{0}\"".format(f for f in needed), dest))
+            " ".join(("\"{0}\"".format(f) for f in needed)), dest)
         system(cmd)
 
 def build_python_tests():
@@ -347,6 +373,7 @@ target_functions = OrderedDict([
     ("javatests",       build_java_tests),
     ("alltests",        build_all_tests),
     ("javaheaders",     build_java_headers),
+    ("jar",             build_jar),
     ("runctests",       run_c_tests),
     ("runjavatests",    run_java_tests),
     ("runpytests",      run_python_tests),
@@ -398,6 +425,7 @@ class BuildApp(object):
             self.parser.print_help()
 
         cwd = os.getcwd()
+        make_build_tree()
         for t in g_config.target:
             self.build_target(t)
         cd(cwd)

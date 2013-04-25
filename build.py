@@ -18,8 +18,8 @@ g_clib_tests = OrderedDict([
     ("hello",           [ [], [], ]),
     ("t_basic",         [ [], [], ]),
     ("t_random",        [ ["stats.c"], [ "m" ] ]),
-#    ("t_sequence",      [ [], [] ]),
-#    ("t_iters",         [ [], [ "m" ] ]),
+    ("t_cardlist",      [ [], [] ]),
+    ("t_combiner",      [ ["stats.c"], [ "m" ] ]),
 ])
 g_jni_classes = [ "Card", "CardList", "DeckType", ]
 g_java_classes = [

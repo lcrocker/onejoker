@@ -228,13 +228,13 @@ int ojl_extend(oj_cardlist_t *destp, oj_cardlist_t *srcp, int count) {
     assert(0 != destp && 0x10ACE0FF == destp->_johnnymoss);
 
     if (0 == count) count = srcp->length;
-    if (count > srcp->length) count = srcp->length;
+    else if (count > srcp->length) count = srcp->length;
     if (0 == count) return 0;
 
     if (destp->pflags & OJF_RDONLY) ER(OJE_RDONLY);
     if (count > (destp->allocation - destp->length)) ER(OJE_FULL);
 
-    if (srcp->pflags & OJF_UNIQUE) {
+    if (destp->pflags & OJF_UNIQUE) {
         c = 0;
         for (i = 0; i < count; ++i) {
             r = ojl_append(destp, srcp->cards[i]);
@@ -245,7 +245,7 @@ int ojl_extend(oj_cardlist_t *destp, oj_cardlist_t *srcp, int count) {
         return c;
     } else {
         memmove(destp->cards + destp->length, srcp->cards, count * sizeof(int));
-        destp->length += count;
+        destp->length += count;        
     }
     srcp->eflags = 0;
     return count;
@@ -281,6 +281,7 @@ int ojl_pop(oj_cardlist_t * sp) {
     int s;
     assert(0 != sp && 0x10ACE0FF == sp->_johnnymoss);
 
+    if (sp->pflags & OJF_RDONLY) ER(OJE_RDONLY);
     if (0 == sp->length) ER(OJE_BADINDEX);
     s = --sp->length;
 
@@ -495,25 +496,25 @@ int ojl_shuffle(oj_cardlist_t * sp) {
  * clipping if necessary. Return the buffer, or NULL if it was too small for
  * anything useful.
  */
+static int _minsize[] = { 3, 5, 8 };
+
 char *ojl_text(oj_cardlist_t *sp, char *buf, int bsize) {
     int i, sl = sp->length, last = 0, clipat = sl + 1;
     char *cn, *bp = buf;
-    assert(0 != sl && 0 != bsize);
 
-    if ((sl <= 2 && bsize < (3 * sl + 2)) ||
+    if ((sl <= 2 && bsize < _minsize[sl]) ||
         (sl > 2 && bsize < 10)) return NULL;
     if (bsize < (3 * sl + 2)) clipat = (bsize - 7) / 3;
 
+    *bp++ = '(';
     last = 0;
     for (i = 0; i < sl; ++i) {
         last = (i == (sl - 1));
         if ((!last) && (i >= clipat)) continue;
 
-        if (0 == i) {
-            *bp++ = '(';
-        } else if (last && i >= clipat) {
+        if (last && i >= clipat) {
             *bp++ = '.'; *bp++ = '.'; *bp++ = '.';
-        } else {
+        } else if (0 != i) {
             *bp++ = ' ';
         }
         cn = ojt_card(sp->cards[i]);

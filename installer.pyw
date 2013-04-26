@@ -24,14 +24,18 @@ On Ubuntu Linux, you will need to install the "python3-tk" package.
 """);
     sys.exit(1)
 
+g_installer_dir = os.path.dirname(os.path.abspath(__file__))
+def sp(path):
+    return os.path.join(g_installer_dir, path)
+
 g_root = Tk()
 g_root.title("Choose installation directories")
 
 if "nt" == os.name:
-    g_root.wm_iconbitmap(bitmap = "oj-icon.ico")
+    g_root.wm_iconbitmap(bitmap = sp("oj-icon.ico"))
     Style().theme_use("winnative")
 else:
-    g_root.wm_iconbitmap(bitmap = "@oj-icon.xbm")
+    g_root.wm_iconbitmap(bitmap = "@" + sp("oj-icon.xbm"))
     Style().theme_use("alt")
 
 g_xpad, g_ypad = 16, 16
@@ -102,6 +106,10 @@ def find_java_path():
         return opj(os.environ["JAVA_HOME"], "jre", "lib", "ext")
 
     if sys.platform.startswith("linux"):
+        p = "/usr/lib/jvm"
+        dl = [f for f in os.listdir(p) if os.path.isdir(opj(p, f))]
+        if dl:
+            return opj(p, sorted(dl)[-1], "jre/lib/ext")
         return "/usr/java/packages/lib/ext"
 
     if sys.platform.startswith("solaris"):
@@ -154,7 +162,7 @@ def install_library(path):
 
     if "nt" == os.name:
         f = "onejoker.dll"
-        if not copy_file(f, "clib", path):
+        if not copy_file(f, sp("clib"), path):
             return False
         try:
             os.system("regsvr32 {0}".format(os.path.join(path, f)))
@@ -162,7 +170,7 @@ def install_library(path):
             return False
     else:
         f = "libonejoker.so"
-        if not copy_file(f, "clib", path):
+        if not copy_file(f, sp("clib"), path):
             return False
 
     return True;
@@ -170,14 +178,14 @@ def install_library(path):
 def install_include(path):
     if not make_dest_dirs(path):
         return False
-    if not copy_file("onejoker.h", "clib", path):
+    if not copy_file("onejoker.h", sp("clib"), path):
         return False
     return True;
 
 def install_java(path):
     if not make_dest_dirs(path):
         return False
-    if not copy_file("onejoker.jar", "java", path):
+    if not copy_file("onejoker.jar", sp("java"), path):
         return False
     return True;
 
@@ -186,7 +194,7 @@ def install_python(path):
     if not make_dest_dirs(path):
         return False
     for f in ("__init__", "core", "text", "cardlist", "combiner"):
-        if not copy_file("{0}.py".format(f), "python/onejoker", path):
+        if not copy_file("{0}.py".format(f), sp("python/onejoker"), path):
             return False
     return True;
 

@@ -5,6 +5,7 @@
 import os, sys, argparse, glob
 from collections import OrderedDict;
 
+g_version = "0.1"
 g_clib_objects = OrderedDict([
     ("onejoker",        []),
     ("prng",            []),
@@ -152,6 +153,11 @@ def build_c_library():
             " ".join("\"{0}\"".format(f) for f in objects), ldflags)
         system(cmd)
 
+    tgt = rp("build/clib/onejoker.h")
+    dep = rp("src/clib/include/onejoker.h")
+    if older(tgt, [dep]):
+        system("cp {0} {1}".format(dep, tgt))
+
 def build_c_tests():
     build_c_library()
     exepat = "{0}.exe" if "nt" == os.name else "{0}"
@@ -229,10 +235,11 @@ def build_jar():
 def build_zip():
     build_c_library()
     build_java_classes()
+    build_jar()
     build_python_package()
     cd("build")
 
-    zd = "onejoker-0.1"
+    zd = "onejoker-{0}".format(g_version)
     mkdir("build/{0}".format(zd))
     mkdir("build/{0}/clib".format(zd))    
     mkdir("build/{0}/java".format(zd))    
@@ -241,12 +248,15 @@ def build_zip():
 
     if "nt" == os.name:
         libname = "onejoker.dll"
+        icon = "oj-icon.ico"
     else:
         libname = "libonejoker.so"
+        icon = "oj-icon.xbm"
 
     system("cp {0} {1}".format("../installer.pyw", zd))
     system("cp {0} {1}".format("clib/{0}".format(libname),
         os.path.join(zd, "clib")))
+    system("cp {0} {1}".format("../{0}".format(icon), zd))
     system("cp {0} {1}".format("clib/onejoker.h",
         os.path.join(zd, "clib")))
     system("cp {0} {1}".format("java/onejoker.jar",
@@ -257,7 +267,6 @@ def build_zip():
             os.path.join(zd, "python/onejoker")))
 
     system("zip -r {0}.zip {1}".format(zd, zd))
-
 
 def build_java_headers():
     build_java_classes()
@@ -390,6 +399,7 @@ def clean_all():
     clean_python()
     clean_clib()
     remove_files_only("build", False)
+    system("rm -rf onejoker-{0}".format(g_version))
 
 target_aliases = {
     "test": "runtests",

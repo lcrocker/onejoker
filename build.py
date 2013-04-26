@@ -226,6 +226,39 @@ def build_jar():
         cd("build/java")
         system("jar cf onejoker.jar com")
 
+def build_zip():
+    build_c_library()
+    build_java_classes()
+    build_python_package()
+    cd("build")
+
+    zd = "onejoker-0.1"
+    mkdir("build/{0}".format(zd))
+    mkdir("build/{0}/clib".format(zd))    
+    mkdir("build/{0}/java".format(zd))    
+    mkdir("build/{0}/python".format(zd))
+    mkdir("build/{0}/python/onejoker".format(zd))
+
+    if "nt" == os.name:
+        libname = "onejoker.dll"
+    else:
+        libname = "libonejoker.so"
+
+    system("cp {0} {1}".format("../installer.pyw", zd))
+    system("cp {0} {1}".format("clib/{0}".format(libname),
+        os.path.join(zd, "clib")))
+    system("cp {0} {1}".format("clib/onejoker.h",
+        os.path.join(zd, "clib")))
+    system("cp {0} {1}".format("java/onejoker.jar",
+        os.path.join(zd, "java")))
+    for f in g_python_files:
+        system("cp {0} {1}".format(
+            "python/onejoker/{0}.py".format(f),
+            os.path.join(zd, "python/onejoker")))
+
+    system("zip -r {0}.zip {1}".format(zd, zd))
+
+
 def build_java_headers():
     build_java_classes()
     needed = []
@@ -378,6 +411,7 @@ target_functions = OrderedDict([
     ("runjavatests",    run_java_tests),
     ("runpytests",      run_python_tests),
     ("runtests",        run_all_tests),
+    ("zip",             build_zip),
     ("cleanclib",       clean_clib),
     ("cleanpython",     clean_python),
     ("cleanjava",       clean_java),

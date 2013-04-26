@@ -5,7 +5,7 @@
 import os, sys, argparse, glob
 from collections import OrderedDict;
 
-g_version = "0.1"
+g_version = "0.0.1"
 g_clib_objects = OrderedDict([
     ("onejoker",        []),
     ("prng",            []),
@@ -239,7 +239,11 @@ def build_zip():
     build_python_package()
     cd("build")
 
-    zd = "onejoker-{0}".format(g_version)
+    if "nt" == os.name:
+        zd = "onejoker-win32-{0}".format(g_version)
+    else:
+        zd = "onejoker-linux-x86-{0}".format(g_version)
+
     mkdir("build/{0}".format(zd))
     mkdir("build/{0}/clib".format(zd))    
     mkdir("build/{0}/java".format(zd))    
@@ -254,9 +258,9 @@ def build_zip():
         icon = "oj-icon.xbm"
 
     system("cp {0} {1}".format("../installer.pyw", zd))
+    system("cp {0} {1}".format("../{0}".format(icon), zd))
     system("cp {0} {1}".format("clib/{0}".format(libname),
         os.path.join(zd, "clib")))
-    system("cp {0} {1}".format("../{0}".format(icon), zd))
     system("cp {0} {1}".format("clib/onejoker.h",
         os.path.join(zd, "clib")))
     system("cp {0} {1}".format("java/onejoker.jar",
@@ -265,6 +269,20 @@ def build_zip():
         system("cp {0} {1}".format(
             "python/onejoker/{0}.py".format(f),
             os.path.join(zd, "python/onejoker")))
+
+    with open("{0}/README".format(zd), "w") as f:
+        print(
+"""
+This is a pre-compiled binary of the OneJoker library:
+http://lcrocker.github.io/onejoker/
+
+Python 3 with Tk is required to run the installer.
+On Windows, right-click installer.pyw and select "Run as Admin..."
+On Linux, type "sudo ./installer.pyw" in terminal.
+
+For more detailed installation instructions, see the website:
+http://lcrocker.github.io/onejoker/docs/install.html
+""", file = f)
 
     system("zip -r {0}.zip {1}".format(zd, zd))
 

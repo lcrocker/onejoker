@@ -79,7 +79,14 @@ def find_library_path():
         return "/usr/local/lib"
 
     if "nt" == os.name:
-        return opj(systemroot(), "System32")
+        d, p = os.path.splitdrive(os.getcwd())
+        p = "{0}\\MinGW".format(d)
+        if os.path.exists(p):
+            return opj(p, "msys1.0/local/lib")
+
+        p = "{0}\\Cygwin".format(d)
+        if os.path.exists(p):
+            return opj(p, "usr/local/lib")
 
 def find_include_path():
     if "posix" == os.name:
@@ -91,7 +98,7 @@ def find_include_path():
         if os.path.exists(p): return opj(p, "include")
 
         p = "{0}\\Cygwin".format(d)
-        if os.path.exists(p): return opj(p, "include")
+        if os.path.exists(p): return opj(p, "usr/include")
 
         p = "{0}\\Program Files\\Microsoft SDKs\\Windows".format(d)
         if os.path.exists(p):

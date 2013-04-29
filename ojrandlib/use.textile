@@ -1,0 +1,16 @@
+---
+layout: docs
+title: "ojrandlib: use"
+---
+
+h1. Using the library in your code
+
+h2. Python
+
+h2. Java
+
+h2. C
+
+h2. C++
+
+h2. See also

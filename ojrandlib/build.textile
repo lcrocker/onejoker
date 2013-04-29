@@ -1,0 +1,10 @@
+---
+layout: docs
+title: "onejoker: building from source"
+---
+
+h1. Building the library from source
+
+h2. Linux
+
+h2. Windows

@@ -156,7 +156,7 @@ static union {
 
 double ojr_next_double(void) {
     uint64_t r = ojr_next64();
-    ieee.i = ((r >> 12) & 0xFFFFFFFFFFFFF) | 0x3FF0000000000000;
+    ieee.i = (r >> 12) | 0x3FF0000000000000;
     return ieee.d - 1.0;
 }
 
@@ -190,6 +190,7 @@ int ojr_rand(const int limit) {
 void ojr_shuffle(int *array, int size, int count) {
     int i, r, t;
 
+    if (count < 2) return;
     if (count == size) --count;
 
     for (i = 0; i < count; ++i) {

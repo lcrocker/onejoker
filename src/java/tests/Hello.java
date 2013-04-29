@@ -2,7 +2,6 @@
  *
  * "Hello World" app included here to keep docs in sync with code.
  */
-package com.onejoker.tests;
 import com.onejoker.onejoker.*;
 
 public class Hello {

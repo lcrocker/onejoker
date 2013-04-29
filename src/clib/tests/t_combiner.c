@@ -10,16 +10,17 @@
 #include <math.h>
 
 #include "onejoker.h"
+#include "stats.h"
 
-oj_sequence_t deck, hand1, hand2;
-oj_iterator_t iter1, iter2;
-int dbuf[54], hbuf1[16], hbuf2[16], cbuf1[16], cbuf2[16];
+oj_cardlist_t deck, hand1, hand2;
+oj_combiner_t iter1, iter2;
+int dbuf[54], hbuf1[16], hbuf2[16];
 
 void initialize(void) {
-    ojs_new(&deck, 52, dbuf);
-    ojs_fill(&deck, 52, oj_dt_standard);
-    ojs_new(&hand1, 16, hbuf1);
-    ojs_new(&hand2, 16, hbuf2);
+    ojl_new(&deck, dbuf, 53);
+    ojl_fill(&deck, 52, OJD_STANDARD);
+    ojl_new(&hand1, hbuf1, 16);
+    ojl_new(&hand2, hbuf2, 16);
 }
 
 int validate(void) {
@@ -30,8 +31,8 @@ int validate(void) {
         if (i != iter1.deck_invert[iter1.deck->cards[i]]) return 2;
     }
     for (i = 0; i < iter1.k; ++i) {
-        if (iter1.a[i] < 0 || iter1.a[i] >= iter1.deck->length) return 1;
-        if (++f[iter1.a[i]] > 1) return 3;
+        if (iter1.map[i] < 0 || iter1.map[i] >= iter1.deck->length) return 1;
+        if (++f[iter1.map[i]] > 1) return 3;
     }
     return 0;
 }
@@ -45,20 +46,18 @@ int test_combinations(int n, int k) {
     long long t, c;
     assert(0x10ACE0FF == deck._johnnymoss);
 
-    ojs_fill(&deck, 52, oj_dt_standard);
-    ojs_shuffle(&deck);
-    ojs_truncate(&deck, n);
-
-    t = ojc_iter_new(&iter1, &deck, &hand1, k, cbuf1, 0LL);
-    if (t != iter1.total || t != iter1.remaining) return 50;
+    ojl_fill(&deck, 52, OJD_STANDARD);
+    ojl_shuffle(&deck);
+    ojl_truncate(&deck, n);
+    ojc_new(&iter1, &deck, &hand1, k, 0LL);
 
     c = 0;
-    while (ojc_iter_next(&iter1)) {
+    while (ojc_next(&iter1)) {
         if (c != (iter1.total - iter1.remaining) - 1) return 10;
 
-        t = ojc_rank(&hand1, &iter1);
-        ojc_hand_at(t, &hand2, &iter1);
-        if (! ojs_equal(&hand2, &hand1)) return 30;
+        t = ojc_colex_rank(&hand1, &iter1);
+        ojc_colex_hand_at(t, &hand2, &iter1);
+        if (! ojl_equal(&hand2, &hand1)) return 30;
         ++c;
 
         if (0 == ojr_rand(10000)) {
@@ -70,7 +69,7 @@ int test_combinations(int n, int k) {
         hand2.cards[i] = deck.cards[deck.length - k + i];
         hand2.length = k;
     }
-    if (! ojs_equal(&hand1, &hand2)) return 40;
+    if (! ojl_equal(&hand1, &hand2)) return 40;
     return 0;
 }
 
@@ -98,15 +97,14 @@ int test_montecarlo(int n, int k, long long count) {
     long long t;
     assert(0x10ACE0FF == deck._johnnymoss);
 
-    ojs_fill(&deck, 52, oj_dt_standard);
-    ojs_shuffle(&deck);
-    ojs_truncate(&deck, n);
+    ojl_fill(&deck, 52, OJD_STANDARD);
+    ojl_shuffle(&deck);
+    ojl_truncate(&deck, n);
 
-    t = ojc_iter_new(&iter1, &deck, &hand1, k, cbuf1, count);
-    while (ojc_iter_next_random(&iter1)) {
-        t = ojc_rank(&hand1, &iter1);
-        ojc_hand_at(t, &hand2, &iter1);
-        if (! ojs_equal(&hand2, &hand1)) return 70;
+    t = ojc_new(&iter1, &deck, &hand1, k, count);
+    while (ojc_next_random(&iter1)) {
+        t = ojc_colex_rank(&hand1, &iter1);
+        ojc_colex_hand_at(t, &hand2, &iter1);
 
         if (0 == ojr_rand(10000)) {
             r = validate();
@@ -133,32 +131,26 @@ long long buckets[52];
 
 int random_balance(void) {
     int i;
-    long long count = 1000000;
+    long long count = 10000000;
     double exp, d, t, sd, z, maxz;
+    struct buckets *bp;
 
-    ojs_fill(&deck, 52, oj_dt_standard);
-    ojc_iter_new(&iter1, &deck, &hand1, 5, cbuf1, count);
+    ojl_fill(&deck, 52, OJD_STANDARD);
+    ojc_new(&iter1, &deck, &hand1, 5, count);
+    bp = create_buckets(52);
 
+    fprintf(stderr, "Combiner balance test count = %lld...\n", count);
     for (i = 0; i < 52; ++i) buckets[i] = 0;
-    while (ojc_iter_next_random(&iter1)) {
-        for (i = 0; i < 5; ++i) {
-            ++buckets[hand1.cards[i] - 1];
-        }
+    while (ojc_next_random(&iter1)) {
+        for (i = 0; i < 5; ++i) add_value(bp, hand1.cards[i] - 1);
     }
-    t = 0.0;
-    exp = ((5.0 * count) / 52.0);
-    for (i = 0; i < 52; ++i) {
-        d = (double)(buckets[i]) - exp;
-        t += d * d;
-    }
-    sd = sqrt(t / 51.0);
+    calculate_stats(bp);
+    fprintf(stderr, "%3d buckets: mean = %10.2f, stddev = %7.2f (%4.2f %%), maxz = %4.2f\n",
+        52, bp->mean, bp->stddev, (100.0 * bp->stddev) / bp->mean, bp->maxz);
 
-    maxz = 0.0;
-    for (i = 0; i < 52; ++i) {
-        z = fabs(((double)(buckets[i]) - exp) / sd);
-        if (z > maxz) maxz = z;
-    }
-    if (maxz > 3.9) return 90;
+    if ((bp->stddev / bp->mean) > 0.005) return 1;
+    if (bp->maxz > 4.0) return 2;
+    free_buckets(bp);
     return 0;
 }
 

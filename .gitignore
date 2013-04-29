@@ -1,6 +1,8 @@
 *.sublime-workspace
 *.sublime-project
 _site
+build
+
 *.o
 *.pyc
 __pycache__

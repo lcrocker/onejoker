@@ -5,6 +5,7 @@
 import os, sys, argparse, glob
 from collections import OrderedDict;
 
+g_version = "0.0.1"
 g_clib_objects = OrderedDict([
     ("onejoker",        []),
     ("prng",            []),
@@ -18,8 +19,8 @@ g_clib_tests = OrderedDict([
     ("hello",           [ [], [], ]),
     ("t_basic",         [ [], [], ]),
     ("t_random",        [ ["stats.c"], [ "m" ] ]),
-#    ("t_sequence",      [ [], [] ]),
-#    ("t_iters",         [ [], [ "m" ] ]),
+    ("t_cardlist",      [ [], [] ]),
+    ("t_combiner",      [ ["stats.c"], [ "m" ] ]),
 ])
 g_jni_classes = [ "Card", "CardList", "DeckType", ]
 g_java_classes = [
@@ -31,8 +32,13 @@ g_python_tests = [ "hello", "basic" ]
 
 g_root_dir = os.path.dirname(os.path.abspath(__file__))
 g_java_home = os.environ.get("JAVA_HOME", "")
-g_debug_cflags = "-fpic -g -DDEBUG"
-g_release_cflags = "-fpic -O3 -DNDEBUG"
+
+g_debug_cflags = "-g -DDEBUG"
+g_release_cflags = "-O3 -DNDEBUG"
+if "nt" != os.name:
+    g_debug_cflags = "-fpic " + g_debug_cflags
+    g_release_cflags = "-fpic " + g_release_cflags
+
 g_debug_javac_flags = "-g -Werror"
 g_release_javac_flags = "-g:none"
 
@@ -52,9 +58,16 @@ def cd(dir):
         print("cd {0}".format(rp(dir)))
     os.chdir(rp(dir))
 
+def mkdir(dir):
+    d = rp(dir)
+    if not os.path.exists(d):
+        os.mkdir(d)
+
 def system(cmd):
-    if not g_config.quiet:
+    if g_config.dryrun or not g_config.quiet:
         print(cmd)
+    if g_config.dryrun:
+        return
     r = os.system(cmd)
     if r:
         error("\"{0}\" returned error {1}.".format(cmd, r))
@@ -67,6 +80,18 @@ def older(target, dependents):
         if os.path.getmtime(d) > tt:
             return True
     return False
+
+def make_build_tree():
+    cd("")
+    mkdir("build")
+    mkdir("build/clib")
+    mkdir("build/java")
+    mkdir("build/java/com")
+    mkdir("build/java/com/onejoker")
+    mkdir("build/java/com/onejoker/onejoker")
+    mkdir("build/python")
+    mkdir("build/python/onejoker")
+    mkdir("build/python/tests")
 
 def build_c_objects():
     incdirs = [ rp("src/clib"), rp("src/clib/include") ]
@@ -83,6 +108,10 @@ def build_c_objects():
 
     if "" != g_java_home and not g_config.nojava:
         incdirs.append(os.path.join(g_java_home, "include"))
+        if "nt" == os.name:
+            incdirs.append(os.path.join(g_java_home, "include/win32"))
+        else:
+            incdirs.append(os.path.join(g_java_home, "include/linux"))
         incdirs.append(rp("src/java"))
 
         for obj in g_jni_classes:
@@ -99,15 +128,15 @@ def build_c_objects():
         cd("build/clib")
         flags = g_release_cflags if g_config.release else g_debug_cflags
         cmd = "gcc -c -Wall {0} {1} {2}".format(flags,
-            " ".join("-I{0}".format(f) for f in incdirs),
-            " ".join(needed))
+            " ".join("-I\"{0}\"".format(f) for f in incdirs),
+            " ".join("\"{0}\"".format(f) for f in needed))
         system(cmd)
 
 def build_c_library():
     build_c_objects()
     if "nt" == os.name:
         libfile = "onejoker.dll"
-        ldflags = "-lcrypt32"
+        ldflags = "-Wl,--export-all-symbols -lcrypt32"
     else:
         libfile = "libonejoker.so"
         ldflags = "-nostartfiles"
@@ -121,8 +150,13 @@ def build_c_library():
     if older(rp("build/clib", libfile), objects):
         cd("build/clib")
         cmd = "gcc -shared -o {0} {1} {2}".format(libfile,
-            " ".join(objects), ldflags)
+            " ".join("\"{0}\"".format(f) for f in objects), ldflags)
         system(cmd)
+
+    tgt = rp("build/clib/onejoker.h")
+    dep = rp("src/clib/include/onejoker.h")
+    if older(tgt, [dep]):
+        system("cp {0} {1}".format(dep, tgt))
 
 def build_c_tests():
     build_c_library()
@@ -144,11 +178,13 @@ def build_c_tests():
                 here = True
 
             flags = g_release_cflags if g_config.release else g_debug_cflags
-            cmd = "gcc {0} -L. {1} -o {2} {3} {4} -lonejoker {5}".format(
-                flags,
-                " ".join("-I{0}".format(f) for f in incdirs),
-                executable, dependents[0], " ".join(extrasource),
-                " ".join("-l{0}".format(f) for f in deps[1]))
+            cmd = "gcc {0} -L{6} {1} -o \"{2}\" \"{3}\" {4} {5} -lonejoker" \
+                .format(flags,
+                " ".join("-I\"{0}\"".format(f) for f in incdirs),
+                executable, dependents[0],
+                " ".join("\"{0}\"".format(f) for f in extrasource),
+                " ".join("-l{0}".format(f) for f in deps[1]),
+                rp("build/clib"))
             system(cmd)
 
 def run_c_tests():
@@ -173,8 +209,82 @@ def build_java_classes():
         flags = g_release_javac_flags if g_config.release \
             else g_debug_javac_flags
         cmd = "javac {0} -d {1} {2}".format(flags,
-            rp("build/java"), " ".join(needed))
+            rp("build/java"),
+            " ".join("\"{0}\"".format(f) for f in needed))
         system(cmd)
+
+def build_jar():
+    build_c_library()
+    build_java_classes()
+    if False:
+        if "nt" == os.name:
+            libfile = rp("build/clib/onejoker.dll")
+        else:
+            libfile = rp("build/clib/libonejoker.so")
+        system("cp {0} {1}".format(libfile, rp("build/java")))
+
+    deps = []
+    for cls in g_java_classes:
+        deps.append( rp("build/java/com/onejoker/onejoker",
+            "{0}.class".format(cls)) )
+    jf = rp("build/java", "onejoker.jar")
+    if older(jf, deps):
+        cd("build/java")
+        system("jar cf onejoker.jar com")
+
+def build_zip():
+    build_c_library()
+    build_java_classes()
+    build_jar()
+    build_python_package()
+    cd("build")
+
+    if "nt" == os.name:
+        zd = "onejoker-win32-{0}".format(g_version)
+    else:
+        zd = "onejoker-linux-x86-{0}".format(g_version)
+
+    mkdir("build/{0}".format(zd))
+    mkdir("build/{0}/clib".format(zd))    
+    mkdir("build/{0}/java".format(zd))    
+    mkdir("build/{0}/python".format(zd))
+    mkdir("build/{0}/python/onejoker".format(zd))
+
+    if "nt" == os.name:
+        libname = "onejoker.dll"
+        icon = "oj-icon.ico"
+    else:
+        libname = "libonejoker.so"
+        icon = "oj-icon.xbm"
+
+    system("cp {0} {1}".format("../installer.pyw", zd))
+    system("cp {0} {1}".format("../{0}".format(icon), zd))
+    system("cp {0} {1}".format("clib/{0}".format(libname),
+        os.path.join(zd, "clib")))
+    system("cp {0} {1}".format("clib/onejoker.h",
+        os.path.join(zd, "clib")))
+    system("cp {0} {1}".format("java/onejoker.jar",
+        os.path.join(zd, "java")))
+    for f in g_python_files:
+        system("cp {0} {1}".format(
+            "python/onejoker/{0}.py".format(f),
+            os.path.join(zd, "python/onejoker")))
+
+    with open("{0}/README".format(zd), "w") as f:
+        print(
+"""
+This is a pre-compiled binary of the OneJoker library:
+http://lcrocker.github.io/onejoker/
+
+Python 3 with Tk is required to run the installer.
+On Windows, right-click installer.pyw and select "Run as Admin..."
+On Linux, type "sudo ./installer.pyw" in terminal.
+
+For more detailed installation instructions, see the website:
+http://lcrocker.github.io/onejoker/docs/install.html
+""", file = f)
+
+    system("zip -r {0}.zip {1}".format(zd, zd))
 
 def build_java_headers():
     build_java_classes()
@@ -188,7 +298,7 @@ def build_java_headers():
 
     if 0 != len(needed):
         cd("build/java")
-        cmd = "javah -jni {0}".format(" ".join(needed))
+        cmd = "javah -jni \"{0}\"".format(" ".join(needed))
         system(cmd)
 
 def build_java_tests():
@@ -196,8 +306,8 @@ def build_java_tests():
     needed = []
 
     for cls in g_java_tests:
-        tgt = rp("build/java/com/onejoker/tests", "{0}.class".format(cls))
-        deps = [ rp("src/java/com/onejoker/tests", "{0}.java".format(cls)) ]
+        tgt = rp("build/java", "{0}.class".format(cls))
+        deps = [ rp("src/java/tests", "{0}.java".format(cls)) ]
         if older(tgt, deps):
             needed.append(deps[0])
 
@@ -205,8 +315,9 @@ def build_java_tests():
         cd("build/java")
         flags = g_release_javac_flags if g_config.release \
             else g_debug_javac_flags
-        cmd = "javac {0} -d {1} {2}".format(flags,
-            rp("build/java"), " ".join(needed))
+        cmd = "javac {0} -cp {1} -d {2} {3}".format(flags,
+            rp("build/java"), rp("build/java"),
+            " ".join("\"{0}\"".format(f) for f in needed))
         system(cmd)
 
 def run_java_tests():
@@ -214,10 +325,16 @@ def run_java_tests():
     build_java_tests()
     cd("build/java")
     libdir = rp("build/clib")
+
+    if "nt" == os.name:
+        cp = ";".join((rp("build/java"), rp("build/java/onejoker.jar")))
+    else:
+        cp = ":".join((rp("build/java"), rp("build/java/onejoker.jar")))
+
     ea = "" if g_config.release else "-ea"
     for cls in g_java_tests:
-        cmd = "java {0} -Djava.library.path={1} com.onejoker.tests.{2}" \
-            .format(ea, libdir, cls);
+        cmd = "java {0} -cp \"{1}\" -Djava.library.path={2} {3}" \
+            .format(ea, cp, libdir, cls);
         system(cmd)
 
 def build_python_package():
@@ -232,7 +349,8 @@ def build_python_package():
             needed.append(deps[0])
 
     if 0 != len(needed):
-        cmd = "cp {0} {1}".format(" ".join(needed), dest)
+        cmd = "cp {0} {1}".format(
+            " ".join(("\"{0}\"".format(f) for f in needed)), dest)
         system(cmd)
 
 def build_python_tests():
@@ -299,6 +417,7 @@ def clean_all():
     clean_python()
     clean_clib()
     remove_files_only("build", False)
+    system("rm -rf onejoker-{0}".format(g_version))
 
 target_aliases = {
     "test": "runtests",
@@ -315,10 +434,12 @@ target_functions = OrderedDict([
     ("javatests",       build_java_tests),
     ("alltests",        build_all_tests),
     ("javaheaders",     build_java_headers),
+    ("jar",             build_jar),
     ("runctests",       run_c_tests),
     ("runjavatests",    run_java_tests),
     ("runpytests",      run_python_tests),
     ("runtests",        run_all_tests),
+    ("zip",             build_zip),
     ("cleanclib",       clean_clib),
     ("cleanpython",     clean_python),
     ("cleanjava",       clean_java),
@@ -351,8 +472,10 @@ class BuildApp(object):
             help = "optimize build for release")
         p.add_argument("-d", "--debug", dest = "release", action = "store_false",
             help = "build for debugging (default)")
-        p.add_argument("-n", "--nojava", action = "store_true",
+        p.add_argument("-j", "--nojava", action = "store_true",
             help = "remove Java support from library")
+        p.add_argument("-n", "--dryrun", action = "store_true",
+            help = "show commands without executing")
         p.add_argument("target", nargs = "*",
             help = "what to build")
         p.parse_args(namespace = g_config)
@@ -364,6 +487,7 @@ class BuildApp(object):
             self.parser.print_help()
 
         cwd = os.getcwd()
+        make_build_tree()
         for t in g_config.target:
             self.build_target(t)
         cd(cwd)

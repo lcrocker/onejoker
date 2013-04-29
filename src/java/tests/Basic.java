@@ -1,6 +1,5 @@
 /* OneJoker library <http://lcrocker.github.io/OneJoker>
  */
-package com.onejoker.tests;
 import com.onejoker.onejoker.*;
 
 public class Basic {

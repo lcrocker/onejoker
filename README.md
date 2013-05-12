@@ -1,5 +1,5 @@
-**OneJoker** is a general-purpose card game and simulation library created by Lee Daniel Crocker in 2013.
+The **OneJoker** project is a collection of code and other resources for writing card games and simulations. This GitHub repository is just the website for the various sub-projects, which include:
 
-OneJoker consists of a shared library written in pure C, a Python module that calls into the shared library, and a set of Java classes that use the library.
+* [RandLib](randlib/index.html), a pseudo-random number generation library.
+* [CardLib](cardlib/index.html), a library for dealing with cards and card games.
 
-The [website](http://lcrocker.github.io/onejoker) is the best documentation.

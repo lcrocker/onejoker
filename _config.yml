@@ -1,5 +1,5 @@
 source: .
-include: [ docs, images, binaries, stylesheets, javascripts ]
+include: [ randlib, cardlib, images, stylesheets, javascripts ]
 exclude: [ build, src ]
 pygments: true
 

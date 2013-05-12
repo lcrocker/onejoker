@@ -1,0 +1,9 @@
+---
+layout: index
+title: "OneJoker Project: Resources"
+---
+
+h1. The OneJoker Project
+
+h2. Resources
+

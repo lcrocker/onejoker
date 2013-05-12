@@ -1,7 +1,0 @@
----
-layout: docs
-title: "OneJoker: Building the library from source"
----
-
-h1. Building the library from source
-

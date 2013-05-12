@@ -1,0 +1,12 @@
+---
+layout: randlib
+title: "RandLib Development"
+---
+
+h1. Building the library from source
+
+h2. Linux
+
+h2. Windows
+
+h1. Adding a generator algorithm

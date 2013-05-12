@@ -1,0 +1,16 @@
+---
+layout: randlib
+title: "RandLib Examples"
+---
+
+h1. Sample programs using ojrandlib
+
+h2. Python
+
+h2. Java
+
+h2. C
+
+h2. C++
+
+h2. See also

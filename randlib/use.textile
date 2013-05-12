@@ -14,7 +14,7 @@ ojr_generator *g = ojr_open("mt19937");
 ojr_system_seed(g);
 
 for (int i = 0; i < 10; ++i) {
-	printf("%d ", ojr_rand(g, 100));
+    printf("%d ", ojr_rand(g, 100));
 }
 printf("\n");
 ojr_close(g);
@@ -106,7 +106,7 @@ Returns the name of the algorithm at the given index. Algorithms are identified 
 int i, n = ojr_algorithm_count();
 
 for (i = 1; i <= n; ++i) {
-	printf("%s\n", ojr_algorithm_name(i));
+    printf("%s\n", ojr_algorithm_name(i));
 }
 {% endhighlight %}
 

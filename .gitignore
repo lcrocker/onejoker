@@ -2,6 +2,7 @@
 *.sublime-project
 _site
 build
+onejoker
 
 *.o
 *.pyc

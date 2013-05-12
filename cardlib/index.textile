@@ -5,7 +5,7 @@ title: "CardLib Overview"
 
 h1. CardLib
 
-["Using CardLib":/cardlib/use.html]
+["Using CardLib":/onejoker/cardlib/use.html]
 
-["CardLib Development":/cardlib/devel.html]
+["CardLib Development":/onejoker/cardlib/devel.html]
 

@@ -54,10 +54,10 @@ int main(int argc, char *argv[]) {
 
 Not much different. The first thing to notice is that we don't need @time.h@, and we don't explicitly seed the generator. RandLib's default generator is seeded automatically using your operating system's best source of randomness, and with a much bigger than 32-bit seed. You can create your own generators and seed them explicitly if you want to, but you don't have to. Second, notice that we call a function that gives us a number in the range 0..99 without our having to use the % operation. This has two benefits: first, RandLib's algorithm for this is perfectly balanced, and will produce each number with exactly equal probability while the % version won't (although with modern generators you'd have to run a simulation for days to see the effect). Second, RandLib's algorithm doesn't use division, so it may actually be faster.
 
-That's just a taste. To see everything that RandLib does, check out the ["documentation":/randlib/use.html].
+That's just a taste. To see everything that RandLib does, check out the ["documentation":/onejoker/randlib/use.html].
 
 h2. Rolling your own
 
 The other potential users of RandLib are mathematicians investigating new algorithms for pseudo-random numbers. Let's say you've got a new algorithm to try that you think might be useful for certain applications. You can write a few lines of code for the algorithm itself and link it into the library. RandLib will give you for free all the user functions like the balanced range function mentioned above, good seeding functions, floating point conversions using full 52-bit double precision, gaussian variates in full precision using the fast Ziggurat algorithm, language bindings for C++, Java, and Python, a test suite to verify your generator, and more.
 
-For more information about developing with RandLib, see the ["development":/randlib/devel.html] documentation.
+For more information about developing with RandLib, see the ["development":/onejoker/randlib/devel.html] documentation.

@@ -1,4 +1,5 @@
 source: .
+destination: onejoker
 include: [ randlib, cardlib, images, stylesheets, javascripts ]
 exclude: [ build, src ]
 pygments: true

@@ -3,111 +3,122 @@ layout: randlib
 title: "Using RandLib"
 ---
 
-h1. Using the library in your C code
+h1. Using the library in your code
 
-h2. Quickstart
+h2. Installing
 
-All of the functions of the RandLib C API begin with @ojr_@. There are two ways to interact with the library. You can create @ojr_generator@ objects with a specific algorithm and pass a pointer to your generator to all the functions, or you can just call the functions with NULL as the generator argument and get the library's "default" generator. Here's a simple example of using the C API to print 10 random numbers in the range 0...99, using the Mersenne Twister algorithm.
+You have two choices for installing the library for use in your programs. Either download a pre-compiled binary for your system, or build the library yourself. The first is simpler, the latter more flexible. See the ["development":/onejoker/randlib/devel.html] documentaion for how to build the library on your system. I make pre-compiled binaries available for Windows and Linux on Intel platforms.
 
-{% highlight cpp %}
-ojr_generator *g = ojr_open("mt19937");
-ojr_system_seed(g);
+h3. Linux
 
-for (int i = 0; i < 10; ++i) {
-    printf("%d ", ojr_rand(g, 100));
-}
-printf("\n");
-ojr_close(g);
+Download this ["zip file":/onejoker/binaries/linux-x86-0.0.1.zip] and unpack it. This will give you the shared library file @libojrand.so.0.0@, the C header file @ojrandlib.h@, the Python module @ojrandlib.py@, and the Java file @ojrandlib.jar@. Which of these you will need and where you will install them will depend on your development environment.
+
+A common place to put the shared library is @/usr/local/lib@, after which you will have to run @sudo ldconfig@ to rebuild the system's shared library cache. You may instead want to place it somewhere in your private development tree, in which case you will have to update @/etc/ld.so.conf@ to look for it. You may also want to create a link to it with a simpler name, like this:
+
+{% highlight bash %}
+sudo ln -s /usr/local/lib/libojrand.so.0.0 /usr/local/lib/libojrand.so
 {% endhighlight %}
 
-We first create a new generator object with @ojr_open()@, which returns a pointer to the newly created generator. This allocates memory for the generator's internal structures, so we have to call @ojr_close()@ to free those up later. We then seed the generator with a call to @ojr_system_seed()@, which uses whatever randomness is available from your operating system to seed the generator (this is done automatically if you use the "default" generator). Finally, @ojr_rand()@ fetches a random integer in the range 0 to the given limit - 1, each with equal probability.
+The C header file @ojrandlib.h@ can be installed in @/usr/local/include@, or somewhere in your development tree if you add a @-I@ option pointing to it in your C compiler invocations.
 
-That's all you need for basic use, for example, writing a simple card game. There are many other functions available for more complex needs, detailed below.
+RandLib expects Python 3. If you are using Python 2.X, you can install the Python 3 package available in all major distributions and the two will get along fine. The Python module @ojrandlib.py@ will have to be placed where your particular version of Python expects it (on my system, that's @/usr/local/lib/python3.2/site-packages@), or else its location can be added to @sys.path@ explicitly.
 
-h2. Basic generator functions
+I recommend ["openjdk":http://openjdk.java.net/] as a good Java for Linux. The java file @ojrandlib.jar@ must be placed in the "extensions" directory of your JDK (for example, @/usr/lib/jvm/java-1.7.0-openjdk-i386/jre/lib/ext@), which will vary by version, or else be added to the @-cp@ option when invoking Java programs that use it (you may also want to use @-Djava.library.path=@ to specify a non-standard location for the shared library).
 
-h3. @ojr_generator *ojr_open(char *algorithm)@
+h3. Windows
 
-Creates a new generator using the algorithm named by the single argument. If you pass NULL, a reasonable default algorithm will be chosen. See the @ojr_algorithm_*@ functions below for how to get information on the available algorithms. The generator objects returned by this function are totally independent of each other, regardless of algorithm. In particular, if you create two generators with the same algorithm and same seed, they will independently produce the same stream of random numbers (this can be handy for writing test programs, for example).
+Download this ["zip file":/onejoker/binaries/win32-x86-0.0.1.zip] and unpack it. This will give you the library file @ojrand.dll@, the C header file @ojrandlib.h@, the Python module @ojrandlib.py@, and the Java file @ojrandlib.jar@. Which of these you will need and where you will install them will depend on your development environment.
 
-h3. @ojr_close(ojr_generator *g)@
+Windows may not let you copy the DLL to the @System32@ directory where other DLLs are found, so you'll have to have this file present in the directory with your executable to use with C and C++ programs. You probably _will_ be allowed to install it in your Java JDK or your Python directory tree for access from those languages. The exact location where the library is expected will depend on your version of Java or Python.
 
-Closes and frees all allocated resources of the given generator. Using the pointer after this will produce undefined results. If you fail to close a generator created by @ojr_open()@, it will be closed when the library is unloaded, and produce a warning message. When the library is unloaded is dependent on the OS, so it is best to avoid this memory leak.
+If you are using ["MinGW":http://www.mingw.org] as I recommend, the C header file @ojrandlib.h@ can be installed in @C:/MinGW/include@, or somewhere in your development tree if you add a @-I@ option pointing to it in your C compiler invocations. If you're using a different development environment you'll have to put the header file where it expects.
 
-h3. @ojr_system_seed(ojr_generator *g)@
+To use RandLib with Python, you will have to install ["Python 3":http://www.python.org/download]. The Python module @ojrandlib.py@ will have to be placed where your particular version of Python expects it (for example, @C:/Python33/Lib@), or else its location can be added to @sys.path@ explicitly.
 
-Seeds the given generator with random values derived from whatever entropy is available from your operating system. The size of the seed will be chosen to suit the algorithm. If you need to save the value of a system-generated seed for reproduction later, you will have to instead call @ojr_get_system_entropy()@ with appropriate arguments followed by @ojr_array_seed()@ (see below).
+Likewise, you must have a Java JDK, and @ojrandlib.jar@ must be placed in the "extensions" directory of your JDK (for example, @C:/Program Files/Java/jdk1.7.0_21/jre/lib/ext@), which will vary by version, or else be added to the @-cp@ option when invoking Java programs that use it (you may also want to use @-Djava.library.path=@ to specify a non-standard location for the shared library).
 
-h3. @ojr_int_seed(ojr_generator *g, int val)@
+h2. Using the library in your programs
 
-Seeds the generator with the integer value @val@.
+h3. C, C++
 
-h3. @ojr_array_seed(ojr_generator *g, uint32_t *seed, int count)@
-
-Seeds the generator with the given array of the 32-bit unsigned ints. This allows you to produce many more random sequences than are possible with a single integer seed, while still allowing reproducibility.
-
-h3. @ojr_reseed(ojr_generator *g, uint32_t *seed, int count)@
-
-Applies a new seed to an existing generator to change its state "on the fly" without re-initializing. This function should not be needed by most applications. It could be used, for example, to occasionally add extra system entropy to a generator to make it more cryptographically secure. This eliminates reproducibility.
-
-h3. @ojr_discard(ojr_generator *g, int count)@
-
-Advances the generator @count@ steps wihout producing actual output. This is roughly equivalent to calling @ojr_next32(g)@ (see below) @count@ times, though it is a bit faster due to reduced function call overhead. Some generator algorithms benefit from discarding some number of values after initialization before using their output.
-
-h2. Producing output
-
-Now that you've created and generator and seeded it, you can use it to produce random numbers in various ways.
-
-h3. @uint32_t ojr_next32(ojr_generator *g)@
-
-Produces a random 32-bit unsigned integer. All of the algorithms included in ojrandlib are natively 32-bit generators, so the most basic way to get random values is to get them as 32-bit unsigned integers. All of the other producer functions are based on this one.
-
-h3. @uint16_t ojr_next16(ojr_generator *g)@
-
-Produce a 16-bit random unsigned integer.
-
-h3. @uint64_t ojr_next64(ojr_generator *g)@
-
-Produce a 64-bit random unsigned integer.
-
-h3. @int ojr_rand(ojr_generator *g, int limit)@
-
-Produces a random integer in the range 0...(limit-1). This is the most useful function for randomly choosing from among a small set of alternatives, for example, selecting a random card from a deck of cards. The numbers are guaranteed to be balanced. That is, if you ask for numbers from 0 to 2, you will get 0, 1, and 2 with exactly equal probability. The maximum limit for this function is 32768.
-
-h3. @double ojr_next_double(ojr_generator *g)@
-
-Produces a random double value uniformly distributed in the half-open interval [0.0, 1.0). That is, it may produce the value 0.0, but will never produce 1.0, and will produce every representable value in between with equal probability.
-
-h3. @double ojr_next_signed_double(ojr_generator *g)@
-
-Produces a random double value uniformly distributed in the open interval (-1.0, 1.0). That is, it will never produce the values -1.0 or 1.0, and will produce every representable value in between with equal probability.
-
-h3. @double ojr_next_gaussian(ojr_generator *g)@
-
-Produces a random double value normally distributed about a mean of 0.0 with a standard deviation of 1.0.
-
-h2. Non-generator functions
-
-These functions do not take a generator object argument because they provide information or services independent of any particular generator.
-
-h3. @ojr_get_system_entropy(uint32_t *seed, int count)@
-
-Fills the given array (which must have room for @count@ 32-bit unsinged integers) with random bits from whatever source of randomness your OS provides. On Linux-like systems, this will be @/dev/urandom@. On Windows, @CryptGenRandom()@ from the cryptography library will be used. If neither of these is available, the system time and process ID will be used. You should only use this function manually if you need both a good quality seed for a generator and need to save it for reproducibility later. Otherwise, simply using @ojr_system_seed()@ on the generator is much simpler.
-
-h3. @ojr_algorithm_count()@
-
-Returns the number of algorithms available in the system.
-
-h3. @char *ojr_algorithm_name(int a)@
-
-Returns the name of the algorithm at the given index. Algorithms are identified by an integer from 1 to the number available. So, to list all the available algorithms by name, one could use code like the following:
+C and C++ programs need only include the single header file @ojrandlib.h@, and link against the library. Further details of the functions available are in the ["C API":/onejoker/randlib/capi.html] and ["C++ API":/onejoker/randlib/cppapi.html] documents. An example in C:
 
 {% highlight cpp %}
-int i, n = ojr_algorithm_count();
+#include <stdlib.h>
+#include <stdio.h>
 
-for (i = 1; i <= n; ++i) {
-    printf("%s\n", ojr_algorithm_name(i));
+#include "ojrandlib.h"
+
+int main(int argc, char *argv[]) {
+    ojr_generator *g = ojr_open(NULL);
+    ojr_system_seed(g);
+
+    printf("  %d  %d  %d  %f\n",
+        ojr_rand(g, 100), ojr_next16(g), ojr_next32(g),
+        ojr_next_double(g));
+
+    ojr_close(g);
+    return 0;
 }
 {% endhighlight %}
 
-Passing a value of 0 will return the name of the "default" algorithm, which is the one that will be used when you call @ojr_open(NULL)@.
+And in C++:
+
+{% highlight cpp %}
+#include <iostream>
+using namespace std;
+
+#include "ojrandlib.h"
+using namespace oj;
+
+static const uint32_t mtseed[] = { 0x123, 0x234, 0x345, 0x456 };
+
+int main(int argc, char *argv[]) {
+    Seed s(mtseed, mtseed + 4);
+    Generator g("mt19937");
+    g.seed(s);
+
+    cout << "  " << g.rand(100) << "  " << g.next16()     <<
+            "  " << g.next32()  << "  " << g.nextDouble() << "\n";
+
+    return 0;
+}
+{% endhighlight %}
+
+h3. Python
+
+As long as your Python implementation can find the library where you have installed it, programs need only import the module @ojrandlib@. Further details of the functions available are shown in the ["Python API":/onejoker/randlib/pythonapi.html] document. A short example:
+
+{% highlight python %}
+import ojrandlib as rl
+
+g = rl.Generator("jkiss")
+g.seed()
+
+print("  {:d}".format(g.rand(100)), " {:d}".format(g.next16()), end="")
+print(" {:d}".format(g.next32()), " {:f}".format(g.next_double()))
+{% endhighlight %}
+
+h3. Java
+
+Your Java programs will have to import the classes, and also load the library. More details of the classes and functions available are in the ["Java API":/onejoker/randlib/javaapi.html] document. Here's a short example:
+
+{% highlight java %}
+import com.onejoker.randlib.*;
+
+public class Hello {
+    static { System.loadLibrary("ojrand"); }
+
+    private static final int[] gSeed = { 0x123, 0x234, 0x345, 0x456 };
+
+    public static void main(String[] args) {
+        Generator g = new Generator("mt19937");
+        g.seed(gSeed);
+
+        for (int i = 0; i < 20; ++i) {
+            System.out.printf("%12d ", g.next32());
+            if (4 == (i % 5)) System.out.printf("\n");
+        }
+    }
+}
+{% endhighlight %}

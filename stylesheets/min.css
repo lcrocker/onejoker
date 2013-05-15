@@ -103,12 +103,12 @@ blockquote {
 
 code, pre {
   font-family: "Inconsolata", Bitstream Vera Sans Mono, Lucida Console, Terminal;
-  background: #FFFFEE;
+  /* background: #DDFFFF; */
 }
 
 pre {
+  background: #eeeeff;
   padding:8px 15px;
-  background: #FFFFEE;
   border-radius:3px;
   border:1px solid #e5e5e5;
   overflow-x: auto;

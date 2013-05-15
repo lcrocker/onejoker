@@ -5,59 +5,22 @@ title: "RandLib Overview"
 
 h1. RandLib
 
-This library serves two purposes: first it's a free, state-of-the-art pseudo-random number generation library with multiple algorithms that can be used from C, C++, Java, and Python on Linux or Windows for simulations and other work demanding a fast and good quality PRNG. Second, it can be used by people developing PRNGs to provide all the "filler" code needed around a new algorithm: things like seed management, floating point conversions, and such.
+This library serves two purposes: first it's a free pseudo-random number generation library useful for gaming, simulations, Monte Carlo integration, and other work. Second, it can be used by people developing PRNGs to provide all the "filler" code needed around a PRNG algorithm: things like seed management, floating point conversions, access to hardware randomness, and so on.
 
-h2. Basic use
+h2. Features
 
-RandLib can be used as a simple drop-in replacement for your language's built-in random number function. Why would you want to do that? You may have read one of many ["essays":http://www.azillionmonkeys.com/qed/random.html] on the net about how bad built-in random number functions are. The reality is that it's now 2013, and most language implementors have read those essays too and vastly improved their offerings. Most C library @rand()@s are actually pretty good, as are Python's and Java's. If you just want to write a simple game, they're fine. But there are still reasons to use a better one.
+RandLib consists of a shared library (.so on Linux, .dll for Windows) with functions that can be linked directly into C programs, wrapper classes for C++ programs, Java classes and native methods for use by Java programs, and a Python module for use with Python 3.
 
-First, even some of the improved ones have weaknesses, or aren't complete. For example, many still use tiny 32-bit seeds. That means only 2 billion or so random sequences are possible. That's far fewer than the the number of ways to shuffle a deck of cards, so some arrangements will never be seen. Maybe you're writing a real industrial-strength simulation of a billion hands of blackjack for your boss at the casino (what originally inspired me to write this). Or you may just have other specific needs that @rand()@ doesn't supply.
+RandLib currently comes with three built-in algorithms to choose from: George Marsaglia's Multiply-with-carry, David Jones's JKISS, and Matsumoto and Nishimura's Mersenne Twister. These are all fast, high-quality algorithms for gaming, simulations, and other uses. It is expected that other algorithms will be added over time, especially for cyptographic use.
 
-Here's a simple example (in C) of using @rand()@ to print 10 numbers in the range 0 to 99:
+Each of these algorithms can be seeded by arrays to take advantage of the full range of random sequences available to each algorithm. Seeds can be provided by the user, or can be fetched from operating system randomness, or even from the network service @random.org@, which provides random bits produced from atmospheric noise.
 
-{% highlight cpp %}
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
+Each of the algorithms can be used to produce random bits in various formats. You can get raw bits, uniformly-distributed integers over a given range, uniform floating point values in full double precision, and normally-distributed floating point values using the fast Ziggurat algorithm.
 
-int main(int argc, char *argv[]) {
-    int i, r;
+h2. Documentation
 
-    srand(time(NULL));
+RandLib can be used from a pre-compiled ["binary":/onejoker/randlib/use.html], or for more flexibility you can ["build RandLib":/onejoker/randlib/devel.html] from source. There are APIs for ["C":/onejoker/randlib/capi.html], ["C++":/onejoker/randlib/cppapi.html], ["Java":/onejoker/randlib/javaapi.html], and ["Python":/onejoker/randlib/pythonapi.html].
 
-    for (i = 1; i < 10; ++i) {
-        r = rand() % 100;
-        printf("%3d", r);
-    }
-    printf("\n");
-}
-{% endhighlight %}
+h2. Credits and Copyrights
 
-and here's what it would look like using RandLib:
-
-{% highlight cpp %}
-#include <stdlib.h>
-#include <stdio.h>
-
-#include "ojrandlib.h"
-
-int main(int argc, char *argv[]) {
-    int i, r;
-
-    for (i = 1; i < 10; ++i) {
-        r = ojr_rand(NULL, 100);
-        printf("%3d", r);
-    }
-    printf("\n");
-}
-{% endhighlight %}
-
-Not much different. The first thing to notice is that we don't need @time.h@, and we don't explicitly seed the generator. RandLib's default generator is seeded automatically using your operating system's best source of randomness, and with a much bigger than 32-bit seed. You can create your own generators and seed them explicitly if you want to, but you don't have to. Second, notice that we call a function that gives us a number in the range 0..99 without our having to use the % operation. This has two benefits: first, RandLib's algorithm for this is perfectly balanced, and will produce each number with exactly equal probability while the % version won't (although with modern generators you'd have to run a simulation for days to see the effect). Second, RandLib's algorithm doesn't use division, so it may actually be faster.
-
-That's just a taste. To see everything that RandLib does, check out the ["documentation":/onejoker/randlib/use.html].
-
-h2. Rolling your own
-
-The other potential users of RandLib are mathematicians investigating new algorithms for pseudo-random numbers. Let's say you've got a new algorithm to try that you think might be useful for certain applications. You can write a few lines of code for the algorithm itself and link it into the library. RandLib will give you for free all the user functions like the balanced range function mentioned above, good seeding functions, floating point conversions using full 52-bit double precision, gaussian variates in full precision using the fast Ziggurat algorithm, language bindings for C++, Java, and Python, a test suite to verify your generator, and more.
-
-For more information about developing with RandLib, see the ["development":/onejoker/randlib/devel.html] documentation.
+The library was created by [Lee Daniel Crocker](http://www.etceterology.com/) in 2013. To the extent possibile under law, Mr. Crocker has waived all copyright and related or neighboring rights to this work ([CC0](http://creativecommons.org/publicdomain/zero/1.0/)). Where the work of others has been included, this is noted, and such work may be licensed under different terms.

@@ -11,11 +11,11 @@ h2. Features
 
 RandLib consists of a shared library (.so on Linux, .dll for Windows) with functions that can be linked directly into C programs, wrapper classes for C++ programs, Java classes and native methods for use by Java programs, and a Python module for use with Python 3.
 
-RandLib currently comes with three built-in algorithms to choose from: George Marsaglia's Multiply-with-carry, David Jones's JKISS, and Matsumoto and Nishimura's Mersenne Twister. These are all fast, high-quality algorithms for gaming, simulations, and other uses. It is expected that other algorithms will be added over time, especially for cyptographic use.
+RandLib currently comes with three built-in algorithms to choose from: Multiply with carry, JKISS, and Mersenne Twister. These are all state-of-the-art algorithms for many uses, and are implemented in fast low-level C code. It is expected that other algorithms will be added over time, especially for cyptographic use.
 
 Each of these algorithms can be seeded by arrays to take advantage of the full range of random sequences available to each algorithm. Seeds can be provided by the user, or can be fetched from operating system randomness, or even from the network service @random.org@, which provides random bits produced from atmospheric noise.
 
-Each of the algorithms can be used to produce random bits in various formats. You can get raw bits, uniformly-distributed integers over a given range, uniform floating point values in full double precision, and normally-distributed floating point values using the fast Ziggurat algorithm.
+Each of the algorithms can be used to produce random bits in various formats. You can get raw bits, uniformly-distributed integers over a given range, uniform floating point values in full double precision, and normally distributed or exponentially distributed floating point values using the fast Ziggurat algorithm.
 
 h2. Documentation
 

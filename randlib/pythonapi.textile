@@ -7,107 +7,88 @@ h1. Using the library in your Python code
 
 h2. Quickstart
 
-All of the functions of the RandLib C API begin with @ojr_@. There are two ways to interact with the library. You can create @ojr_generator@ objects with a specific algorithm and pass a pointer to your generator to all the functions, or you can just call the functions with NULL as the generator argument and get the library's "default" generator. Here's a simple example of using the C API to print 10 random numbers in the range 0...99, using the Mersenne Twister algorithm.
+Python package @ojrandlib@ provides a @generator@ object, or you can just call the non-object functions of the same name to get the library's "default" generator. Here's a simple example using the "Multiply with Carry" algorithm:
 
-{% highlight cpp %}
-ojr_generator *g = ojr_open("mt19937");
-ojr_system_seed(g);
+{% highlight python %}
+import ojrandlib as rl
 
-for (int i = 0; i < 10; ++i) {
-    printf("%d ", ojr_rand(g, 100));
-}
-printf("\n");
-ojr_close(g);
+g = rl.Generator("mwc8222")
+
+print("  {:d}".format(g.rand(100)), " {:f}".format(g.next_double()))
 {% endhighlight %}
 
-We first create a new generator object with @ojr_open()@, which returns a pointer to the newly created generator. This allocates memory for the generator's internal structures, so we have to call @ojr_close()@ to free those up later. We then seed the generator with a call to @ojr_system_seed()@, which uses whatever randomness is available from your operating system to seed the generator (this is done automatically if you use the "default" generator). Finally, @ojr_rand()@ fetches a random integer in the range 0 to the given limit - 1, each with equal probability.
-
-That's all you need for basic use, for example, writing a simple card game. There are many other functions available for more complex needs, detailed below.
+Importing the module also loads the library, so both must be where Python can find them. In the example above we first create a new generator object. The generator is automatically seeded appropriately from whatever randomness is available from your operating system (we could have instead seeded it ourselves). Finally, the @rand()@ and @next_double()@ methods fetch a random integer and float, respectively.
 
 h2. Basic generator functions
 
-h3. @ojr_generator *ojr_open(char *algorithm)@
+h3. @Generator()@
 
-Creates a new generator using the algorithm named by the single argument. If you pass NULL, a reasonable default algorithm will be chosen. See the @ojr_algorithm_*@ functions below for how to get information on the available algorithms. The generator objects returned by this function are totally independent of each other, regardless of algorithm. In particular, if you create two generators with the same algorithm and same seed, they will independently produce the same stream of random numbers (this can be handy for writing test programs, for example).
+Creates a new generator using the algorithm specified by the single argument, either by name or number. With no argument, a reasonable default algorithm will be chosen. See the static methods below for how to get information on the available algorithms. The generator objects returned by this function are totally independent of each other, regardless of algorithm. In particular, if you create two generators with the same algorithm and same seed, they will independently produce the same stream of random numbers (this can be handy for writing test programs, for example).
 
-h3. @ojr_close(ojr_generator *g)@
+h3. @seed()@
 
-Closes and frees all allocated resources of the given generator. Using the pointer after this will produce undefined results. If you fail to close a generator created by @ojr_open()@, it will be closed when the library is unloaded, and produce a warning message. When the library is unloaded is dependent on the OS, so it is best to avoid this memory leak.
+With no argument, seeds the generator with random values derived from whatever entropy is available from your operating system. The size of the seed will be chosen to suit the algorithm. You can also pass an integer value or a list of integers. If you need to save the value of a system-generated seed for reproduction later, you will have to instead call the function @get_system_entropy()@ (see below) and seed with the result.
 
-h3. @ojr_system_seed(ojr_generator *g)@
-
-Seeds the given generator with random values derived from whatever entropy is available from your operating system. The size of the seed will be chosen to suit the algorithm. If you need to save the value of a system-generated seed for reproduction later, you will have to instead call @ojr_get_system_entropy()@ with appropriate arguments followed by @ojr_array_seed()@ (see below).
-
-h3. @ojr_int_seed(ojr_generator *g, int val)@
-
-Seeds the generator with the integer value @val@.
-
-h3. @ojr_array_seed(ojr_generator *g, uint32_t *seed, int count)@
-
-Seeds the generator with the given array of the 32-bit unsigned ints. This allows you to produce many more random sequences than are possible with a single integer seed, while still allowing reproducibility.
-
-h3. @ojr_reseed(ojr_generator *g, uint32_t *seed, int count)@
+h3. @reseed()@
 
 Applies a new seed to an existing generator to change its state "on the fly" without re-initializing. This function should not be needed by most applications. It could be used, for example, to occasionally add extra system entropy to a generator to make it more cryptographically secure. This eliminates reproducibility.
 
-h3. @ojr_discard(ojr_generator *g, int count)@
+h3. @discard(count)@
 
-Advances the generator @count@ steps wihout producing actual output. This is roughly equivalent to calling @ojr_next32(g)@ (see below) @count@ times, though it is a bit faster due to reduced function call overhead. Some generator algorithms benefit from discarding some number of values after initialization before using their output.
+Advances the generator @count@ steps wihout producing actual output. This is roughly equivalent to calling @next32()@ (see below) @count@ times, though it is faster due to reduced function call overhead. Some generator algorithms benefit from discarding some number of values after initialization before using their output.
 
 h2. Producing output
 
-Now that you've created and generator and seeded it, you can use it to produce random numbers in various ways.
+Now that you've created and generator and seeded it, you can use it to produce random numbers in various ways. All of these functions can also be called statically to use the built-in "default" generator.
 
-h3. @uint32_t ojr_next32(ojr_generator *g)@
+h3. @next32()@
 
 Produces a random 32-bit unsigned integer. All of the algorithms included in ojrandlib are natively 32-bit generators, so the most basic way to get random values is to get them as 32-bit unsigned integers. All of the other producer functions are based on this one.
 
-h3. @uint16_t ojr_next16(ojr_generator *g)@
+h3. @next16()@
 
 Produce a 16-bit random unsigned integer.
 
-h3. @uint64_t ojr_next64(ojr_generator *g)@
+h3. @next64()@
 
 Produce a 64-bit random unsigned integer.
 
-h3. @int ojr_rand(ojr_generator *g, int limit)@
+h3. @rand(limit)@
 
-Produces a random integer in the range 0...(limit-1). This is the most useful function for randomly choosing from among a small set of alternatives, for example, selecting a random card from a deck of cards. The numbers are guaranteed to be balanced. That is, if you ask for numbers from 0 to 2, you will get 0, 1, and 2 with exactly equal probability. The maximum limit for this function is 32768.
+Produces a random integer in the range 0 to (limit-1). This is the most useful function for randomly choosing from among a small set of alternatives, for example, selecting a random card from a deck of cards. The numbers are guaranteed to be balanced. That is, if called with a limit of 3, you will get the values 0, 1, and 2 with exactly equal probability. The maximum limit for this function is 32768.
 
-h3. @double ojr_next_double(ojr_generator *g)@
+h3. @next_double()@
 
 Produces a random double value uniformly distributed in the half-open interval [0.0, 1.0). That is, it may produce the value 0.0, but will never produce 1.0, and will produce every representable value in between with equal probability.
 
-h3. @double ojr_next_signed_double(ojr_generator *g)@
+h3. @next_signed_double()@
 
 Produces a random double value uniformly distributed in the open interval (-1.0, 1.0). That is, it will never produce the values -1.0 or 1.0, and will produce every representable value in between with equal probability.
 
-h3. @double ojr_next_gaussian(ojr_generator *g)@
+h3. @next_exponential()@
+
+Produces a random double value with a probability density of <span style="font-family: serif; font-size: 120%">_e<sup>-x</sup>_</span>.
+
+h3. @next_normal()@
 
 Produces a random double value normally distributed about a mean of 0.0 with a standard deviation of 1.0.
 
 h2. Non-generator functions
 
-These functions do not take a generator object argument because they provide information or services independent of any particular generator.
+These static methods do not require a generator object because they provide information or services independent of any particular generator.
 
-h3. @ojr_get_system_entropy(uint32_t *seed, int count)@
+h3. @get_system_entropy(count)@
 
-Fills the given array (which must have room for @count@ 32-bit unsinged integers) with random bits from whatever source of randomness your OS provides. On Linux-like systems, this will be @/dev/urandom@. On Windows, @CryptGenRandom()@ from the cryptography library will be used. If neither of these is available, the system time and process ID will be used. You should only use this function manually if you need both a good quality seed for a generator and need to save it for reproducibility later. Otherwise, simply using @ojr_system_seed()@ on the generator is much simpler.
+Returns random (as a list of integers) from whatever source of randomness your OS provides. On Linux-like systems, these will be from @/dev/urandom@. On Windows, @CryptGenRandom()@ from the cryptography library will be used. If neither of these is available, the system time and process ID will be used. You should only need to use this function manually if you need both a good quality seed for a generator and need to save it for reproducibility later. Otherwise, simply using @seed()@ on the generator is much simpler.
 
-h3. @ojr_algorithm_count()@
+h3. @get_random_org(count)@
+
+Returns random bits (as a list of integers) from the website @random.org@, which provides random numbers based on atmospheric noise. It is recommended that this be used for seeding PRNGs or other applications that don't need large quantities of random numbers. The service is limited in speed by your Internet connection and limited in quantity to a daily quota, because it is a free service (although you can pay them for a larger quota).
+
+h3. @algorithm_count()@
 
 Returns the number of algorithms available in the system.
 
-h3. @char *ojr_algorithm_name(int a)@
+h3. @algorithm_name(a)@
 
-Returns the name of the algorithm at the given index. Algorithms are identified by an integer from 1 to the number available. So, to list all the available algorithms by name, one could use code like the following:
-
-{% highlight cpp %}
-int i, n = ojr_algorithm_count();
-
-for (i = 1; i <= n; ++i) {
-    printf("%s\n", ojr_algorithm_name(i));
-}
-{% endhighlight %}
-
-Passing a value of 0 will return the name of the "default" algorithm, which is the one that will be used when you call @ojr_open(NULL)@.
+Returns the name of the algorithm at the given index (beginning at 1). An argument of 0 returns the name of the "default" generator.

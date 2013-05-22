@@ -5,7 +5,7 @@ title: "RandLib Overview"
 
 h1. RandLib
 
-This library serves two purposes: first it's a free pseudo-random number generation library useful for gaming, simulations, Monte Carlo integration, and other work. Second, it can be used by people developing PRNGs to provide all the "filler" code needed around a PRNG algorithm: things like seed management, floating point conversions, access to hardware randomness, and so on.
+This library serves two purposes: first it's a free pseudo-random number generation library useful for gaming, simulations, Monte Carlo methods, and other work. Second, it can be used by people developing PRNGs to provide all the "filler" code needed around a PRNG algorithm: things like seed management, floating point conversions, access to hardware randomness, and so on.
 
 h2. Features
 

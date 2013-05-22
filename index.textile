@@ -5,7 +5,7 @@ title: The OneJoker Project
 
 h1. The OneJoker Project
 
-*OneJoker* is a collection of code and other resources for writing card games and simulations. My current projects include:
+*OneJoker* is a collection of code and other resources for writing card games and simulations. Currently this includes:
 
 * ["RandLib":/onejoker/randlib/index.html]: A library of state-of-the-art algorithms for generating and using pseudo-random numbers. Can be used by people just needing a good PRNG or by people developing PRNGs to provide all the necessary accompanying code and tests without extra work.
 * ["CardLib":/onejoker/cardlib/index.html]: A library of routines specific to card games and simulations. Includes things like shuffling decks, dealing hands, evaluating hands, and some high-powered combinatorics.

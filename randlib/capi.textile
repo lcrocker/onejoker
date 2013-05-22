@@ -7,11 +7,13 @@ h1. Using the library in your C code
 
 h2. Quickstart
 
-All of the functions of the RandLib C API begin with @ojr_@. There are two ways to interact with the library. You can create @ojr_generator@ objects with a specific algorithm and pass a pointer to your generator to all the functions, or you can just call the functions with NULL as the generator argument and get the library's "default" generator. Here's a simple example of using the C API to print 10 random numbers in the range 0...99, using the Mersenne Twister algorithm.
+All of the functions of the RandLib C API begin with @ojr_@. There are two ways to interact with the library. You can create @ojr_generator@ objects with a specific algorithm and pass a pointer to your generator to all the functions, or you can just call the functions with the value @DEFGEN@ as the generator argument and get the library's "default" generator. Here's a simple example of using the C API to print 10 random numbers in the range 0 to 99, using the Mersenne Twister algorithm.
 
 {% highlight cpp %}
+#include <stdio.h>
+#include "ojrandlib.h"
+
 ojr_generator *g = ojr_open("mt19937");
-ojr_system_seed(g);
 
 for (int i = 0; i < 10; ++i) {
     printf("%d ", ojr_rand(g, 100));
@@ -20,15 +22,15 @@ printf("\n");
 ojr_close(g);
 {% endhighlight %}
 
-We first create a new generator object with @ojr_open()@, which returns a pointer to the newly created generator. This allocates memory for the generator's internal structures, so we have to call @ojr_close()@ to free those up later. We then seed the generator with a call to @ojr_system_seed()@, which uses whatever randomness is available from your operating system to seed the generator (this is done automatically if you use the "default" generator). Finally, @ojr_rand()@ fetches a random integer in the range 0 to the given limit - 1, each with equal probability.
+The single header file @ojrandlib.h@ has all the needed declarations and definitions for the library. You will also have to link your code to the library (with @gcc@, for example, add @-lojrand@ to the link command). We first create a new generator object with @ojr_open()@, which returns a pointer to the newly created generator. This allocates memory for the generator's internal structures, so we have to call @ojr_close()@ to free those up later. The generator is automatically seeded appropriately from whatever randomness is available from your operating system (you could seed it yourself if you wanted a reproducible sequence). Finally, @ojr_rand()@ fetches a random integer in the given range with equal probability.
 
-That's all you need for basic use, for example, writing a simple card game. There are many other functions available for more complex needs, detailed below.
+That's all you need for basic use: for example, writing a simple card game. There are many other functions available for more complex needs, detailed below.
 
 h2. Basic generator functions
 
 h3. @ojr_generator *ojr_open(char *algorithm)@
 
-Creates a new generator using the algorithm named by the single argument. If you pass NULL, a reasonable default algorithm will be chosen. See the @ojr_algorithm_*@ functions below for how to get information on the available algorithms. The generator objects returned by this function are totally independent of each other, regardless of algorithm. In particular, if you create two generators with the same algorithm and same seed, they will independently produce the same stream of random numbers (this can be handy for writing test programs, for example).
+Creates a new generator using the algorithm named by the single argument. If you pass NULL, a reasonable default algorithm will be chosen (currently this is "mwc8222"). See the @ojr_algorithm_*@ functions below for how to get information on the available algorithms. The generator objects returned by this function are totally independent of each other, regardless of algorithm. In particular, if you create two generators with the same algorithm and same seed, they will independently produce the same stream of random numbers (this can be handy for writing test programs, for example).
 
 h3. @ojr_close(ojr_generator *g)@
 
@@ -56,7 +58,7 @@ Advances the generator @count@ steps wihout producing actual output. This is rou
 
 h2. Producing output
 
-Now that you've created and generator and seeded it, you can use it to produce random numbers in various ways.
+Now that you've created and generator and seeded it, you can use it to produce random numbers in various ways. In all of these functions, you can also pass the value @DEFGEN@ as the generator argument rather than opening your own generator.
 
 h3. @uint32_t ojr_next32(ojr_generator *g)@
 
@@ -82,7 +84,11 @@ h3. @double ojr_next_signed_double(ojr_generator *g)@
 
 Produces a random double value uniformly distributed in the open interval (-1.0, 1.0). That is, it will never produce the values -1.0 or 1.0, and will produce every representable value in between with equal probability.
 
-h3. @double ojr_next_gaussian(ojr_generator *g)@
+h3. @double ojr_next_exponential(ojr_generator *g)@
+
+Produces a random double value with a probability density of <span style="font-family: serif; font-size: 120%">_e<sup>-x</sup>_</span>.
+
+h3. @double ojr_next_normal(ojr_generator *g)@
 
 Produces a random double value normally distributed about a mean of 0.0 with a standard deviation of 1.0.
 
@@ -93,6 +99,10 @@ These functions do not take a generator object argument because they provide inf
 h3. @ojr_get_system_entropy(uint32_t *seed, int count)@
 
 Fills the given array (which must have room for @count@ 32-bit unsinged integers) with random bits from whatever source of randomness your OS provides. On Linux-like systems, this will be @/dev/urandom@. On Windows, @CryptGenRandom()@ from the cryptography library will be used. If neither of these is available, the system time and process ID will be used. You should only use this function manually if you need both a good quality seed for a generator and need to save it for reproducibility later. Otherwise, simply using @ojr_system_seed()@ on the generator is much simpler.
+
+h3. @ojr_get_random_org(uint32_t *seed, int count)@
+
+Fills the given array (which must have room for @count@ 32-bit unsinged integers) with random bits from the website @random.org@, which provides random numbers based on atmospheric noise. It is recommended that this be used for seeding PRNGs or other applications that don't need large quantities of random numbers. The service is limited in speed by your Internet connection and limited in quantity to a daily quota, because it is a free service (although you can pay them for a larger quota).
 
 h3. @ojr_algorithm_count()@
 

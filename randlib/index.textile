@@ -23,4 +23,4 @@ RandLib can be used from a pre-compiled ["binary":/onejoker/randlib/use.html], o
 
 h2. Credits and Copyrights
 
-The library was created by [Lee Daniel Crocker](http://www.etceterology.com/) in 2013. To the extent possibile under law, Mr. Crocker has waived all copyright and related or neighboring rights to this work ([CC0](http://creativecommons.org/publicdomain/zero/1.0/)). Where the work of others has been included, this is noted, and such work may be licensed under different terms.
+The library was created by ["Lee Daniel Crocker":http://www.etceterology.com/] in 2013. To the extent possibile under law, Mr. Crocker has waived all copyright and related or neighboring rights to this work (["CC0":http://creativecommons.org/publicdomain/zero/1.0/]). Where the work of others has been included, this is noted, and such work may be licensed under different terms.

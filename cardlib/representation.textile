@@ -1,0 +1,28 @@
+---
+layout: essay
+title: "OneJoker: Card representation"
+---
+
+h1. The representation of playing cards in software
+
+There are several different ways to represent playing cards in software, each with its own benefits and drawbacks. In this essay I will outline these, and explain why I chose the particular integer representation used in the OneJoker card library.
+
+h2. Strings
+
+While interactive games will display cards to the user as graphical images and accept input from a mouse, other applications that use playing cards must at some point acquire input and produce output as text for humans. A common method is to use one digit or letter for the card's rank and another for the suit: 2c, 9h, Qd, As, etc. The letter "T" is usually used for tens to keep these strings uniform. This is a good way to save card information in text files, to communicate them over network protocols, and so on. It is common to use "JK" to represent the joker. It is not common at all to distinguish between the "red" and "black" jokers, though all cards manufactured today have two distinct jokers and some games use them. I recommend using "JR" for the red joker when the distinction matters, and "JK" for the black (or when the distinction doesn't matter).
+
+In the spirit of the networking axiom "Be conservative in what you produce, liberal in what you accept", it is recommended that cards be consistently written in this two-character format, uppercase rank and lowercase suit, with a space between cards when representing a list or set. When reading such a list, one can be more liberal by accepting case differences, extra whitespace, no whitespace, or even "10" if uniformity is not required. If such text is for human consumption only (such as running text on a web page or printed book not likely to ever be read by a program), one might use the Unicode suit symbols as well as red and black text.
+
+Using such a text representation of cards internally for code that runs a game or simulation is always a bad idea. There is no programming language or application I know of for which such an internal representation does not lead to loss of performance and excessive memory usage. Converting other representations to strings for output is always trivial and fast. Converting from input strings may be a tiny bit harder, but it is still simple, and even programs using string representations will have these same complications dealing with irregular inputs and such. So it is always better to represent cards internally with a different representation and convert them for input and output as needed.
+
+h2. Objects
+
+
+h2. Bitmaps
+
+
+h2. Bitfields
+
+
+h2. Integers
+

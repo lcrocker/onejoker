@@ -51,7 +51,6 @@ C and C++ programs need only include the single header file @ojrandlib.h@, and l
 
 int main(int argc, char *argv[]) {
     ojr_generator *g = ojr_open(NULL);
-    ojr_system_seed(g);
 
     printf("  %d  %d  %d  %f\n",
         ojr_rand(g, 100), ojr_next16(g), ojr_next32(g),
@@ -71,12 +70,8 @@ using namespace std;
 #include "ojrandlib.h"
 using namespace oj;
 
-static const uint32_t mtseed[] = { 0x123, 0x234, 0x345, 0x456 };
-
 int main(int argc, char *argv[]) {
-    Seed s(mtseed, mtseed + 4);
     Generator g("mt19937");
-    g.seed(s);
 
     cout << "  " << g.rand(100) << "  " << g.next16()     <<
             "  " << g.next32()  << "  " << g.nextDouble() << "\n";
@@ -93,7 +88,6 @@ As long as your Python implementation can find the library where you have instal
 import ojrandlib as rl
 
 g = rl.Generator("jkiss")
-g.seed()
 
 print("  {:d}".format(g.rand(100)), " {:d}".format(g.next16()), end="")
 print(" {:d}".format(g.next32()), " {:f}".format(g.next_double()))
@@ -109,11 +103,8 @@ import com.onejoker.randlib.*;
 public class Hello {
     static { System.loadLibrary("ojrand"); }
 
-    private static final int[] gSeed = { 0x123, 0x234, 0x345, 0x456 };
-
     public static void main(String[] args) {
         Generator g = new Generator("mt19937");
-        g.seed(gSeed);
 
         for (int i = 0; i < 20; ++i) {
             System.out.printf("%12d ", g.next32());

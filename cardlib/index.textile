@@ -5,7 +5,5 @@ title: "CardLib Overview"
 
 h1. CardLib
 
-["Using CardLib":/onejoker/cardlib/use.html]
-
-["CardLib Development":/onejoker/cardlib/devel.html]
+I am currently reorganizing the cardlib code base. The most recent complete usable version is ["here":http://github.com/lcrocker/onejoker/tree/v0.1]
 

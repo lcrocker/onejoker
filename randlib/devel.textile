@@ -7,6 +7,30 @@ h1. Building the library from source
 
 h2. Linux
 
+You will need to have all the common Linux development tools installed, including @gcc@ and @gmake@. In addition, you will have to have Python 3 to use the Python binding. If you have an earlier version of Python installed, you can install Python 3 as well and the two get along fairly well together. You will need a Java JDK--I recommend ["openjdk":http://openjdk.java.net/]. Finally, make sure you have the @realpath@ tool installed or you'll have to change the first line of the Makefile.
+
+Download and unpack the source from this ["zipfile":http://github.com/lcrocker/ojrandlib/archive/master.zip] or use git:
+
+{% highlight bash %}
+git clone http://github.com/lcrocker/ojrandlib
+{% endhighlight %}
+
+From the root of the tree you just installed, @make@ should now build everything including the basic tests, putting everything into the @build@ directory and running the tests. A more comprehensive test of the RNGs can be built with @make randtest@.
+
 h2. Windows
 
-h1. Adding a generator algorithm
+You'll need to install ["MinGW":http://www.mingw.org], ["Python 3":http://www.python.org/download], and a Java JDK. Make sure the Java compiler and tools and the python interpreter are in your PATH.
+
+Download and unpack the source from this ["zipfile":http://github.com/lcrocker/ojrandlib/archive/master.zip] or use git:
+
+{% highlight bash %}
+git clone http://github.com/lcrocker/ojrandlib
+{% endhighlight %}
+
+Then from the root of the tree you just installed, build the library and basic tests with:
+
+{% highlight bash %}
+make -f Makefile.mingw
+{% endhighlight %}
+
+This should now build everything including the basic tests, putting everything into the @build@ directory and running the tests. A more comprehensive test of the RNGs can be built with @make -f Makefile.mingw randtest@.

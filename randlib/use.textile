@@ -11,7 +11,7 @@ You have two choices for installing the library for use in your programs. Either
 
 h3. Linux
 
-Download this ["zip file":/onejoker/binaries/linux-x86-0.0.1.zip] and unpack it. This will give you the shared library file @libojrand.so.0.0@, the C header file @ojrandlib.h@, the Python module @ojrandlib.py@, and the Java file @ojrandlib.jar@. Which of these you will need and where you will install them will depend on your development environment.
+Download this ["zip file":/onejoker/downloads/linux-x86-0.0.1.zip] and unpack it. This will give you the shared library file @libojrand.so.0.0@, the C header file @ojrandlib.h@, the Python module @ojrandlib.py@, and the Java archive @ojrandlib.jar@. Which of these you will need and where you will install them will depend on your development environment.
 
 A common place to put the shared library is @/usr/local/lib@, after which you will have to run @sudo ldconfig@ to rebuild the system's shared library cache. You may instead want to place it somewhere in your private development tree, in which case you will have to update @/etc/ld.so.conf@ to look for it. You may also want to create a link to it with a simpler name, like this:
 
@@ -23,11 +23,11 @@ The C header file @ojrandlib.h@ can be installed in @/usr/local/include@, or som
 
 RandLib expects Python 3. If you are using Python 2.X, you can install the Python 3 package available in all major distributions and the two will get along fine. The Python module @ojrandlib.py@ will have to be placed where your particular version of Python expects it (on my system, that's @/usr/local/lib/python3.2/site-packages@), or else its location can be added to @sys.path@ explicitly.
 
-I recommend ["openjdk":http://openjdk.java.net/] as a good Java for Linux. The java file @ojrandlib.jar@ must be placed in the "extensions" directory of your JDK (for example, @/usr/lib/jvm/java-1.7.0-openjdk-i386/jre/lib/ext@), which will vary by version, or else be added to the @-cp@ option when invoking Java programs that use it (you may also want to use @-Djava.library.path=@ to specify a non-standard location for the shared library).
+I recommend ["openjdk":http://openjdk.java.net/] as a good Java for Linux. The java archive @ojrandlib.jar@ must be placed in the "extensions" directory of your JDK (for example, @/usr/lib/jvm/java-1.7.0-openjdk-i386/jre/lib/ext@), which will vary by version, or else be added to the @-cp@ option when invoking Java programs that use it (you may also want to use @-Djava.library.path=@ to specify a non-standard location for the shared library).
 
 h3. Windows
 
-Download this ["zip file":/onejoker/binaries/win32-x86-0.0.1.zip] and unpack it. This will give you the library file @ojrand.dll@, the C header file @ojrandlib.h@, the Python module @ojrandlib.py@, and the Java file @ojrandlib.jar@. Which of these you will need and where you will install them will depend on your development environment.
+Download this ["zip file":/downloads/binaries/win32-x86-0.0.1.zip] and unpack it. This will give you the library file @ojrand.dll@, the C header file @ojrandlib.h@, the Python module @ojrandlib.py@, and the Java archive @ojrandlib.jar@. Which of these you will need and where you will install them will depend on your development environment.
 
 Windows may not let you copy the DLL to the @System32@ directory where other DLLs are found, so you'll have to have this file present in the directory with your executable to use with C and C++ programs. You probably _will_ be allowed to install it in your Java JDK or your Python directory tree for access from those languages. The exact location where the library is expected will depend on your version of Java or Python.
 

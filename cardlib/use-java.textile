@@ -1,7 +1,0 @@
----
-layout: cardlib
-title: "OneJoker: Using the library from Java"
----
-
-h1. Using the library from Java
-

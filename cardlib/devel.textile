@@ -1,15 +1,36 @@
 ---
 layout: cardlib
-title: "OneJoker: Develop"
+title: "CardLib Development"
 ---
 
-h1. Library development
+h1. Building the library from source
 
-My primary development environment is Linux. Specifically Ubuntu, but any other reasonably modern distribution should be fine. You'll need the basic @gcc@ toolchain to build the library, and Python 3 (the build script is in Python). You'll need a Java SDK of some kind to build the Java bindings--I use @openjdk@.
+h2. Linux
 
-On Windows, I use MinGW. This or Cygwin should work. Again, Python 3, and a Java SDK.
+You will need to have all the common Linux development tools installed, including @gcc@ and @gmake@. In addition, you will have to have Python 3 to use the Python binding. If you have an earlier version of Python installed, you can install Python 3 as well and the two get along fairly well together. You will need a Java JDK--I recommend ["openjdk":http://openjdk.java.net/]. Finally, make sure you have the @realpath@ tool installed or you'll have to change the first line of the Makefile.
 
-Porting to a new OS should mostly involve:
+Download and unpack the source from this ["zipfile":http://github.com/lcrocker/ojcardlib/archive/master.zip] or use git:
 
-Figuring out how to build a shared library, figure out the best way to seed the PRNG.
+{% highlight bash %}
+git clone http://github.com/lcrocker/ojcardlib
+{% endhighlight %}
 
+From the root of the tree you just installed, @make@ should now build everything including the basic tests, putting everything into the @build@ directory and running the tests.
+
+h2. Windows
+
+You'll need to install ["MinGW":http://www.mingw.org], ["Python 3":http://www.python.org/download], and a Java JDK. Make sure the Java compiler and tools and the python interpreter are in your PATH.
+
+Download and unpack the source from this ["zipfile":http://github.com/lcrocker/ojcardlib/archive/master.zip] or use git:
+
+{% highlight bash %}
+git clone http://github.com/lcrocker/ojcardlib
+{% endhighlight %}
+
+Then from the root of the tree you just installed, build the library and basic tests with:
+
+{% highlight bash %}
+make -f Makefile.mingw
+{% endhighlight %}
+
+This should now build everything including the basic tests, putting everything into the @build@ directory and running the tests.

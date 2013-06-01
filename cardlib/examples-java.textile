@@ -1,7 +1,0 @@
----
-layout: cardlib
-title: "OneJoker: Java examples"
----
-
-h1. Java examples
-

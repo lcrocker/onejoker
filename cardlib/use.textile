@@ -5,54 +5,50 @@ title: "Using CardLib"
 
 h1. Using the library in your code
 
-h2. Python
+h2. Installing
 
-OneJoker is a single package imported in the usual way. Here's sample @hello.py@:
+You have two choices for installing the library for use in your programs. Either download a pre-compiled binary for your system, or build the library yourself. The first is simpler, the latter more flexible. See the ["development":/onejoker/cardlib/devel.html] documentation for how to build the library on your system. I make pre-compiled binaries available for Windows and Linux on Intel platforms.
 
-{% highlight python %}
-import onejoker as oj
+h3. Linux
 
-if __name__ == "__main__":
-    deck = oj.CardList(52)
-    deck.fill()
-    deck.shuffle()
-    hand = oj.CardList(5)
+Download this ["zip file":/onejoker/downloads/cardlib-linux-x86-0.0.1.zip] and unpack it. This will give you the shared library file @libojcard.so.0.0@, the C header file @ojcardlib.h@, the Python package directory @ojcardlib@ and its contained modules, and the Java archive @ojcardlib.jar@. Which of these you will need and where you will install them will depend on your development environment.
 
-    for i in range(5):
-        hand.append(deck.pop())
-    print(hand)
+A common place to put the shared library is @/usr/local/lib@, after which you will have to run @sudo ldconfig@ to rebuild the system's shared library cache. You may instead want to place it somewhere in your private development tree, in which case you will have to update @/etc/ld.so.conf@ to look for it. You may also want to create a link to it with a simpler name, like this:
+
+{% highlight bash %}
+sudo ln -s /usr/local/lib/libojcard.so.0.0 /usr/local/lib/libojcard.so
 {% endhighlight %}
 
-h2. Java
+The C header file @ojcardlib.h@ can be installed in @/usr/local/include@, or somewhere in your development tree if you add a @-I@ option pointing to it in your C compiler invocations.
 
-In Java code, import the classes and load the library at the top of your main class:
+CardLib expects Python 3. If you are using Python 2.X, you can install the Python 3 package available in all major distributions and the two will get along fine. The Python package directory @ojcardlib@ and its contents will have to be placed where your particular version of Python expects it (on my system, that's @/usr/local/lib/python3.2/site-packages@), or else its location can be added to @sys.path@ explicitly.
 
-{% highlight java %}
-import com.onejoker.onejoker.*;
+I recommend ["openjdk":http://openjdk.java.net/] as a good Java for Linux. The java archive @ojcardlib.jar@ must be placed in the "extensions" directory of your JDK (for example, @/usr/lib/jvm/java-1.7.0-openjdk-i386/jre/lib/ext@), which will vary by version, or else be added to the @-cp@ option when invoking Java programs that use it (you may also want to use @-Djava.library.path=@ to specify a non-standard location for the shared library).
 
-public class Hello {
-    static {
-        System.loadLibrary("onejoker");
-    }
-    public static void main(String[] args) {
-        CardList deck = new CardList(52), hand = new CardList(5);
-        deck.fill();
-        deck.shuffle();
+h3. Windows
 
-        for (int i = 0; i < 5; ++i) hand.add(deck.pop());
-        System.out.println(hand);
-    }
-}
-{% endhighlight %}
+Download this ["zip file":/downloads/binaries/cardlib-win32-x86-0.0.1.zip] and unpack it. This will give you the library file @ojcard.dll@, the C header file @ojcardlib.h@, the Python package directory @ojcardlib@ and its contents, and the Java archive @ojcardlib.jar@. Which of these you will need and where you will install them will depend on your development environment.
 
-h2. C
+Windows may not let you copy the DLL to the @System32@ directory where other DLLs are found, so you'll have to have this file present in the directory with your executable to use with C and C++ programs. You probably _will_ be allowed to install it in your Java JDK or your Python directory tree for access from those languages. The exact location where the library is expected will depend on your version of Java or Python.
 
-For C, include the single header file in your source and add @-lonejoker@ to the link command. If you've installed the library someplace like @/home/lib@, you may also have to add @-L/home/lib@ to tell the linker where to find it.
+If you are using ["MinGW":http://www.mingw.org] as I recommend, the C header file @ojcardlib.h@ can be installed in @C:/MinGW/include@, or somewhere in your development tree if you add a @-I@ option pointing to it in your C compiler invocations. If you're using a different development environment you'll have to put the header file where it expects.
+
+To use CardLib with Python, you will have to install ["Python 3":http://www.python.org/download]. The Python package directory @ojcardlib@ and its contents will have to be placed where your particular version of Python expects it (for example, @C:/Python33/Lib@), or else its location can be added to @sys.path@ explicitly.
+
+Likewise, you must have a Java JDK, and @ojcardlib.jar@ must be placed in the "extensions" directory of your JDK (for example, @C:/Program Files/Java/jdk1.7.0_21/jre/lib/ext@), which will vary by version, or else be added to the @-cp@ option when invoking Java programs that use it (you may also want to use @-Djava.library.path=@ to specify a non-standard location for the shared library).
+
+h2. Using the library in your programs
+
+h3. C, C++
+
+C and C++ programs need only include the single header file @ojcardlib.h@, and link against the library. Further details of the functions available are in the ["C API":/onejoker/cardlib/capi.html] and ["C++ API":/onejoker/cardlib/cppapi.html] documents. An example in C:
 
 {% highlight cpp %}
 #include <stdio.h>
 #include <stdlib.h>
-#include "onejoker.h"
+#include <assert.h>
+
+#include "ojcardlib.h"
 
 int main(int argc, char *argv[]) {
     int i, db[52], hb[5];
@@ -73,4 +69,48 @@ int main(int argc, char *argv[]) {
 }
 {% endhighlight %}
 
-h2. See also
+And in C++:
+
+{% highlight cpp %}
+(Coming)
+{% endhighlight %}
+
+h3. Python
+
+As long as your Python implementation can find the library where you have installed it, programs need only import the package @ojcardlib@. Further details of the functions available are shown in the ["Python API":/onejoker/cardlib/pythonapi.html] document. A short example:
+
+{% highlight python %}
+import ojcardlib as oj
+
+deck = oj.CardList(52)
+deck.fill()
+deck.shuffle()
+
+hand = oj.CardList(5)
+for i in range(5):
+    hand.append(deck.pop())
+
+print(hand)
+{% endhighlight %}
+
+h3. Java
+
+Your Java programs will have to import the classes, and also load the library. More details of the classes and functions available are in the ["Java API":/onejoker/cardlib/javaapi.html] document. Here's a short example:
+
+{% highlight java %}
+import com.onejoker.cardlib.*;
+
+public class Hello {
+    static {
+        System.loadLibrary("ojcard");
+    }
+    public static void main(String[] args) {
+        CardList deck = new CardList(52), hand = new CardList(5);
+        deck.fill();
+        deck.shuffle();
+
+        for (int i = 0; i < 5; ++i) hand.add(deck.pop());
+        System.out.println(hand);
+    }
+}
+{% endhighlight %}

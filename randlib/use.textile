@@ -7,7 +7,7 @@ h1. Using the library in your code
 
 h2. Installing
 
-You have two choices for installing the library for use in your programs. Either download a pre-compiled binary for your system, or build the library yourself. The first is simpler, the latter more flexible. See the ["development":/onejoker/randlib/devel.html] documentaion for how to build the library on your system. I make pre-compiled binaries available for Windows and Linux on Intel platforms.
+You have two choices for installing the library for use in your programs. Either download a pre-compiled binary for your system, or build the library yourself. The first is simpler, the latter more flexible. See the ["development":/onejoker/randlib/devel.html] documentation for how to build the library on your system. I make pre-compiled binaries available for Windows and Linux on Intel platforms.
 
 h3. Linux
 

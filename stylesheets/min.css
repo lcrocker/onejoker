@@ -102,27 +102,44 @@ blockquote {
 }
 
 code, pre {
-  font-family: "Inconsolata", Bitstream Vera Sans Mono, Lucida Console, Terminal;
-  /* background: #DDFFFF; */
+    font-family: "Inconsolata", Bitstream Vera Sans Mono, Lucida Console, Terminal;
+    background: #dee;
 }
 
 pre {
-  background: #eeeeff;
-  padding:8px 15px;
-  border-radius:3px;
-  border:1px solid #e5e5e5;
+  background: #dee;
+  padding: 8px 15px;
+  border-radius: 3px;
+  /* border: 1px solid #e5e5e5; */
   overflow-x: auto;
 }
 
-table {
-  width:100%;
-  border-collapse:collapse;
+table.data {
+    width: 75%;
+    margin-left: auto;
+    margin-right: auto;
+    border-collapse: collapse;
+    border-top: 2pt solid #026;
+    border-bottom: 2pt solid #026;
 }
 
-th, td {
-  text-align:left;
-  padding:5px 10px;
-  border-bottom:1px solid #e5e5e5;
+table.data th {
+    vertical-align: bottom;
+    font-size: 120%;
+    font-weight: bold;
+    /* background: #dee; */
+    border-bottom: 2pt solid #026;
+}
+
+table.data th, td {
+    border-left: 2pt solid #026;
+    vertical-align: top;
+    text-align: left;
+    padding: 5px 10px;
+}
+
+table.data th:first-child, td:first-child {
+    border-left: none;
 }
 
 dt {

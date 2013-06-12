@@ -1,0 +1,44 @@
+---
+layout: cardlib
+title: "CardLib C API: Miscellaneous functions"
+---
+
+h1. Using the library in your C code
+
+h2. Miscellaneous functions
+
+The library contains a few functions that don't fit into the categories already covered. These include things like general-information functions used mostly by other language bindings, direct access to the random number generator, and others.
+
+h3. @int oj_init_library(int seed)@
+
+If you link to the shared library, this will be done automatically when the library loads, so there's no need to call it yourself. But if you build the library yourself and link to it statically, this function must be called before other library functions are used. The argument provides a seed to the random number generator. A value of 0 tells it to use a good high-entropy seed from the operating system.
+
+h3. @int ojd_ntypes(void)@
+
+Returns the number of deck types available in the library.
+
+h3. @int ojd_size(oj_decktype t)@
+
+Given a decktype (a 0-based enum value) returns the number of cards in the deck. Standard deck types do not include duplicates even if the games that commonly use them do. For example, the standard Pinochle deck in the library is only 24 cards, though an actual game will use a 48-card deck composed of two copies.
+
+h3. @oj_cardlist *ojd_deck(oj_decktype t)@
+
+Given a decktype, returns a pointer to a static read-only @oj_cardlist@ object containing that standard deck.
+
+h3. @int ojr_seed(int s)@
+
+Re-seed the random number generator. With a nonzero value, that value will be used to seed the generator for making a reproducible sequence for testing. Note that though the built-in generator has 256 bits of internal state, and a period of about 2<sup>250</sup>, an integer seed is only capable of producing 2<sup>32</sup> different sequences. This is much smaller than, for example, the number of arrangements of a 52-card deck, and so should only be used for special-purpose testing. Given a 0 argument, the RNG is seeded from 256 bits of operating system entropy (@/dev/urandom@ on Linux, @CryptGenRandom@ on Windows).
+
+h3. @uint16_t ojr_next16(void)@, @uint32_t ojr_next32(void)@, @uint64_t ojr_next64(void)@
+
+Return a 16-, 32-, or 64-bit random unsigned integer from the generator.
+
+h3. @double ojr_next_double(void)@
+
+Returns a random double value uniformly distributed on the half-open interval [0, 1). This function has 52 bits of precision.
+
+h3. @int ojr_rand(int limit)@
+
+Return a uniformly-distributed integer value from 0 to @limit-1@. This function is limited to 16 bits (that is, the maximum limit argument is 65536).
+
+h2. Next: ["Examples":/onejoker/cardlib/capi_examples.html]

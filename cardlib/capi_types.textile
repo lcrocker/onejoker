@@ -1,0 +1,122 @@
+---
+layout: cardlib
+title: "CardLib C API: Types"
+---
+
+h1. Using the library in your C code
+
+h2. Types
+
+C programs use CardLib by interacting with these object types:
+
+table(data).
+|_. *Type* |_. *Use* |
+| @oj_card@ | Integral type used for individual cards. |
+| @oj_rank@ | Enumeration of card ranks from deuce (lowest) to ace (highest). |
+| @oj_suit@ | Enumeration of card suits: club, diamond, heart, spade. |
+| @oj_decktype@ | Enumeration of different kinds of card decks. |
+| @oj_cardlist@ | Structure for managing a sequence of cards, such as a deck, hand, discard pile, etc. |
+| @oj_combiner@ | Structure for iterating over combinations of cards. |
+| @oj_pokerhand@ | Structure representing detailed information about a poker hand. |
+
+h3. @oj_card@, @oj_rank@, @oj_suit@
+
+CardLib represents cards as small integers, in order shown below (for why I chose this representation, see ["Representing playing cards in software":http://etceterology.com/blog/2013/5/23/representing-playing-cards-in-software]). The two-character strings shown here are only used for input and output of cards as text (see ["text functions":/onejoker/cardlib/capi_text.html]).
+
+{% highlight cpp %}
+    "2c" =  1      "6c" = 17      "Tc" = 33      "Ac" = 49
+    "2d" =  2      "6d" = 18      "Td" = 34      "Ad" = 50
+    "2h" =  3      "6h" = 19      "Th" = 35      "Ah" = 51
+    "2s" =  4      "6s" = 20      "Ts" = 36      "As" = 52
+    "3c" =  5      "7c" = 21      "Jc" = 37
+    "3d" =  6      "7d" = 22      "Jd" = 38      "JK" = 53
+    "3h" =  7      "7h" = 23      "Jh" = 39      "JR" = 54
+    "3s" =  8      "7s" = 24      "Js" = 40
+    "4c" =  9      "8c" = 25      "Qc" = 41
+    "4d" = 10      "8d" = 26      "Qd" = 42
+    "4h" = 11      "8h" = 27      "Qh" = 43
+    "4s" = 12      "8s" = 28      "Qs" = 44
+    "5c" = 13      "9c" = 29      "Kc" = 45
+    "5d" = 14      "9d" = 30      "Kd" = 46
+    "5h" = 15      "9h" = 31      "Kh" = 47
+    "5s" = 16      "9s" = 32      "Ks" = 48
+{% endhighlight %}
+
+Similarly, card ranks and card suits are represented as integers. These values are also wrapped in types @oj_card@, @oj_rank@, and @oj_suit@ for the purpose of better error checking. But the integer values are fixed and may be used for comparisons, table indices, and so on. The enumeration names and values for ranks and suits are as follows:
+
+{% highlight cpp %}
+    Ranks:                          Suits:
+
+    OJR_DEUCE = OJR_TWO = 0         OJS_CLUB = 0
+    OJR_TREY = OJR_THREE = 1        OJS_DIAMOND = 1
+    OJR_FOUR = 2                    OJS_HEART = 2
+    OJR_FIVE = 3                    OJS_SPADE = 3
+    OJR_SIX = 4
+    OJR_SEVEN = 5
+    OJR_EIGHT = 6
+    OJR_NINE = 7
+    OJR_TEN = 8
+    OJR_JACK = OJR_KNAVE = 9
+    OJR_QUEEN = 10
+    OJR_KING = 11
+    OJR_ACE = 12
+    OJR_JOKER = 13
+{% endhighlight %}
+
+Some convenient constants and macros are defined as shown below. The @OJ_CARD(r,s)@ macro takes a rank and suit as arguments and returns the card value. Likewise, @OJ_RANK(c)@ takes a card and returns a rank, and @OJ_SUIT(c)@ returns the suit of the given card. These macros will evaluate to constants at compile time if their arguments are constants (e.g., @OJ_CARD(OJR_TEN, OJR_CLUB)@ will evaluate to the constant value @33@.)
+
+{% highlight cpp %}
+    Constants:                      Macros:
+
+    OJ_JOKER = 53                   OJ_CARD(r,s)
+    OJ_BLACKJOKER = 53              OJ_RANK(c)
+    OJ_REDJOKER = 54                OJ_SUIT(c)
+{% endhighlight %}
+
+h3. @oj_decktype@
+
+This is an enumeration of the kinds of card decks used by various games. These are used by functions that initialize new decks of cards (e.g., see @ojl_fill@ in card list functions).
+
+{% highlight cpp %}
+    OJD_STANDARD = 0        // 52-card Anglo-American deck
+    OJD_ONEJOKER = 1        // 53 cards; standard + joker
+    OJD_TWOJOKERS = 2       // 54 cards; standard + 2 jokers
+    OJD_SKAT = 3            // 32 cards; remove 2..6
+    OJD_PAN = 4             // 40 cards; remove 8,9,10
+    OJD_PANJ = 5            // 41 cards; Pan + joker (Mexican poker)
+    OJD_PINOCHLE = 6        // 24 cards; 9s and up
+{% endhighlight %}
+
+h3. @oj_cardlist@
+
+The @oj_cardlist@ structure keeps an array-like list of cards. These lists are used for decks, hands, discard piles, or any other set of cards that might be needed for a game.
+
+Access to the cards and other features of the list is accomplished through various ["card list functions":/onejoker/cardlib/capi_cardlist.html]. It is strongly recommended that these functions be used rather than accessing the structure or its contained array directly, because these functions do error checking and maintain the consistency of the structure. But such direct access can be used for maximum efficiency if done with care.
+
+h3. @oj_combiner@
+
+An @oj_combiner@ object represents all subsets of _k_ cards from a larger set of _n_ cards. For example, all possible poker hands can be represented as the subsets of _k_ = 5 cards out of _n_ = 52, for a total of 2,598,960 different combinations. To create one of these objects, you must first create an @oj_cardlist@ which contains the _n_ cards from which the combinations will be drawn, and another of at least size _k_ into which the combinations will be written. These are then passed to the initialization function @ojc_new()@. For example:
+
+{% highlight cpp %}
+static oj_card dbuf[52], hbuf[5];
+static oj_cardlist deck, hand;
+static oj_combiner comb;
+
+int main(int argc, char *argv[]) {
+    ojl_new(&deck, dbuf, 52);
+    ojl_fill(&deck, 52, OJD_STANDARD);  // Fill the deck with 52 cards
+    ojl_new(&hand, hbuf, 5);
+    ojc_new(&comb, &deck, &hand, 5, 0ull);
+    . . .
+}
+{% endhighlight %}
+
+The final argument to @ojc_new()@ is a 64-bit count. If this value is 0 (as it is above), this tells the combiner to produce every combination exactly once in ["colex order":http://en.wikipedia.org/wiki/Colexicographical_order]. If the number is nonzero, this is the total number of combinations that will be produced. This latter option is usually used for Monte Carlo simulations that will produce combinations randomly rather than in order.
+
+See ["combiner functions":/onejoker/cardlib/capi_combiner.html] for full details.
+
+h3. @oj_pokerhand@
+
+The @oj_pokerhand@ structure contains information about a poker hand useful for displaying to humans. See ["poker functions":/onejoker/cardlib/capi_poker.html] for full details.
+
+h2. Next: ["Text functions":/onejoker/cardlib/capi_text.html]

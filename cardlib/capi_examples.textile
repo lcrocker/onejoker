@@ -1,0 +1,78 @@
+---
+layout: cardlib
+title: "CardLib C API: Examples"
+---
+
+h1. Using the library in your C code
+
+h2. Examples
+
+{% highlight cpp %}
+    OJ_RANK(c) == OJR_QUEEN             // Is the card a queen?
+    OJ_RANK(c) < OJR_TEN                // Is the card 2 through 9?
+    OJ_SUIT(c) == OJS_DIAMOND           // Is the card a diamond?
+    OJ_RANK(c) == OJR_JOKER             // Is card (either) joker?
+    c == OJ_JOKER                       // Is card black joker?
+
+    c = OJ_CARD(OJR_NINE, OJS_SPADE)    // c is now 32 (9 of spades)
+{% endhighlight %}
+
+Note that there is both an @OJR_JOKER@, which is the _rank_ of both jokers, and an @OJ_JOKER@, which is the card value of the single (or black) joker. Note also that because card values are ordered the way they are, you can often compare ranks without having to calculate @OJ_RANK()@ at all. For example:
+
+{% highlight cpp %}
+    c < OJ_CARD(OJR_TEN, OJS_CLUB)      // Is card < 10?
+    c >= OJ_CARD(OJR_ACE, OJS_CLUB)     // Is card ace (or joker)?
+{% endhighlight %}
+
+{% highlight cpp %}
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+
+#include "ojcardlib.h"
+
+int main(int argc, char *argv[]) {
+    int i, db[52], hb[5];
+    char text[20];
+    oj_cardlist_t deck, hand;
+
+    ojl_new(&deck, db, 52);
+    ojl_fill(&deck, 52, OJD_STANDARD);
+    ojl_shuffle(&deck);
+
+    ojl_new(&hand, hb, 5);
+    for (i = 0; i < 5; ++i) ojl_append(&hand, ojl_pop(&deck));
+
+    ojl_text(&hand, text, sizeof(text));
+    printf("%s\n", text);
+
+    return 0;
+}
+{% endhighlight %}
+
+{% highlight cpp %}
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+
+#include "ojcardlib.h"
+
+int main(int argc, char *argv[]) {
+    int i, db[52], hb[5];
+    char text[20];
+    oj_cardlist_t deck, hand;
+
+    ojl_new(&deck, db, 52);
+    ojl_fill(&deck, 52, OJD_STANDARD);
+    ojl_shuffle(&deck);
+
+    ojl_new(&hand, hb, 5);
+    for (i = 0; i < 5; ++i) ojl_append(&hand, ojl_pop(&deck));
+
+    ojl_text(&hand, text, sizeof(text));
+    printf("%s\n", text);
+
+    return 0;
+}
+{% endhighlight %}
+

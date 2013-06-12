@@ -4,3 +4,20 @@ title: "CardLib Python API"
 ---
 
 h1. Using the library in your Python code
+
+
+As long as your Python implementation can find the library where you have installed it, programs need only import the package @ojcardlib@. Further details of the functions available are shown in the ["Python API":/onejoker/cardlib/pythonapi.html] document. A short example:
+
+{% highlight python %}
+import ojcardlib as oj
+
+deck = oj.CardList(52)
+deck.fill()
+deck.shuffle()
+
+hand = oj.CardList(5)
+for i in range(5):
+    hand.append(deck.pop())
+
+print(hand)
+{% endhighlight %}

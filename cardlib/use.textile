@@ -37,80 +37,9 @@ To use CardLib with Python, you will have to install ["Python 3":http://www.pyth
 
 Likewise, you must have a Java JDK, and @ojcardlib.jar@ must be placed in the "extensions" directory of your JDK (for example, @C:/Program Files/Java/jdk1.7.0_21/jre/lib/ext@), which will vary by version, or else be added to the @-cp@ option when invoking Java programs that use it (you may also want to use @-Djava.library.path=@ to specify a non-standard location for the shared library).
 
-h2. Using the library in your programs
+h2. Language bindings
 
-h3. C, C++
-
-C and C++ programs need only include the single header file @ojcardlib.h@, and link against the library. Further details of the functions available are in the ["C API":/onejoker/cardlib/capi.html] and ["C++ API":/onejoker/cardlib/cppapi.html] documents. An example in C:
-
-{% highlight cpp %}
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-
-#include "ojcardlib.h"
-
-int main(int argc, char *argv[]) {
-    int i, db[52], hb[5];
-    char text[20];
-    oj_cardlist_t deck, hand;
-
-    ojl_new(&deck, db, 52);
-    ojl_fill(&deck, 52, OJD_STANDARD);
-    ojl_shuffle(&deck);
-
-    ojl_new(&hand, hb, 5);
-    for (i = 0; i < 5; ++i) ojl_append(&hand, ojl_pop(&deck));
-
-    ojl_text(&hand, text, sizeof(text));
-    printf("%s\n", text);
-
-    return 0;
-}
-{% endhighlight %}
-
-And in C++:
-
-{% highlight cpp %}
-(Coming)
-{% endhighlight %}
-
-h3. Python
-
-As long as your Python implementation can find the library where you have installed it, programs need only import the package @ojcardlib@. Further details of the functions available are shown in the ["Python API":/onejoker/cardlib/pythonapi.html] document. A short example:
-
-{% highlight python %}
-import ojcardlib as oj
-
-deck = oj.CardList(52)
-deck.fill()
-deck.shuffle()
-
-hand = oj.CardList(5)
-for i in range(5):
-    hand.append(deck.pop())
-
-print(hand)
-{% endhighlight %}
-
-h3. Java
-
-Your Java programs will have to import the classes, and also load the library. More details of the classes and functions available are in the ["Java API":/onejoker/cardlib/javaapi.html] document. Here's a short example:
-
-{% highlight java %}
-import com.onejoker.cardlib.*;
-
-public class Hello {
-    static {
-        System.loadLibrary("ojcard");
-    }
-    public static void main(String[] args) {
-        CardList deck = new CardList(52), hand = new CardList(5);
-        deck.fill();
-        deck.shuffle();
-
-        for (int i = 0; i < 5; ++i) hand.add(deck.pop());
-        System.out.println(hand);
-    }
-}
-{% endhighlight %}
+* ["C API":/onejoker/cardlib/capi.html]: Using the library from C programs.
+* ["C++ API":/onejoker/cardlib/cppapi.html]: Using C++ classes and functions.
+* ["Java API":/onejoker/cardlib/javaapi.html]: Using the Java package.
+* ["Python API":/onejoker/cardlib/pythonapi.html]: Using the Python module and functions.

@@ -13,7 +13,7 @@ CardLib consists of a shared library (.so on Linux, .dll for Windows) with funct
 
 Basic functions allow you to build lists of cards to represent decks, hands, discard piles, and other things; to shuffle cards and move cards around, and other things needed to simulate various games. Text functions allow input and output of cards and hands as text. More game-specific functions are included for evaluating hands in blackjack and poker.
 
-At present, CardLib does not contain card images or other GUI functions. This is planned, but the current focus of CardLib is simulation programs.
+At present, CardLib does not contain card images or other GUI functions. This is planned, as is code for Internet game servers, but the current focus of CardLib is simulation programs.
 
 h2. Documentation
 

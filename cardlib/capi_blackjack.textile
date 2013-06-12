@@ -1,0 +1,14 @@
+---
+layout: cardlib
+title: "CardLib C API: Blackjack functions"
+---
+
+h1. Using the library in your C code
+
+h2. Blackjack functions
+
+h3. @int ojb_total(oj_cardlist *p)@
+
+Returns the blackjack value of the given hand, negated if the total is "soft". For example, the hand @(7c 8d)@ would return 15, @(5d Ah)@ would return -16, and @(9d 7c Ac)@ would return 17.
+
+h2. Next: ["Miscellaneous functions":/onejoker/cardlib/capi_misc.html]

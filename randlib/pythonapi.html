@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>RandLib Python API</title>
+    <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Petrona' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/stylesheets/min.css">
+    <link rel="icon" type="image/x-icon" href="/images/oj-icon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="column">
+        <header>
+          <div id="logo">
+            <img id="h1" alt="onejoker" src="/images/oj-header1.png"/>
+            <h2>PRNG library</h2>
+          </div>
+          <br clear="all"/>
+          <p>Pseudo-random number generation library and tools. Part of the <a href="/index.html">OneJoker</a> project.</p>
+          <ul>
+          <li><a href="http://github.com/lcrocker/ojrandlib">RandLib</a> on <a href="http://github.com">GitHub</a></li>
+          <li><a href="/randlib/use.html">Using</a> RandLib</li>
+          <li>RandLib <a href="/randlib/devel.html">development</a></li>
+          <li><a href="/downloads/index.html">Downloads</a></li>
+          <li>Other <a href="/resources/index.html">resources</a></li>
+          </ul>
+          <p>Project maintained by <a href="http://github.com/lcrocker">Lee Daniel Crocker</a>
+          <br/>Lee's blog is <a href="http://www.etceterology.com">etceterology</a>.</p>
+            <img id="h2" alt="onejoker" src="/images/oj-header2.png"/><br clear="all">
+        </header>
+
+        <footer>
+          <small><a href="http://creativecommons.org/publicdomain/zero/1.0/">CC-0</a>:
+          To the extent possible under law, I, Lee Daniel Crocker waive all copyright and related
+          or neighboring rights to all creative works original to me.</small>
+        </footer>
+      </div><!--column-->
+
+      <section>
+      <h1>Using the library in your Python code</h1>
+<h2>Quickstart</h2>
+<p>Python package <code>ojrandlib</code> provides a <code>generator</code> object, or you can just call the non-object functions of the same name to get the library&#8217;s &#8220;default&#8221; generator. Here&#8217;s a simple example using the &#8220;Multiply with Carry&#8221; algorithm:</p>
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">ojrandlib</span> <span class="kn">as</span> <span class="nn">rl</span>
+
+<span class="n">g</span> <span class="o">=</span> <span class="n">rl</span><span class="o">.</span><span class="n">Generator</span><span class="p">(</span><span class="s">"mwc8222"</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">"  {:d}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">)),</span> <span class="s">" {:f}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">next_double</span><span class="p">()))</span></code></pre></figure><p>Importing the module also loads the library, so both must be where Python can find them. In the example above we first create a new generator object. The generator is automatically seeded appropriately from whatever randomness is available from your operating system (we could have instead seeded it ourselves). Finally, the <code>rand()</code> and <code>next_double()</code> methods fetch a random integer and float, respectively.</p>
+<h2>Basic generator functions</h2>
+<h3><code>Generator()</code></h3>
+<p>Creates a new generator using the algorithm specified by the single argument, either by name or number. With no argument, a reasonable default algorithm will be chosen. See the static methods below for how to get information on the available algorithms. The generator objects returned by this function are totally independent of each other, regardless of algorithm. In particular, if you create two generators with the same algorithm and same seed, they will independently produce the same stream of random numbers (this can be handy for writing test programs, for example).</p>
+<h3><code>seed()</code></h3>
+<p>With no argument, seeds the generator with random values derived from whatever entropy is available from your operating system. The size of the seed will be chosen to suit the algorithm. You can also pass an integer value or a list of integers. If you need to save the value of a system-generated seed for reproduction later, you will have to instead call the function <code>get_system_entropy()</code> (see below) and seed with the result.</p>
+<h3><code>reseed()</code></h3>
+<p>Applies a new seed to an existing generator to change its state &#8220;on the fly&#8221; without re-initializing. This function should not be needed by most applications. It could be used, for example, to occasionally add extra system entropy to a generator to make it more cryptographically secure. This eliminates reproducibility.</p>
+<h3><code>discard(count)</code></h3>
+<p>Advances the generator <code>count</code> steps wihout producing actual output. This is roughly equivalent to calling <code>next32()</code> (see below) <code>count</code> times, though it is faster due to reduced function call overhead. Some generator algorithms benefit from discarding some number of values after initialization before using their output.</p>
+<h2>Producing output</h2>
+<p>Now that you&#8217;ve created and generator and seeded it, you can use it to produce random numbers in various ways. All of these functions can also be called statically to use the built-in &#8220;default&#8221; generator.</p>
+<h3><code>next32()</code></h3>
+<p>Produces a random 32-bit unsigned integer. All of the algorithms included in ojrandlib are natively 32-bit generators, so the most basic way to get random values is to get them as 32-bit unsigned integers. All of the other producer functions are based on this one.</p>
+<h3><code>next16()</code></h3>
+<p>Produce a 16-bit random unsigned integer.</p>
+<h3><code>next64()</code></h3>
+<p>Produce a 64-bit random unsigned integer.</p>
+<h3><code>rand(limit)</code></h3>
+<p>Produces a random integer in the range 0 to (limit-1). This is the most useful function for randomly choosing from among a small set of alternatives, for example, selecting a random card from a deck of cards. The numbers are guaranteed to be balanced. That is, if called with a limit of 3, you will get the values 0, 1, and 2 with exactly equal probability. The maximum limit for this function is 32768.</p>
+<h3><code>next_double()</code></h3>
+<p>Produces a random double value uniformly distributed in the half-open interval [0.0, 1.0). That is, it may produce the value 0.0, but will never produce 1.0, and will produce every representable value in between with equal probability.</p>
+<h3><code>next_signed_double()</code></h3>
+<p>Produces a random double value uniformly distributed in the open interval (-1.0, 1.0). That is, it will never produce the values -1.0 or 1.0, and will produce every representable value in between with equal probability.</p>
+<h3><code>next_exponential()</code></h3>
+<p>Produces a random double value with a probability density of <span style="font-family: serif; font-size: 120%"><em>e<sup>-x</sup></em></span>.</p>
+<h3><code>next_normal()</code></h3>
+<p>Produces a random double value normally distributed about a mean of 0.0 with a standard deviation of 1.0.</p>
+<h2>Non-generator functions</h2>
+<p>These static methods do not require a generator object because they provide information or services independent of any particular generator.</p>
+<h3><code>get_system_entropy(count)</code></h3>
+<p>Returns random (as a list of integers) from whatever source of randomness your OS provides. On Linux-like systems, these will be from <code>/dev/urandom</code>. On Windows, <code>CryptGenRandom()</code> from the cryptography library will be used. If neither of these is available, the system time and process ID will be used. You should only need to use this function manually if you need both a good quality seed for a generator and need to save it for reproducibility later. Otherwise, simply using <code>seed()</code> on the generator is much simpler.</p>
+<h3><code>get_random_org(count)</code></h3>
+<p>Returns random bits (as a list of integers) from the website <code>random.org</code>, which provides random numbers based on atmospheric noise. It is recommended that this be used for seeding PRNGs or other applications that don&#8217;t need large quantities of random numbers. The service is limited in speed by your Internet connection and limited in quantity to a daily quota, because it is a free service (although you can pay them for a larger quota).</p>
+<h3><code>algorithm_count()</code></h3>
+<p>Returns the number of algorithms available in the system.</p>
+<h3><code>algorithm_name(a)</code></h3>
+<p>Returns the name of the algorithm at the given index (beginning at 1). An argument of 0 returns the name of the &#8220;default&#8221; generator.</p>
+      </section>
+    </div><!--wrapper-->
+
+    <script src="/javascripts/scale.fix.js"></script>
+  </body>
+</html>

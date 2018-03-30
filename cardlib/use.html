@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Using CardLib</title>
+    <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Petrona' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/stylesheets/min.css">
+    <link rel="icon" type="image/x-icon" href="/images/oj-icon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="column">
+        <header>
+          <div id="logo">
+            <img id="h1" alt="onejoker" src="/images/oj-header1.png"/>
+            <h2>Card library</h2>
+          </div>
+          <br clear="all"/>
+          <p>Card game and simulation library and tools. Part of the <a href="/index.html">OneJoker</a> project.</p>
+          <ul>
+          <li><a href="http://github.com/lcrocker/ojcardlib">CardLib</a> on <a href="http://github.com">GitHub</a></li>
+          <li><a href="/cardlib/use.html">Using</a> CardLib</li>
+          <li><a href="/downloads/index.html">Downloads</a></li>
+          <li>Other <a href="/resources/index.html">resources</a></li>
+          </ul>
+          <p>Project maintained by <a href="http://github.com/lcrocker">Lee Daniel Crocker</a>
+          <br/>Lee's blog is <a href="http://www.etceterology.com">etceterology</a>.</p>
+            <img id="h2" alt="onejoker" src="/images/oj-header2.png"/><br clear="all">
+        </header>
+
+        <footer>
+          <small><a href="http://creativecommons.org/publicdomain/zero/1.0/">CC-0</a>:
+          To the extent possible under law, I, Lee Daniel Crocker waive all copyright and related
+          or neighboring rights to all creative works original to me.</small>
+        </footer>
+      </div><!--column-->
+
+      <section>
+      <h1>Using the library in your code</h1>
+<h2>Installing</h2>
+<p>You have two choices for installing the library for use in your programs. Either download a pre-compiled binary for your system, or build the library yourself. The first is simpler, the latter more flexible. See the <a href="/cardlib/devel.html">development</a> documentation for how to build the library on your system. I make pre-compiled binaries available for Windows and Linux on Intel platforms.</p>
+<h3>Linux</h3>
+<p>Download this <a href="/downloads/cardlib-linux-x86-0.0.1.zip">zip file</a> and unpack it. This will give you the shared library file <code>libojcard.so.0.0</code>, the C header file <code>ojcardlib.h</code>, the Python package directory <code>ojcardlib</code> and its contained modules, and the Java archive <code>ojcardlib.jar</code>. Which of these you will need and where you will install them will depend on your development environment.</p>
+<p>A common place to put the shared library is <code>/usr/local/lib</code>, after which you will have to run <code>sudo ldconfig</code> to rebuild the system&#8217;s shared library cache. You may instead want to place it somewhere in your private development tree, in which case you will have to update <code>/etc/ld.so.conf</code> to look for it. You may also want to create a link to it with a simpler name, like this:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">sudo ln -s /usr/local/lib/libojcard.so.0.0 /usr/local/lib/libojcard.so</code></pre></figure><p>The C header file <code>ojcardlib.h</code> can be installed in <code>/usr/local/include</code>, or somewhere in your development tree if you add a <code>-I</code> option pointing to it in your C compiler invocations.</p>
+<p>CardLib expects Python 3. If you are using Python 2.X, you can install the Python 3 package available in all major distributions and the two will get along fine. The Python package directory <code>ojcardlib</code> and its contents will have to be placed where your particular version of Python expects it (on my system, that&#8217;s <code>/usr/local/lib/python3.2/site-packages</code>), or else its location can be added to <code>sys.path</code> explicitly.</p>
+<p>I recommend <a href="http://openjdk.java.net/">openjdk</a> as a good Java for Linux. The java archive <code>ojcardlib.jar</code> must be placed in the &#8220;extensions&#8221; directory of your <span class="caps">JDK</span> (for example, <code>/usr/lib/jvm/java-1.7.0-openjdk-i386/jre/lib/ext</code>), which will vary by version, or else be added to the <code>-cp</code> option when invoking Java programs that use it (you may also want to use <code>-Djava.library.path=</code> to specify a non-standard location for the shared library).</p>
+<h3>Windows</h3>
+<p>Download this <a href="/downloads/binaries/cardlib-win32-x86-0.0.1.zip">zip file</a> and unpack it. This will give you the library file <code>ojcard.dll</code>, the C header file <code>ojcardlib.h</code>, the Python package directory <code>ojcardlib</code> and its contents, and the Java archive <code>ojcardlib.jar</code>. Which of these you will need and where you will install them will depend on your development environment.</p>
+<p>Windows may not let you copy the <span class="caps">DLL</span> to the <code>System32</code> directory where other DLLs are found, so you&#8217;ll have to have this file present in the directory with your executable to use with C and C++ programs. You probably <em>will</em> be allowed to install it in your Java <span class="caps">JDK</span> or your Python directory tree for access from those languages. The exact location where the library is expected will depend on your version of Java or Python.</p>
+<p>If you are using <a href="http://www.mingw.org">MinGW</a> as I recommend, the C header file <code>ojcardlib.h</code> can be installed in <code>C:/MinGW/include</code>, or somewhere in your development tree if you add a <code>-I</code> option pointing to it in your C compiler invocations. If you&#8217;re using a different development environment you&#8217;ll have to put the header file where it expects.</p>
+<p>To use CardLib with Python, you will have to install <a href="http://www.python.org/download">Python 3</a>. The Python package directory <code>ojcardlib</code> and its contents will have to be placed where your particular version of Python expects it (for example, <code>C:/Python33/Lib</code>), or else its location can be added to <code>sys.path</code> explicitly.</p>
+<p>Likewise, you must have a Java <span class="caps">JDK</span>, and <code>ojcardlib.jar</code> must be placed in the &#8220;extensions&#8221; directory of your <span class="caps">JDK</span> (for example, <code>C:/Program Files/Java/jdk1.7.0_21/jre/lib/ext</code>), which will vary by version, or else be added to the <code>-cp</code> option when invoking Java programs that use it (you may also want to use <code>-Djava.library.path=</code> to specify a non-standard location for the shared library).</p>
+<h2>Language bindings</h2>
+<ul>
+	<li><a href="/cardlib/capi.html">C <span class="caps">API</span></a>: Using the library from C programs.</li>
+	<li><a href="/cardlib/cppapi.html">C++ <span class="caps">API</span></a>: Using C++ classes and functions.</li>
+	<li><a href="/cardlib/javaapi.html">Java <span class="caps">API</span></a>: Using the Java package.</li>
+	<li><a href="/cardlib/pythonapi.html">Python <span class="caps">API</span></a>: Using the Python module and functions.</li>
+</ul>
+      </section>
+    </div><!--wrapper-->
+
+    <script src="/javascripts/scale.fix.js"></script>
+  </body>
+</html>

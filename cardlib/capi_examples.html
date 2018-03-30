@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>CardLib C API: Examples</title>
+    <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Petrona' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/stylesheets/min.css">
+    <link rel="icon" type="image/x-icon" href="/images/oj-icon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="column">
+        <header>
+          <div id="logo">
+            <img id="h1" alt="onejoker" src="/images/oj-header1.png"/>
+            <h2>Card library</h2>
+          </div>
+          <br clear="all"/>
+          <p>Card game and simulation library and tools. Part of the <a href="/index.html">OneJoker</a> project.</p>
+          <ul>
+          <li><a href="http://github.com/lcrocker/ojcardlib">CardLib</a> on <a href="http://github.com">GitHub</a></li>
+          <li><a href="/cardlib/use.html">Using</a> CardLib</li>
+          <li><a href="/downloads/index.html">Downloads</a></li>
+          <li>Other <a href="/resources/index.html">resources</a></li>
+          </ul>
+          <p>Project maintained by <a href="http://github.com/lcrocker">Lee Daniel Crocker</a>
+          <br/>Lee's blog is <a href="http://www.etceterology.com">etceterology</a>.</p>
+            <img id="h2" alt="onejoker" src="/images/oj-header2.png"/><br clear="all">
+        </header>
+
+        <footer>
+          <small><a href="http://creativecommons.org/publicdomain/zero/1.0/">CC-0</a>:
+          To the extent possible under law, I, Lee Daniel Crocker waive all copyright and related
+          or neighboring rights to all creative works original to me.</small>
+        </footer>
+      </div><!--column-->
+
+      <section>
+      <h1>Using the library in your C code</h1>
+<h2>Examples</h2>
+<h3>Macros</h3>
+<p>For card, rank, and suit constant comparisons, use the <code>OJ</code> definitions when possible as these are compile-time constants. The macros <code>OJ_CARD()</code>, <code>OJ_RANK()</code> and <code>OJ_SUIT()</code> will also evaluate to constants if their arguments are, though they can be used with variables as well.</p>
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp">    <span class="n">OJ_RANK</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">==</span> <span class="n">OJR_QUEEN</span>             <span class="c1">// Is the card a queen?
+</span>    <span class="n">OJ_RANK</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">OJR_TEN</span>                <span class="c1">// Is the card 2 through 9?
+</span>    <span class="n">OJ_SUIT</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">==</span> <span class="n">OJS_DIAMOND</span>           <span class="c1">// Is the card a diamond?
+</span>    <span class="n">OJ_RANK</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">==</span> <span class="n">OJR_JOKER</span>             <span class="c1">// Is card (either) joker?
+</span>    <span class="n">c</span> <span class="o">==</span> <span class="n">OJ_JOKER</span>                       <span class="c1">// Is card black joker?
+</span>    <span class="n">c</span> <span class="o">=</span> <span class="n">OJ_CARD</span><span class="p">(</span><span class="n">OJR_NINE</span><span class="p">,</span> <span class="n">OJS_SPADE</span><span class="p">)</span>    <span class="o">//</span> <span class="n">c</span> <span class="n">is</span> <span class="n">now</span> <span class="mi">32</span> <span class="p">(</span><span class="mi">9</span> <span class="n">of</span> <span class="n">spades</span><span class="p">)</span></code></pre></figure><p>Note that there is both an <code>OJR_JOKER</code>, which is the <em>rank</em> of both jokers, and an <code>OJ_JOKER</code>, which is the card value of the single (or black) joker. Note also that because card values are ordered the way they are, you can often compare ranks without having to calculate <code>OJ_RANK()</code> at all. For example:</p>
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp">    <span class="n">c</span> <span class="o">&lt;</span> <span class="n">OJ_CARD</span><span class="p">(</span><span class="n">OJR_TEN</span><span class="p">,</span> <span class="n">OJS_CLUB</span><span class="p">)</span>      <span class="c1">// Is card &lt; 10?
+</span>    <span class="n">c</span> <span class="o">&gt;=</span> <span class="n">OJ_CARD</span><span class="p">(</span><span class="n">OJR_ACE</span><span class="p">,</span> <span class="n">OJS_CLUB</span><span class="p">)</span>     <span class="o">//</span> <span class="n">Is</span> <span class="n">card</span> <span class="n">ace</span> <span class="p">(</span><span class="n">or</span> <span class="n">joker</span><span class="p">)</span><span class="o">?</span></code></pre></figure><p>Here&#8217;s a basic &#8220;Hello, world.&#8221; app using the C <span class="caps">API</span>:</p>
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="cp">#include "ojcardlib.h"
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+    <span class="n">oj_card</span> <span class="n">db</span><span class="p">[</span><span class="mi">52</span><span class="p">],</span> <span class="n">hb</span><span class="p">[</span><span class="mi">5</span><span class="p">];</span>
+    <span class="n">oj_cardlist_t</span> <span class="n">deck</span><span class="p">,</span> <span class="n">hand</span><span class="p">;</span>
+
+    <span class="n">ojl_new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">deck</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="mi">52</span><span class="p">);</span>
+    <span class="n">ojl_fill</span><span class="p">(</span><span class="o">&amp;</span><span class="n">deck</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="n">OJD_STANDARD</span><span class="p">);</span>
+    <span class="n">ojl_shuffle</span><span class="p">(</span><span class="o">&amp;</span><span class="n">deck</span><span class="p">);</span>
+
+    <span class="n">ojl_new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hand</span><span class="p">,</span> <span class="n">hb</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="n">ojl_append</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hand</span><span class="p">,</span> <span class="n">ojl_pop</span><span class="p">(</span><span class="o">&amp;</span><span class="n">deck</span><span class="p">));</span>
+
+    <span class="kt">char</span> <span class="n">text</span><span class="p">[</span><span class="mi">20</span><span class="p">];</span>
+    <span class="n">ojl_text</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hand</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">text</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">text</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+      </section>
+    </div><!--wrapper-->
+
+    <script src="/javascripts/scale.fix.js"></script>
+  </body>
+</html>

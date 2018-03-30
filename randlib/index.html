@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>RandLib Overview</title>
+    <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Petrona' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/stylesheets/min.css">
+    <link rel="icon" type="image/x-icon" href="/images/oj-icon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="column">
+        <header>
+          <div id="logo">
+            <img id="h1" alt="onejoker" src="/images/oj-header1.png"/>
+            <h2>PRNG library</h2>
+          </div>
+          <br clear="all"/>
+          <p>Pseudo-random number generation library and tools. Part of the <a href="/index.html">OneJoker</a> project.</p>
+          <ul>
+          <li><a href="http://github.com/lcrocker/ojrandlib">RandLib</a> on <a href="http://github.com">GitHub</a></li>
+          <li><a href="/randlib/use.html">Using</a> RandLib</li>
+          <li>RandLib <a href="/randlib/devel.html">development</a></li>
+          <li><a href="/downloads/index.html">Downloads</a></li>
+          <li>Other <a href="/resources/index.html">resources</a></li>
+          </ul>
+          <p>Project maintained by <a href="http://github.com/lcrocker">Lee Daniel Crocker</a>
+          <br/>Lee's blog is <a href="http://www.etceterology.com">etceterology</a>.</p>
+            <img id="h2" alt="onejoker" src="/images/oj-header2.png"/><br clear="all">
+        </header>
+
+        <footer>
+          <small><a href="http://creativecommons.org/publicdomain/zero/1.0/">CC-0</a>:
+          To the extent possible under law, I, Lee Daniel Crocker waive all copyright and related
+          or neighboring rights to all creative works original to me.</small>
+        </footer>
+      </div><!--column-->
+
+      <section>
+      <h1>RandLib</h1>
+<p>This library serves two purposes: first it&#8217;s a free pseudo-random number generation library useful for gaming, simulations, Monte Carlo methods, and other work. Second, it can be used by people developing PRNGs to provide all the &#8220;filler&#8221; code needed around a <span class="caps">PRNG</span> algorithm: things like seed management, floating point conversions, access to hardware randomness, and so on.</p>
+<h2>Features</h2>
+<p>RandLib consists of a shared library (.so on Linux, .dll for Windows) with functions that can be linked directly into C programs, wrapper classes for C++ programs, Java classes and native methods for use by Java programs, and a Python module for use with Python 3.</p>
+<p>RandLib currently comes with three built-in algorithms to choose from: Multiply with carry, <span class="caps">JKISS</span>, and Mersenne Twister. These are all state-of-the-art algorithms for many uses, and are implemented in fast low-level C code. It is expected that other algorithms will be added over time, especially for cyptographic use.</p>
+<p>Each of these algorithms can be seeded by arrays to take advantage of the full range of random sequences available to each algorithm. Seeds can be provided by the user, or can be fetched from operating system randomness, or even from the network service <code>random.org</code>, which provides random bits produced from atmospheric noise.</p>
+<p>Each of the algorithms can be used to produce random bits in various formats. You can get raw bits, uniformly-distributed integers over a given range, uniform floating point values in full double precision, and normally distributed or exponentially distributed floating point values using the fast Ziggurat algorithm.</p>
+<h2>Documentation</h2>
+<p>RandLib can be used from a pre-compiled <a href="/randlib/use.html">binary</a>, or for more flexibility you can <a href="/randlib/devel.html">build RandLib</a> from source. There are APIs for <a href="/randlib/capi.html">C</a>, <a href="/randlib/cppapi.html">C++</a>, <a href="/randlib/javaapi.html">Java</a>, and <a href="/randlib/pythonapi.html">Python</a>.</p>
+<h2>Credits and Copyrights</h2>
+<p>The library was created by <a href="http://www.etceterology.com/">Lee Daniel Crocker</a> in 2013. To the extent possibile under law, Mr. Crocker has waived all copyright and related or neighboring rights to this work (<a href="http://creativecommons.org/publicdomain/zero/1.0/">CC0</a>). Where the work of others has been included, this is noted, and such work may be licensed under different terms.</p>
+      </section>
+    </div><!--wrapper-->
+
+    <script src="/javascripts/scale.fix.js"></script>
+  </body>
+</html>

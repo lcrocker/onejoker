@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>CardLib C API</title>
+    <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Petrona' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/stylesheets/min.css">
+    <link rel="icon" type="image/x-icon" href="/images/oj-icon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="column">
+        <header>
+          <div id="logo">
+            <img id="h1" alt="onejoker" src="/images/oj-header1.png"/>
+            <h2>Card library</h2>
+          </div>
+          <br clear="all"/>
+          <p>Card game and simulation library and tools. Part of the <a href="/index.html">OneJoker</a> project.</p>
+          <ul>
+          <li><a href="http://github.com/lcrocker/ojcardlib">CardLib</a> on <a href="http://github.com">GitHub</a></li>
+          <li><a href="/cardlib/use.html">Using</a> CardLib</li>
+          <li><a href="/downloads/index.html">Downloads</a></li>
+          <li>Other <a href="/resources/index.html">resources</a></li>
+          </ul>
+          <p>Project maintained by <a href="http://github.com/lcrocker">Lee Daniel Crocker</a>
+          <br/>Lee's blog is <a href="http://www.etceterology.com">etceterology</a>.</p>
+            <img id="h2" alt="onejoker" src="/images/oj-header2.png"/><br clear="all">
+        </header>
+
+        <footer>
+          <small><a href="http://creativecommons.org/publicdomain/zero/1.0/">CC-0</a>:
+          To the extent possible under law, I, Lee Daniel Crocker waive all copyright and related
+          or neighboring rights to all creative works original to me.</small>
+        </footer>
+      </div><!--column-->
+
+      <section>
+      <h1>Using the library in your C code</h1>
+<p>C programs need only include the single header file <code>ojcardlib.h</code>, and link against the shared library (<code>libojcard.so</code> on Linux, <code>ojcard.dll</code> on Windows). The library will initialize itself properly, including properly seeding the random number generator. If you build the library yourself and link it statically, you will have to initialize the library yourself, like this:</p>
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+    <span class="n">oj_init_library</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+    <span class="p">.</span> <span class="p">.</span> <span class="p">.</span>
+<span class="p">}</span></code></pre></figure><p>The argument 0 tells the library to seed the <span class="caps">RNG</span> from system entropy, which is what you want in most cases. If you pass a nonzero value, that will be used to seed the <span class="caps">RNG</span>, which will then generate a reproducible sequence sometimes useful for testing. It is safe to call this initialization function even if it has been called previously (as it would be by the shared library).</p>
+<ul>
+	<li><a href="/cardlib/capi_types.html">Types</a>: Data types and structures used by the C <span class="caps">API</span>.</li>
+	<li><a href="/cardlib/capi_text.html">Text functions</a>: Functions for input and output of card information as text.</li>
+	<li><a href="/cardlib/capi_cardlist.html">Card list functions</a>: Functions for manipulating card lists.</li>
+	<li><a href="/cardlib/capi_combiner.html">Combiner functions</a>: Functions for producing combinations of cards.</li>
+	<li><a href="/cardlib/capi_poker.html">Poker functions</a>: Specialized functions for poker.</li>
+	<li><a href="/cardlib/capi_blackjack.html">Blackjack functions</a>: Specialized functions for blackjack.</li>
+	<li><a href="/cardlib/capi_misc.html">Miscellaneous functions</a>: Functions that don&#8217;t fit elsewhere.</li>
+	<li><a href="/cardlib/capi_examples.html">Examples</a>: Sample complete programs.</li>
+</ul>
+      </section>
+    </div><!--wrapper-->
+
+    <script src="/javascripts/scale.fix.js"></script>
+  </body>
+</html>

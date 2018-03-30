@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>CardLib Overview</title>
+    <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Petrona' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/stylesheets/min.css">
+    <link rel="icon" type="image/x-icon" href="/images/oj-icon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="column">
+        <header>
+          <div id="logo">
+            <img id="h1" alt="onejoker" src="/images/oj-header1.png"/>
+            <h2>Card library</h2>
+          </div>
+          <br clear="all"/>
+          <p>Card game and simulation library and tools. Part of the <a href="/index.html">OneJoker</a> project.</p>
+          <ul>
+          <li><a href="http://github.com/lcrocker/ojcardlib">CardLib</a> on <a href="http://github.com">GitHub</a></li>
+          <li><a href="/cardlib/use.html">Using</a> CardLib</li>
+          <li><a href="/downloads/index.html">Downloads</a></li>
+          <li>Other <a href="/resources/index.html">resources</a></li>
+          </ul>
+          <p>Project maintained by <a href="http://github.com/lcrocker">Lee Daniel Crocker</a>
+          <br/>Lee's blog is <a href="http://www.etceterology.com">etceterology</a>.</p>
+            <img id="h2" alt="onejoker" src="/images/oj-header2.png"/><br clear="all">
+        </header>
+
+        <footer>
+          <small><a href="http://creativecommons.org/publicdomain/zero/1.0/">CC-0</a>:
+          To the extent possible under law, I, Lee Daniel Crocker waive all copyright and related
+          or neighboring rights to all creative works original to me.</small>
+        </footer>
+      </div><!--column-->
+
+      <section>
+      <h1>CardLib</h1>
+<p>This library is used to implement games, simulations, and other applications dealing with playing cards. CardLib is highly optimized for speed, and can simulate <em>billions</em> of hands of blackjack or poker in minutes.</p>
+<h2>Features</h2>
+<p>CardLib consists of a shared library (.so on Linux, .dll for Windows) with functions that can be linked directly into C programs, wrapper classes for C++ programs, Java classes and native methods for use by Java programs, and a Python module for use with Python 3.</p>
+<p>Basic functions allow you to build lists of cards to represent decks, hands, discard piles, and other things; to shuffle cards and move cards around, and other things needed to simulate various games. Text functions allow input and output of cards and hands as text. More game-specific functions are included for evaluating hands in blackjack and poker.</p>
+<p>At present, CardLib does not contain card images or other <span class="caps">GUI</span> functions. This is planned, as is code for Internet game servers, but the current focus of CardLib is simulation programs.</p>
+<h2>Documentation</h2>
+<p>CardLib can be used from a pre-compiled <a href="/cardlib/use.html">binary</a>, or for more flexibility you can <a href="/cardlib/devel.html">build RandLib</a> from source. There are APIs for <a href="/cardlib/capi.html">C</a>, <a href="/cardlib/cppapi.html">C++</a>, <a href="/cardlib/javaapi.html">Java</a>, and <a href="/cardlib/pythonapi.html">Python</a>.</p>
+<h2>Credits and Copyrights</h2>
+<p>The library was created by <a href="http://www.etceterology.com/">Lee Daniel Crocker</a> in 2013. To the extent possibile under law, Mr. Crocker has waived all copyright and related or neighboring rights to this work (<a href="http://creativecommons.org/publicdomain/zero/1.0/">CC0</a>). Where the work of others has been included, this is noted, and such work may be licensed under different terms.</p>
+      </section>
+    </div><!--wrapper-->
+
+    <script src="/javascripts/scale.fix.js"></script>
+  </body>
+</html>

@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>RandLib Development</title>
+    <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Petrona' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/stylesheets/min.css">
+    <link rel="icon" type="image/x-icon" href="/images/oj-icon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="column">
+        <header>
+          <div id="logo">
+            <img id="h1" alt="onejoker" src="/images/oj-header1.png"/>
+            <h2>PRNG library</h2>
+          </div>
+          <br clear="all"/>
+          <p>Pseudo-random number generation library and tools. Part of the <a href="/index.html">OneJoker</a> project.</p>
+          <ul>
+          <li><a href="http://github.com/lcrocker/ojrandlib">RandLib</a> on <a href="http://github.com">GitHub</a></li>
+          <li><a href="/randlib/use.html">Using</a> RandLib</li>
+          <li>RandLib <a href="/randlib/devel.html">development</a></li>
+          <li><a href="/downloads/index.html">Downloads</a></li>
+          <li>Other <a href="/resources/index.html">resources</a></li>
+          </ul>
+          <p>Project maintained by <a href="http://github.com/lcrocker">Lee Daniel Crocker</a>
+          <br/>Lee's blog is <a href="http://www.etceterology.com">etceterology</a>.</p>
+            <img id="h2" alt="onejoker" src="/images/oj-header2.png"/><br clear="all">
+        </header>
+
+        <footer>
+          <small><a href="http://creativecommons.org/publicdomain/zero/1.0/">CC-0</a>:
+          To the extent possible under law, I, Lee Daniel Crocker waive all copyright and related
+          or neighboring rights to all creative works original to me.</small>
+        </footer>
+      </div><!--column-->
+
+      <section>
+      <h1>Building the library from source</h1>
+<h2>Linux</h2>
+<p>You will need to have all the common Linux development tools installed, including <code>gcc</code> and <code>gmake</code>. In addition, you will have to have Python 3 to use the Python binding. If you have an earlier version of Python installed, you can install Python 3 as well and the two get along fairly well together. You will need a Java <span class="caps">JDK</span>&#8212;I recommend <a href="http://openjdk.java.net/">openjdk</a>. Finally, make sure you have the <code>realpath</code> tool installed or you&#8217;ll have to change the first line of the Makefile.</p>
+<p>Download and unpack the source from this <a href="http://github.com/lcrocker/ojrandlib/archive/master.zip">zipfile</a> or use git:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">git clone http://github.com/lcrocker/ojrandlib</code></pre></figure><p>From the root of the tree you just installed, <code>make</code> should now build everything including the basic tests, putting everything into the <code>build</code> directory and running the tests. A more comprehensive test of the RNGs can be built with <code>make randtest</code>.</p>
+<h2>Windows</h2>
+<p>You&#8217;ll need to install <a href="http://www.mingw.org">MinGW</a>, <a href="http://www.python.org/download">Python 3</a>, and a Java <span class="caps">JDK</span>. Make sure the Java compiler and tools and the python interpreter are in your <span class="caps">PATH</span>.</p>
+<p>Download and unpack the source from this <a href="http://github.com/lcrocker/ojrandlib/archive/master.zip">zipfile</a> or use git:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">git clone http://github.com/lcrocker/ojrandlib</code></pre></figure><p>Then from the root of the tree you just installed, build the library and basic tests with:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">make -f Makefile.mingw</code></pre></figure><p>This should now build everything including the basic tests, putting everything into the <code>build</code> directory and running the tests. A more comprehensive test of the RNGs can be built with <code>make -f Makefile.mingw randtest</code>.</p>
+      </section>
+    </div><!--wrapper-->
+
+    <script src="/javascripts/scale.fix.js"></script>
+  </body>
+</html>

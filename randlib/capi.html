@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>RandLib C API</title>
+    <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Petrona' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/stylesheets/min.css">
+    <link rel="icon" type="image/x-icon" href="/images/oj-icon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="column">
+        <header>
+          <div id="logo">
+            <img id="h1" alt="onejoker" src="/images/oj-header1.png"/>
+            <h2>PRNG library</h2>
+          </div>
+          <br clear="all"/>
+          <p>Pseudo-random number generation library and tools. Part of the <a href="/index.html">OneJoker</a> project.</p>
+          <ul>
+          <li><a href="http://github.com/lcrocker/ojrandlib">RandLib</a> on <a href="http://github.com">GitHub</a></li>
+          <li><a href="/randlib/use.html">Using</a> RandLib</li>
+          <li>RandLib <a href="/randlib/devel.html">development</a></li>
+          <li><a href="/downloads/index.html">Downloads</a></li>
+          <li>Other <a href="/resources/index.html">resources</a></li>
+          </ul>
+          <p>Project maintained by <a href="http://github.com/lcrocker">Lee Daniel Crocker</a>
+          <br/>Lee's blog is <a href="http://www.etceterology.com">etceterology</a>.</p>
+            <img id="h2" alt="onejoker" src="/images/oj-header2.png"/><br clear="all">
+        </header>
+
+        <footer>
+          <small><a href="http://creativecommons.org/publicdomain/zero/1.0/">CC-0</a>:
+          To the extent possible under law, I, Lee Daniel Crocker waive all copyright and related
+          or neighboring rights to all creative works original to me.</small>
+        </footer>
+      </div><!--column-->
+
+      <section>
+      <h1>Using the library in your C code</h1>
+<h2>Quickstart</h2>
+<p>All of the functions of the RandLib C <span class="caps">API</span> begin with <code>ojr_</code>. There are two ways to interact with the library. You can create <code>ojr_generator</code> objects with a specific algorithm and pass a pointer to your generator to all the functions, or you can just call the functions with the value <code>DEFGEN</code> as the generator argument and get the library&#8217;s &#8220;default&#8221; generator. Here&#8217;s a simple example of using the C <span class="caps">API</span> to print 10 random numbers in the range 0 to 99, using the Mersenne Twister algorithm.</p>
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#include &lt;stdio.h&gt;
+#include "ojrandlib.h"
+</span>
+<span class="n">ojr_generator</span> <span class="o">*</span><span class="n">g</span> <span class="o">=</span> <span class="n">ojr_open</span><span class="p">(</span><span class="s">"mt19937"</span><span class="p">);</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d "</span><span class="p">,</span> <span class="n">ojr_rand</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="mi">100</span><span class="p">));</span>
+<span class="p">}</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="n">ojr_close</span><span class="p">(</span><span class="n">g</span><span class="p">);</span></code></pre></figure><p>The single header file <code>ojrandlib.h</code> has all the needed declarations and definitions for the library. You will also have to link your code to the library (with <code>gcc</code>, for example, add <code>-lojrand</code> to the link command). We first create a new generator object with <code>ojr_open()</code>, which returns a pointer to the newly created generator. This allocates memory for the generator&#8217;s internal structures, so we have to call <code>ojr_close()</code> to free those up later. The generator is automatically seeded appropriately from whatever randomness is available from your operating system (you could seed it yourself if you wanted a reproducible sequence). Finally, <code>ojr_rand()</code> fetches a random integer in the given range with equal probability.</p>
+<p>That&#8217;s all you need for basic use: for example, writing a simple card game. There are many other functions available for more complex needs, detailed below.</p>
+<h2>Basic generator functions</h2>
+<h3><code>ojr_generator *ojr_open(char *algorithm)</code></h3>
+<p>Creates a new generator using the algorithm named by the single argument. If you pass <span class="caps">NULL</span>, a reasonable default algorithm will be chosen (currently this is &#8220;mwc8222&#8221;). See the <code>ojr_algorithm_*</code> functions below for how to get information on the available algorithms. The generator objects returned by this function are totally independent of each other, regardless of algorithm. In particular, if you create two generators with the same algorithm and same seed, they will independently produce the same stream of random numbers (this can be handy for writing test programs, for example).</p>
+<h3><code>ojr_close(ojr_generator *g)</code></h3>
+<p>Closes and frees all allocated resources of the given generator. Using the pointer after this will produce undefined results. If you fail to close a generator created by <code>ojr_open()</code>, it will be closed when the library is unloaded, and produce a warning message. When the library is unloaded is dependent on the OS, so it is best to avoid this memory leak.</p>
+<h3><code>ojr_system_seed(ojr_generator *g)</code></h3>
+<p>Seeds the given generator with random values derived from whatever entropy is available from your operating system. The size of the seed will be chosen to suit the algorithm. If you need to save the value of a system-generated seed for reproduction later, you will have to instead call <code>ojr_get_system_entropy()</code> with appropriate arguments followed by <code>ojr_array_seed()</code> (see below).</p>
+<h3><code>ojr_int_seed(ojr_generator *g, int val)</code></h3>
+<p>Seeds the generator with the integer value <code>val</code>.</p>
+<h3><code>ojr_array_seed(ojr_generator *g, uint32_t *seed, int count)</code></h3>
+<p>Seeds the generator with the given array of the 32-bit unsigned ints. This allows you to produce many more random sequences than are possible with a single integer seed, while still allowing reproducibility.</p>
+<h3><code>ojr_reseed(ojr_generator *g, uint32_t *seed, int count)</code></h3>
+<p>Applies a new seed to an existing generator to change its state &#8220;on the fly&#8221; without re-initializing. This function should not be needed by most applications. It could be used, for example, to occasionally add extra system entropy to a generator to make it more cryptographically secure. This eliminates reproducibility.</p>
+<h3><code>ojr_discard(ojr_generator *g, int count)</code></h3>
+<p>Advances the generator <code>count</code> steps wihout producing actual output. This is roughly equivalent to calling <code>ojr_next32(g)</code> (see below) <code>count</code> times, though it is a bit faster due to reduced function call overhead. Some generator algorithms benefit from discarding some number of values after initialization before using their output.</p>
+<h2>Producing output</h2>
+<p>Now that you&#8217;ve created and generator and seeded it, you can use it to produce random numbers in various ways. In all of these functions, you can also pass the value <code>DEFGEN</code> as the generator argument rather than opening your own generator.</p>
+<h3><code>uint32_t ojr_next32(ojr_generator *g)</code></h3>
+<p>Produces a random 32-bit unsigned integer. All of the algorithms included in ojrandlib are natively 32-bit generators, so the most basic way to get random values is to get them as 32-bit unsigned integers. All of the other producer functions are based on this one.</p>
+<h3><code>uint16_t ojr_next16(ojr_generator *g)</code></h3>
+<p>Produce a 16-bit random unsigned integer.</p>
+<h3><code>uint64_t ojr_next64(ojr_generator *g)</code></h3>
+<p>Produce a 64-bit random unsigned integer.</p>
+<h3><code>int ojr_rand(ojr_generator *g, int limit)</code></h3>
+<p>Produces a random integer in the range 0&#8230;(limit-1). This is the most useful function for randomly choosing from among a small set of alternatives, for example, selecting a random card from a deck of cards. The numbers are guaranteed to be balanced. That is, if you ask for numbers from 0 to 2, you will get 0, 1, and 2 with exactly equal probability. The maximum limit for this function is 32768.</p>
+<h3><code>double ojr_next_double(ojr_generator *g)</code></h3>
+<p>Produces a random double value uniformly distributed in the half-open interval [0.0, 1.0). That is, it may produce the value 0.0, but will never produce 1.0, and will produce every representable value in between with equal probability.</p>
+<h3><code>double ojr_next_signed_double(ojr_generator *g)</code></h3>
+<p>Produces a random double value uniformly distributed in the open interval (-1.0, 1.0). That is, it will never produce the values -1.0 or 1.0, and will produce every representable value in between with equal probability.</p>
+<h3><code>double ojr_next_exponential(ojr_generator *g)</code></h3>
+<p>Produces a random double value with a probability density of <span style="font-family: serif; font-size: 120%"><em>e<sup>-x</sup></em></span>.</p>
+<h3><code>double ojr_next_normal(ojr_generator *g)</code></h3>
+<p>Produces a random double value normally distributed about a mean of 0.0 with a standard deviation of 1.0.</p>
+<h2>Non-generator functions</h2>
+<p>These functions do not take a generator object argument because they provide information or services independent of any particular generator.</p>
+<h3><code>ojr_get_system_entropy(uint32_t *seed, int count)</code></h3>
+<p>Fills the given array (which must have room for <code>count</code> 32-bit unsinged integers) with random bits from whatever source of randomness your OS provides. On Linux-like systems, this will be <code>/dev/urandom</code>. On Windows, <code>CryptGenRandom()</code> from the cryptography library will be used. If neither of these is available, the system time and process ID will be used. You should only use this function manually if you need both a good quality seed for a generator and need to save it for reproducibility later. Otherwise, simply using <code>ojr_system_seed()</code> on the generator is much simpler.</p>
+<h3><code>ojr_get_random_org(uint32_t *seed, int count)</code></h3>
+<p>Fills the given array (which must have room for <code>count</code> 32-bit unsinged integers) with random bits from the website <code>random.org</code>, which provides random numbers based on atmospheric noise. It is recommended that this be used for seeding PRNGs or other applications that don&#8217;t need large quantities of random numbers. The service is limited in speed by your Internet connection and limited in quantity to a daily quota, because it is a free service (although you can pay them for a larger quota).</p>
+<h3><code>ojr_algorithm_count()</code></h3>
+<p>Returns the number of algorithms available in the system.</p>
+<h3><code>char *ojr_algorithm_name(int a)</code></h3>
+<p>Returns the name of the algorithm at the given index. Algorithms are identified by an integer from 1 to the number available. So, to list all the available algorithms by name, one could use code like the following:</p>
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">ojr_algorithm_count</span><span class="p">();</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">ojr_algorithm_name</span><span class="p">(</span><span class="n">i</span><span class="p">));</span>
+<span class="p">}</span></code></pre></figure><p>Passing a value of 0 will return the name of the &#8220;default&#8221; algorithm, which is the one that will be used when you call <code>ojr_open(NULL)</code>.</p>
+      </section>
+    </div><!--wrapper-->
+
+    <script src="/javascripts/scale.fix.js"></script>
+  </body>
+</html>

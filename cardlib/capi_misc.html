@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>CardLib C API: Miscellaneous functions</title>
+    <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Petrona' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/stylesheets/min.css">
+    <link rel="icon" type="image/x-icon" href="/images/oj-icon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="column">
+        <header>
+          <div id="logo">
+            <img id="h1" alt="onejoker" src="/images/oj-header1.png"/>
+            <h2>Card library</h2>
+          </div>
+          <br clear="all"/>
+          <p>Card game and simulation library and tools. Part of the <a href="/index.html">OneJoker</a> project.</p>
+          <ul>
+          <li><a href="http://github.com/lcrocker/ojcardlib">CardLib</a> on <a href="http://github.com">GitHub</a></li>
+          <li><a href="/cardlib/use.html">Using</a> CardLib</li>
+          <li><a href="/downloads/index.html">Downloads</a></li>
+          <li>Other <a href="/resources/index.html">resources</a></li>
+          </ul>
+          <p>Project maintained by <a href="http://github.com/lcrocker">Lee Daniel Crocker</a>
+          <br/>Lee's blog is <a href="http://www.etceterology.com">etceterology</a>.</p>
+            <img id="h2" alt="onejoker" src="/images/oj-header2.png"/><br clear="all">
+        </header>
+
+        <footer>
+          <small><a href="http://creativecommons.org/publicdomain/zero/1.0/">CC-0</a>:
+          To the extent possible under law, I, Lee Daniel Crocker waive all copyright and related
+          or neighboring rights to all creative works original to me.</small>
+        </footer>
+      </div><!--column-->
+
+      <section>
+      <h1>Using the library in your C code</h1>
+<h2>Miscellaneous functions</h2>
+<p>The library contains a few functions that don&#8217;t fit into the categories already covered. These include things like general-information functions used mostly by other language bindings, direct access to the random number generator, and others.</p>
+<h3><code>int oj_init_library(int seed)</code></h3>
+<p>If you link to the shared library, this will be done automatically when the library loads, so there&#8217;s no need to call it yourself. But if you build the library yourself and link to it statically, this function must be called before other library functions are used. The argument provides a seed to the random number generator. A value of 0 tells it to use a good high-entropy seed from the operating system.</p>
+<h3><code>int ojd_ntypes(void)</code></h3>
+<p>Returns the number of deck types available in the library.</p>
+<h3><code>int ojd_size(oj_decktype t)</code></h3>
+<p>Given a decktype (a 0-based enum value) returns the number of cards in the deck. Standard deck types do not include duplicates even if the games that commonly use them do. For example, the standard Pinochle deck in the library is only 24 cards, though an actual game will use a 48-card deck composed of two copies.</p>
+<h3><code>oj_cardlist *ojd_deck(oj_decktype t)</code></h3>
+<p>Given a decktype, returns a pointer to a static read-only <code>oj_cardlist</code> object containing that standard deck.</p>
+<h3><code>int ojr_seed(int s)</code></h3>
+<p>Re-seed the random number generator. With a nonzero value, that value will be used to seed the generator for making a reproducible sequence for testing. Note that though the built-in generator has 256 bits of internal state, and a period of about 2<sup>250</sup>, an integer seed is only capable of producing 2<sup>32</sup> different sequences. This is much smaller than, for example, the number of arrangements of a 52-card deck, and so should only be used for special-purpose testing. Given a 0 argument, the <span class="caps">RNG</span> is seeded from 256 bits of operating system entropy (<code>/dev/urandom</code> on Linux, <code>CryptGenRandom</code> on Windows).</p>
+<h3><code>uint16_t ojr_next16(void)</code>, <code>uint32_t ojr_next32(void)</code>, <code>uint64_t ojr_next64(void)</code></h3>
+<p>Return a 16-, 32-, or 64-bit random unsigned integer from the generator.</p>
+<h3><code>double ojr_next_double(void)</code></h3>
+<p>Returns a random double value uniformly distributed on the half-open interval [0, 1). This function has 52 bits of precision.</p>
+<h3><code>int ojr_rand(int limit)</code></h3>
+<p>Return a uniformly-distributed integer value from 0 to <code>limit-1</code>. This function is limited to 16 bits (that is, the maximum limit argument is 65536).</p>
+<h2>Next: <a href="/cardlib/capi_examples.html">Examples</a></h2>
+      </section>
+    </div><!--wrapper-->
+
+    <script src="/javascripts/scale.fix.js"></script>
+  </body>
+</html>

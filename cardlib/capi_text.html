@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>CardLib C API: Text functions</title>
+    <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Petrona' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/stylesheets/min.css">
+    <link rel="icon" type="image/x-icon" href="/images/oj-icon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="column">
+        <header>
+          <div id="logo">
+            <img id="h1" alt="onejoker" src="/images/oj-header1.png"/>
+            <h2>Card library</h2>
+          </div>
+          <br clear="all"/>
+          <p>Card game and simulation library and tools. Part of the <a href="/index.html">OneJoker</a> project.</p>
+          <ul>
+          <li><a href="http://github.com/lcrocker/ojcardlib">CardLib</a> on <a href="http://github.com">GitHub</a></li>
+          <li><a href="/cardlib/use.html">Using</a> CardLib</li>
+          <li><a href="/downloads/index.html">Downloads</a></li>
+          <li>Other <a href="/resources/index.html">resources</a></li>
+          </ul>
+          <p>Project maintained by <a href="http://github.com/lcrocker">Lee Daniel Crocker</a>
+          <br/>Lee's blog is <a href="http://www.etceterology.com">etceterology</a>.</p>
+            <img id="h2" alt="onejoker" src="/images/oj-header2.png"/><br clear="all">
+        </header>
+
+        <footer>
+          <small><a href="http://creativecommons.org/publicdomain/zero/1.0/">CC-0</a>:
+          To the extent possible under law, I, Lee Daniel Crocker waive all copyright and related
+          or neighboring rights to all creative works original to me.</small>
+        </footer>
+      </div><!--column-->
+
+      <section>
+      <h1>Using the library in your C code</h1>
+<h2>Text functions</h2>
+<h3><code>char *ojt_card(oj_card c)</code></h3>
+<p>Returns a pointer to a string constant which is the 2-character common name of the card passed in by value. E.g., <code>ojt_card(6)</code> returns <code>"3d"</code>.</p>
+<h3><code>char *ojt_rank(oj_rank r)</code></h3>
+<p>Returns a pointer to a string constant for the common English name (in lowercase) of the given card rank value. E.g., <code>ojt_rank(OJR_QUEEN)</code> returns <code>"queen"</code>.</p>
+<h3><code>char *ojt_suit(oj_suit s)</code></h3>
+<p>Returns a pointer to a string constant for the common English name (singular, lowercase) of the given card suit value. E.g., <code>ojt_suit(OJS_SPADE)</code> returns <code>"spade"</code>.</p>
+<h3><code>char *ojt_fullname(oj_card c, char *buf, int size)</code></h3>
+<p>Constructs into the given buffer the common English name of the given card. E.g, <code>ojt_fullname(52, buf, sizeof(buf))</code> puts the string <code>"ace of spades"</code> into the given buffer (but in no case exceeding the given buffer size). Buffer size should be at least 18 characters to accommodate the longest string &#8220;seven of diamonds&#8221;.</p>
+<h3><code>oj_card ojt_val(char *str)</code></h3>
+<p>Returns the value of the card whose standard 2-character representation begins the given string (after ignoring non-alphanumeric characters). E.g., <code>ojt_val("5h")</code> returns <code>(oj_card) 15</code>. It should be pointed out that it is probably a mistake to pass a string constant to this function, since this will compile into an actual function call that is unnecessary. To make card constants, use the macros: <code>OJ_CARD(OJR_FIVE, OJS_HEART)</code> will reduce to a compile-time constant.</p>
+<h3><code>int ojt_vals(char *str, oj_card *arr, int size)</code></h3>
+<p>Fills the given array of card values with the cards named in the given string, returning the actual number of cards converted. E.g., <code>ojt_vals("Ac Td 6c", arr, 10)</code> will fill the first three elements of the array <code>arr</code> with the card values <code>49, 34, 17</code>, and will return <code>3</code>. It will never write more than <em>size</em> elements into the array, so if the array is smaller than the number of cards encoded in the string, the string will not be fully converted.</p>
+<h2>Next: <a href="/cardlib/capi_cardlist.html">Card list functions</a></h2>
+      </section>
+    </div><!--wrapper-->
+
+    <script src="/javascripts/scale.fix.js"></script>
+  </body>
+</html>

@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>RandLib C++ API</title>
+    <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Petrona' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/stylesheets/min.css">
+    <link rel="icon" type="image/x-icon" href="/images/oj-icon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="column">
+        <header>
+          <div id="logo">
+            <img id="h1" alt="onejoker" src="/images/oj-header1.png"/>
+            <h2>PRNG library</h2>
+          </div>
+          <br clear="all"/>
+          <p>Pseudo-random number generation library and tools. Part of the <a href="/index.html">OneJoker</a> project.</p>
+          <ul>
+          <li><a href="http://github.com/lcrocker/ojrandlib">RandLib</a> on <a href="http://github.com">GitHub</a></li>
+          <li><a href="/randlib/use.html">Using</a> RandLib</li>
+          <li>RandLib <a href="/randlib/devel.html">development</a></li>
+          <li><a href="/downloads/index.html">Downloads</a></li>
+          <li>Other <a href="/resources/index.html">resources</a></li>
+          </ul>
+          <p>Project maintained by <a href="http://github.com/lcrocker">Lee Daniel Crocker</a>
+          <br/>Lee's blog is <a href="http://www.etceterology.com">etceterology</a>.</p>
+            <img id="h2" alt="onejoker" src="/images/oj-header2.png"/><br clear="all">
+        </header>
+
+        <footer>
+          <small><a href="http://creativecommons.org/publicdomain/zero/1.0/">CC-0</a>:
+          To the extent possible under law, I, Lee Daniel Crocker waive all copyright and related
+          or neighboring rights to all creative works original to me.</small>
+        </footer>
+      </div><!--column-->
+
+      <section>
+      <h1>Using the library in your C++ code</h1>
+<h2>Quickstart</h2>
+<p>The C++ functions are in the namespace <code>oj</code>. There are two objects: <code>Seed</code> is just a vector of unsigned ints, and <code>Generator</code> which encapsulates the actual <span class="caps">PRNG</span> algorithms. As with the C <span class="caps">API</span>, there is also a built-in &#8220;default&#8221; generator that can be accessed by functions without the need to create a generator object. Here&#8217;s a short example of using the library to print 10 random numbers in the range 0 to 99, using the Mersenne Twister algorithm.</p>
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#include &lt;iostream&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="cp">#include "ojrandlib.h"
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">oj</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+    <span class="n">Generator</span> <span class="n">g</span><span class="p">(</span><span class="s">"mt19937"</span><span class="p">);</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">g</span><span class="p">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure><p>The single header file <code>ojrandlib.h</code> has all the needed declarations and definitions for the library. You will also have to link your code to the library (with <code>gcc</code>, for example, add <code>-lojrand</code> to the link command). We first create a new generator object with the algorithm we want. The generator is automatically seeded appropriately from whatever randomness is available from your operating system (you could seed it yourself if you wanted a reproducible sequence). Finally, <code>g.rand(100)</code> fetches a random integer in the range 0 to 99. If we just want to use the built-in default generator, you can skip creating the generator object and just call the function <code>rand()</code>.</p>
+<h2>Basic generator functions</h2>
+<h3><code>oj::Generator(), Generator(const char *name), Generator(int alg)</code></h3>
+<p>Called without arguments, it will create a generator object with an appropriate default algorithm, and seed it from system randomness. You can also pass an argument which is the name of an available algorithm, or a number from 1 to the number of algorithms available. See the non-object functions below for how to get information on the available algorithms. The generator objects returned are totally independent of each other, regardless of algorithm. In particular, if you create two generators with the same algorithm and same seed, they will independently produce the same stream of random numbers (this can be handy for writing test programs, for example).</p>
+<h3><code>oj::Generator::seed(), seed(int s), seed(Seed sv)</code></h3>
+<p>With no argument, seeds the given generator with random values derived from whatever entropy is available from your operating system. The size of the seed will be chosen to suit the algorithm. A single argument can either be an integer seed, or a <code>Seed</code> object (which is a vector of unsigned ints). If you need to save the value of a system-generated seed for reproduction later, you can instead call <code>oj::getSystemEntropy()</code> (see below) to get a seed, and pass that value to the function.</p>
+<h3><code>oj::Generator::reseed(Seed sv)</code></h3>
+<p>Applies a new seed to an existing generator to change its state &#8220;on the fly&#8221; without re-initializing. This function should not be needed by most applications. It could be used, for example, to occasionally add extra system entropy to a generator to make it more cryptographically secure. This eliminates reproducibility.</p>
+<h3><code>oj::Generator::discard(int count)</code></h3>
+<p>Advances the generator the given number of steps wihout producing actual output. This is roughly equivalent to calling <code>next32()</code> (see below) <code>count</code> times, though it is faster due to reduced function call overhead. Some generator algorithms benefit from discarding some number of values after initialization before using their output.</p>
+<h2>Producing output</h2>
+<p>Now that you&#8217;ve created and generator, you can use it to produce random numbers in various ways. All of these functions also exist as non-object functions in the <code>oj</code> namespace to use the default generator.</p>
+<h3><code>uint32_t oj::Generator::next32()</code></h3>
+<p>Produces a random 32-bit unsigned integer. All of the algorithms included in ojrandlib are natively 32-bit generators, so the most basic way to get random values is to get them as 32-bit unsigned integers. All of the other producer functions are based on this one.</p>
+<h3><code>uint16_t oj::Generator::next16()</code></h3>
+<p>Produce a 16-bit random unsigned integer.</p>
+<h3><code>uint64_t oj::Generator::next64()</code></h3>
+<p>Produce a 64-bit random unsigned integer.</p>
+<h3><code>int oj::Generator::rand(int limit)</code></h3>
+<p>Produces a random integer in the range 0 to (limit-1). This is the most useful function for randomly choosing from among a small set of alternatives, for example, selecting a random card from a deck of cards. The numbers are guaranteed to be balanced. That is, if called with a limit of 3, you will get the values 0, 1, and 2 with exactly equal probability. The maximum limit for this function is 32768.</p>
+<h3><code>double oj::Generator:nextDouble()</code></h3>
+<p>Produces a random double value uniformly distributed in the half-open interval [0.0, 1.0). That is, it may produce the value 0.0, but will never produce 1.0, and will produce every representable value (with a 53-bit mantissa) in between with equal probability.</p>
+<h3><code>double oj::Generator::nextSignedDouble()</code></h3>
+<p>Produces a random double value uniformly distributed in the open interval (-1.0, 1.0). That is, it will never produce the values -1.0 or 1.0, and will produce every representable value in between with equal probability.</p>
+<h3><code>double oj::Generator::nextExponential()</code></h3>
+<p>Produces a random double value with a probability density of <span style="font-family: serif; font-size: 120%"><em>e<sup>-x</sup></em></span>.</p>
+<h3><code>double oj::Generator::nextNormal()</code></h3>
+<p>Produces a random double value normally distributed about a mean of 0.0 with a standard deviation of 1.0.</p>
+<h2>Non-generator functions</h2>
+<p>These functions do not take a generator object because they provide information or services independent of any particular generator.</p>
+<h3><code>oj::getSystemEntropy(Seed &amp;sv, int count)</code></h3>
+<p>Fills the given Seed vector with random bits from whatever source of randomness your OS provides. On Linux-like systems, this will be <code>/dev/urandom</code>. On Windows, <code>CryptGenRandom()</code> from the cryptography library will be used. If neither of these is available, the system time and process ID will be used.</p>
+<h3><code>oj::getRandomOrg(Seed &amp;sv, int count)</code></h3>
+<p>Fills the given seed vector with bits from the website <code>random.org</code>, which provides random numbers based on atmospheric noise. It is recommended that this be used for seeding PRNGs or other applications that don&#8217;t need large quantities of random numbers. The service is limited in speed by your Internet connection and limited in quantity to a daily quota, because it is a free service (although you can pay them for a larger quota).</p>
+<h3><code>int oj::algorithmCount()</code></h3>
+<p>Returns the number of algorithms available in the system.</p>
+<h3><code>char *oj::algorithmName(int a)</code></h3>
+<p>Returns the name of the algorithm at the given index. Algorithms are identified by an integer from 1 to the number available. So, to list all the available algorithms by name, one could use code like the following:</p>
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">oj</span><span class="o">::</span><span class="n">algorithmCount</span><span class="p">();</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">oj</span><span class="o">::</span><span class="n">algorithmName</span><span class="p">(</span><span class="n">i</span><span class="p">));</span>
+<span class="p">}</span></code></pre></figure><p>Passing a value of 0 will return the name of the &#8220;default&#8221; algorithm.</p>
+      </section>
+    </div><!--wrapper-->
+
+    <script src="/javascripts/scale.fix.js"></script>
+  </body>
+</html>

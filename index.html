@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>OneJoker Project</title>
+
+    <link href='https://fonts.googleapis.com/css?family=Petrona' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/stylesheets/min.css">
+    <link rel="icon" type="image/x-icon" href="/images/oj-icon.ico">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="column">
+        <header>
+          <div id="logo">
+            <img id="h1" alt="onejoker" src="/images/oj-header1.png"/>
+            <h2>Card game tools</h2>
+          </div>
+          <br clear="all"/>
+          <p>Free software tools for writing card games and simulations in C, C++, Java, and Python.</p>
+          <ul>
+          <li><a href="http://github.com/lcrocker/ojrandlib">RandLib</a> on <a href="http://github.com">GitHub</a></li>
+          <li>RandLib <a href="/randlib/index.html">documentation</a></li>
+          <li><a href="http://github.com/lcrocker/ojcardlib">CardLib</a> on GitHub</li>
+          <li>CardLib <a href="/cardlib/index.html">documentation</a></li>
+          <li><a href="/downloads/index.html">Downloads</a></li>
+          <li>Other <a href="/resources/index.html">resources</a></li>
+          </ul>
+          <p>Project maintained by <a href="http://github.com/lcrocker">Lee Daniel Crocker</a>
+          <!-- <br/>Lee's blog is <a href="http://www.etceterology.com">etceterology</a>. --></p>
+          <img id="h2" alt="onejoker" src="/images/oj-header2.png"/><br clear="all">
+        </header>
+
+        <footer>
+          <small><a href="http://creativecommons.org/publicdomain/zero/1.0/">CC-0</a>:
+          To the extent possible under law, I, Lee Daniel Crocker waive all copyright and related
+          or neighboring rights to all creative works original to me.</small>
+        </footer>
+      </div>
+
+      <section>
+      <h1>The OneJoker Project</h1>
+<p><strong>OneJoker</strong> is a collection of code and other resources for writing card games and simulations. Currently this includes:</p>
+<ul>
+	<li><a href="/randlib/index.html">RandLib</a>: A library of state-of-the-art algorithms for generating and using pseudo-random numbers. Can be used by people just needing a good <span class="caps">PRNG</span> or by people developing PRNGs to provide all the necessary accompanying code and tests without extra work.</li>
+	<li><a href="/cardlib/index.html">CardLib</a>: A library of routines specific to card games and simulations. Includes things like shuffling decks, dealing hands, evaluating hands, and some high-powered combinatorics.</li>
+</ul>
+<p>Both <strong>RandLib</strong> and <strong>CardLib</strong> are written in <a href="http://en.wikipedia.org/wiki/C_(programming_language)">C</a>, with binding code to allow them to be used from <a href="http://thread.gmane.org/gmane.comp.version-control.git/57643/focus=57918">C++</a>, <a href="http://python.org/">Python</a>, and <a href="http://openjdk.java.net/">Java</a>. C is my &#8220;native tongue&#8221;, and best suited to code that needs to be balls-to-the-wall fast like code to simulate billions of hands of blackjack or poker. Python is my current mistress, and the first tool I reach for to get something done quickly. So being able to call the fast C routines from nice easy-to-write and easy-to-read Python gives me the best of both. Java I&#8217;m pretty indifferent about, but it&#8217;s popular (especially now with the ascent of <a href="http://developer.android.com/index.html">Android</a>), I&#8217;ve used it enough to be familiar with it, so I added that binding. I&#8217;d rather have my teeth pulled without anesthesia than write in C++, but having written the C code, writing a C++ wrapper is only a few lines of code, so those masochists out there who use C++ (or who are forced to use it) can use the libraries too.</p>
+<p>I also do all the coding on <a href="http://www.linux.org/">Linux</a>. Software development on <a href="http://www.computerworld.com/s/article/9005873/Windows_development_chief_I_would_buy_a_Mac_if_I_didn_t_work_for_Microsoft_">Windows</a> isn&#8217;t quite as painful as C++, but it&#8217;s close. I even worked for the Evil Empire briefly back when they were an Empire&#8212;now they&#8217;re kind of the Evil Also-ran. But you can use the libraries from Windows as well, because of a wonderful project called <a href="http://www.mingw.org/">MinGW</a>, which allows us Unix geeks to write software in a familiar environment that runs on Windows. I know nothing at all about Macs or Objective-C. If you want to port my libraries to Cheesy Cheetah or whatever the lastest Apple OS is, you have my blessing, just not my my help. I hear it&#8217;s vaguely Unix-y&#8212;even some of my Linux brethren do their work on Macs&#8212;so it might not be that hard, but I just don&#8217;t know.</p>
+<p>I plan to also upload things like card images, an Internet game server, explanatory texts (maybe with an opinion or two), full sample programs, and other related things.</p>
+     </section>
+
+    </div>
+    <script src="/javascripts/scale.fix.js"></script>
+  </body>
+</html>
+

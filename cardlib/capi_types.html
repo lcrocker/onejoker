@@ -1,0 +1,153 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>CardLib C API: Types</title>
+    <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Petrona' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/stylesheets/min.css">
+    <link rel="icon" type="image/x-icon" href="/images/oj-icon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="column">
+        <header>
+          <div id="logo">
+            <img id="h1" alt="onejoker" src="/images/oj-header1.png"/>
+            <h2>Card library</h2>
+          </div>
+          <br clear="all"/>
+          <p>Card game and simulation library and tools. Part of the <a href="/index.html">OneJoker</a> project.</p>
+          <ul>
+          <li><a href="http://github.com/lcrocker/ojcardlib">CardLib</a> on <a href="http://github.com">GitHub</a></li>
+          <li><a href="/cardlib/use.html">Using</a> CardLib</li>
+          <li><a href="/downloads/index.html">Downloads</a></li>
+          <li>Other <a href="/resources/index.html">resources</a></li>
+          </ul>
+          <p>Project maintained by <a href="http://github.com/lcrocker">Lee Daniel Crocker</a>
+          <br/>Lee's blog is <a href="http://www.etceterology.com">etceterology</a>.</p>
+            <img id="h2" alt="onejoker" src="/images/oj-header2.png"/><br clear="all">
+        </header>
+
+        <footer>
+          <small><a href="http://creativecommons.org/publicdomain/zero/1.0/">CC-0</a>:
+          To the extent possible under law, I, Lee Daniel Crocker waive all copyright and related
+          or neighboring rights to all creative works original to me.</small>
+        </footer>
+      </div><!--column-->
+
+      <section>
+      <h1>Using the library in your C code</h1>
+<h2>Types</h2>
+<p>C programs use CardLib by interacting with these object types:</p>
+<table class="data">
+	<tr>
+		<th><strong>Type</strong> </th>
+		<th><strong>Use</strong> </th>
+	</tr>
+	<tr>
+		<td> <code>oj_card</code> </td>
+		<td> Integral type used for individual cards. </td>
+	</tr>
+	<tr>
+		<td> <code>oj_rank</code> </td>
+		<td> Enumeration of card ranks from deuce (lowest) to ace (highest). </td>
+	</tr>
+	<tr>
+		<td> <code>oj_suit</code> </td>
+		<td> Enumeration of card suits: club, diamond, heart, spade. </td>
+	</tr>
+	<tr>
+		<td> <code>oj_decktype</code> </td>
+		<td> Enumeration of different kinds of card decks. </td>
+	</tr>
+	<tr>
+		<td> <code>oj_cardlist</code> </td>
+		<td> Structure for managing a sequence of cards, such as a deck, hand, discard pile, etc. </td>
+	</tr>
+	<tr>
+		<td> <code>oj_combiner</code> </td>
+		<td> Structure for iterating over combinations of cards. </td>
+	</tr>
+	<tr>
+		<td> <code>oj_pokerhand</code> </td>
+		<td> Structure representing detailed information about a poker hand. </td>
+	</tr>
+</table>
+<h3><code>oj_card</code>, <code>oj_rank</code>, <code>oj_suit</code></h3>
+<p>CardLib represents cards as small integers, in order shown below (for why I chose this representation, see <a href="http://etceterology.com/blog/2013/5/23/representing-playing-cards-in-software">Representing playing cards in software</a>). The two-character strings shown here are only used for input and output of cards as text (see <a href="/cardlib/capi_text.html">text functions</a>).</p>
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp">    <span class="s">"2c"</span> <span class="o">=</span>  <span class="mi">1</span>      <span class="s">"6c"</span> <span class="o">=</span> <span class="mi">17</span>      <span class="s">"Tc"</span> <span class="o">=</span> <span class="mi">33</span>      <span class="s">"Ac"</span> <span class="o">=</span> <span class="mi">49</span>
+    <span class="s">"2d"</span> <span class="o">=</span>  <span class="mi">2</span>      <span class="s">"6d"</span> <span class="o">=</span> <span class="mi">18</span>      <span class="s">"Td"</span> <span class="o">=</span> <span class="mi">34</span>      <span class="s">"Ad"</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="s">"2h"</span> <span class="o">=</span>  <span class="mi">3</span>      <span class="s">"6h"</span> <span class="o">=</span> <span class="mi">19</span>      <span class="s">"Th"</span> <span class="o">=</span> <span class="mi">35</span>      <span class="s">"Ah"</span> <span class="o">=</span> <span class="mi">51</span>
+    <span class="s">"2s"</span> <span class="o">=</span>  <span class="mi">4</span>      <span class="s">"6s"</span> <span class="o">=</span> <span class="mi">20</span>      <span class="s">"Ts"</span> <span class="o">=</span> <span class="mi">36</span>      <span class="s">"As"</span> <span class="o">=</span> <span class="mi">52</span>
+    <span class="s">"3c"</span> <span class="o">=</span>  <span class="mi">5</span>      <span class="s">"7c"</span> <span class="o">=</span> <span class="mi">21</span>      <span class="s">"Jc"</span> <span class="o">=</span> <span class="mi">37</span>
+    <span class="s">"3d"</span> <span class="o">=</span>  <span class="mi">6</span>      <span class="s">"7d"</span> <span class="o">=</span> <span class="mi">22</span>      <span class="s">"Jd"</span> <span class="o">=</span> <span class="mi">38</span>      <span class="s">"JK"</span> <span class="o">=</span> <span class="mi">53</span>
+    <span class="s">"3h"</span> <span class="o">=</span>  <span class="mi">7</span>      <span class="s">"7h"</span> <span class="o">=</span> <span class="mi">23</span>      <span class="s">"Jh"</span> <span class="o">=</span> <span class="mi">39</span>      <span class="s">"JR"</span> <span class="o">=</span> <span class="mi">54</span>
+    <span class="s">"3s"</span> <span class="o">=</span>  <span class="mi">8</span>      <span class="s">"7s"</span> <span class="o">=</span> <span class="mi">24</span>      <span class="s">"Js"</span> <span class="o">=</span> <span class="mi">40</span>
+    <span class="s">"4c"</span> <span class="o">=</span>  <span class="mi">9</span>      <span class="s">"8c"</span> <span class="o">=</span> <span class="mi">25</span>      <span class="s">"Qc"</span> <span class="o">=</span> <span class="mi">41</span>
+    <span class="s">"4d"</span> <span class="o">=</span> <span class="mi">10</span>      <span class="s">"8d"</span> <span class="o">=</span> <span class="mi">26</span>      <span class="s">"Qd"</span> <span class="o">=</span> <span class="mi">42</span>
+    <span class="s">"4h"</span> <span class="o">=</span> <span class="mi">11</span>      <span class="s">"8h"</span> <span class="o">=</span> <span class="mi">27</span>      <span class="s">"Qh"</span> <span class="o">=</span> <span class="mi">43</span>
+    <span class="s">"4s"</span> <span class="o">=</span> <span class="mi">12</span>      <span class="s">"8s"</span> <span class="o">=</span> <span class="mi">28</span>      <span class="s">"Qs"</span> <span class="o">=</span> <span class="mi">44</span>
+    <span class="s">"5c"</span> <span class="o">=</span> <span class="mi">13</span>      <span class="s">"9c"</span> <span class="o">=</span> <span class="mi">29</span>      <span class="s">"Kc"</span> <span class="o">=</span> <span class="mi">45</span>
+    <span class="s">"5d"</span> <span class="o">=</span> <span class="mi">14</span>      <span class="s">"9d"</span> <span class="o">=</span> <span class="mi">30</span>      <span class="s">"Kd"</span> <span class="o">=</span> <span class="mi">46</span>
+    <span class="s">"5h"</span> <span class="o">=</span> <span class="mi">15</span>      <span class="s">"9h"</span> <span class="o">=</span> <span class="mi">31</span>      <span class="s">"Kh"</span> <span class="o">=</span> <span class="mi">47</span>
+    <span class="s">"5s"</span> <span class="o">=</span> <span class="mi">16</span>      <span class="s">"9s"</span> <span class="o">=</span> <span class="mi">32</span>      <span class="s">"Ks"</span> <span class="o">=</span> <span class="mi">48</span></code></pre></figure><p>Similarly, card ranks and card suits are represented as integers. These values are also wrapped in types <code>oj_card</code>, <code>oj_rank</code>, and <code>oj_suit</code> for the purpose of better error checking. But the integer values are fixed and may be used for comparisons, table indices, and so on. The enumeration names and values for ranks and suits are as follows:</p>
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp">    <span class="nl">Ranks:</span>                          <span class="nl">Suits:</span>
+
+    <span class="n">OJR_DEUCE</span> <span class="o">=</span> <span class="n">OJR_TWO</span> <span class="o">=</span> <span class="mi">0</span>         <span class="n">OJS_CLUB</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">OJR_TREY</span> <span class="o">=</span> <span class="n">OJR_THREE</span> <span class="o">=</span> <span class="mi">1</span>        <span class="n">OJS_DIAMOND</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">OJR_FOUR</span> <span class="o">=</span> <span class="mi">2</span>                    <span class="n">OJS_HEART</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">OJR_FIVE</span> <span class="o">=</span> <span class="mi">3</span>                    <span class="n">OJS_SPADE</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">OJR_SIX</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">OJR_SEVEN</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">OJR_EIGHT</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">OJR_NINE</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">OJR_TEN</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">OJR_JACK</span> <span class="o">=</span> <span class="n">OJR_KNAVE</span> <span class="o">=</span> <span class="mi">9</span>
+    <span class="n">OJR_QUEEN</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">OJR_KING</span> <span class="o">=</span> <span class="mi">11</span>
+    <span class="n">OJR_ACE</span> <span class="o">=</span> <span class="mi">12</span>
+    <span class="n">OJR_JOKER</span> <span class="o">=</span> <span class="mi">13</span></code></pre></figure><p>Some convenient constants and macros are defined as shown below. The <code>OJ_CARD(r,s)</code> macro takes a rank and suit as arguments and returns the card value. Likewise, <code>OJ_RANK(c)</code> takes a card and returns a rank, and <code>OJ_SUIT(c)</code> returns the suit of the given card. These macros will evaluate to constants at compile time if their arguments are constants (e.g., <code>OJ_CARD(OJR_TEN, OJR_CLUB)</code> will evaluate to the constant value <code>33</code>.)</p>
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp">    <span class="nl">Constants:</span>                      <span class="nl">Macros:</span>
+
+    <span class="n">OJ_JOKER</span> <span class="o">=</span> <span class="mi">53</span>                   <span class="n">OJ_CARD</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">OJ_BLACKJOKER</span> <span class="o">=</span> <span class="mi">53</span>              <span class="n">OJ_RANK</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="n">OJ_REDJOKER</span> <span class="o">=</span> <span class="mi">54</span>                <span class="n">OJ_SUIT</span><span class="p">(</span><span class="n">c</span><span class="p">)</span></code></pre></figure><h3><code>oj_decktype</code></h3>
+<p>This is an enumeration of the kinds of card decks used by various games. These are used by functions that initialize new decks of cards (e.g., see <code>ojl_fill</code> in card list functions).</p>
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp">    <span class="n">OJD_STANDARD</span> <span class="o">=</span> <span class="mi">0</span>        <span class="c1">// 52-card Anglo-American deck
+</span>    <span class="n">OJD_ONEJOKER</span> <span class="o">=</span> <span class="mi">1</span>        <span class="c1">// 53 cards; standard + joker
+</span>    <span class="n">OJD_TWOJOKERS</span> <span class="o">=</span> <span class="mi">2</span>       <span class="c1">// 54 cards; standard + 2 jokers
+</span>    <span class="n">OJD_SKAT</span> <span class="o">=</span> <span class="mi">3</span>            <span class="c1">// 32 cards; remove 2..6
+</span>    <span class="n">OJD_PAN</span> <span class="o">=</span> <span class="mi">4</span>             <span class="c1">// 40 cards; remove 8,9,10
+</span>    <span class="n">OJD_PANJ</span> <span class="o">=</span> <span class="mi">5</span>            <span class="c1">// 41 cards; Pan + joker (Mexican poker)
+</span>    <span class="n">OJD_PINOCHLE</span> <span class="o">=</span> <span class="mi">6</span>        <span class="o">//</span> <span class="mi">24</span> <span class="n">cards</span><span class="p">;</span> <span class="mi">9</span><span class="n">s</span> <span class="n">and</span> <span class="n">up</span></code></pre></figure><h3><code>oj_cardlist</code></h3>
+<p>The <code>oj_cardlist</code> structure keeps an array-like list of cards. These lists are used for decks, hands, discard piles, or any other set of cards that might be needed for a game.</p>
+<p>Access to the cards and other features of the list is accomplished through various <a href="/cardlib/capi_cardlist.html">card list functions</a>. It is strongly recommended that these functions be used rather than accessing the structure or its contained array directly, because these functions do error checking and maintain the consistency of the structure. But such direct access can be used for maximum efficiency if done with care.</p>
+<h3><code>oj_combiner</code></h3>
+<p>An <code>oj_combiner</code> object represents all subsets of <em>k</em> cards from a larger set of <em>n</em> cards. For example, all possible poker hands can be represented as the subsets of <em>k</em> = 5 cards out of <em>n</em> = 52, for a total of 2,598,960 different combinations. To create one of these objects, you must first create an <code>oj_cardlist</code> which contains the <em>n</em> cards from which the combinations will be drawn, and another of at least size <em>k</em> into which the combinations will be written. These are then passed to the initialization function <code>ojc_new()</code>. For example:</p>
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="k">static</span> <span class="n">oj_card</span> <span class="n">dbuf</span><span class="p">[</span><span class="mi">52</span><span class="p">],</span> <span class="n">hbuf</span><span class="p">[</span><span class="mi">5</span><span class="p">];</span>
+<span class="k">static</span> <span class="n">oj_cardlist</span> <span class="n">deck</span><span class="p">,</span> <span class="n">hand</span><span class="p">;</span>
+<span class="k">static</span> <span class="n">oj_combiner</span> <span class="n">comb</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+    <span class="n">ojl_new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">deck</span><span class="p">,</span> <span class="n">dbuf</span><span class="p">,</span> <span class="mi">52</span><span class="p">);</span>
+    <span class="n">ojl_fill</span><span class="p">(</span><span class="o">&amp;</span><span class="n">deck</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="n">OJD_STANDARD</span><span class="p">);</span>  <span class="c1">// Fill the deck with 52 cards
+</span>    <span class="n">ojl_new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hand</span><span class="p">,</span> <span class="n">hbuf</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
+    <span class="n">ojc_new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">comb</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">deck</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">hand</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0ull</span><span class="p">);</span>
+    <span class="p">.</span> <span class="p">.</span> <span class="p">.</span>
+<span class="p">}</span></code></pre></figure><p>The final argument to <code>ojc_new()</code> is a 64-bit count. If this value is 0 (as it is above), this tells the combiner to produce every combination exactly once in <a href="http://en.wikipedia.org/wiki/Colexicographical_order">colex order</a>. If the number is nonzero, this is the total number of combinations that will be produced. This latter option is usually used for Monte Carlo simulations that will produce combinations randomly rather than in order.</p>
+<p>See <a href="/cardlib/capi_combiner.html">combiner functions</a> for full details.</p>
+<h3><code>oj_pokerhand</code></h3>
+<p>The <code>oj_pokerhand</code> structure contains information about a poker hand useful for displaying to humans. See <a href="/cardlib/capi_poker.html">poker functions</a> for full details.</p>
+<h2>Next: <a href="/cardlib/capi_text.html">Text functions</a></h2>
+      </section>
+    </div><!--wrapper-->
+
+    <script src="/javascripts/scale.fix.js"></script>
+  </body>
+</html>

@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Using RandLib</title>
+    <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Petrona' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/stylesheets/min.css">
+    <link rel="icon" type="image/x-icon" href="/images/oj-icon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="column">
+        <header>
+          <div id="logo">
+            <img id="h1" alt="onejoker" src="/images/oj-header1.png"/>
+            <h2>PRNG library</h2>
+          </div>
+          <br clear="all"/>
+          <p>Pseudo-random number generation library and tools. Part of the <a href="/index.html">OneJoker</a> project.</p>
+          <ul>
+          <li><a href="http://github.com/lcrocker/ojrandlib">RandLib</a> on <a href="http://github.com">GitHub</a></li>
+          <li><a href="/randlib/use.html">Using</a> RandLib</li>
+          <li>RandLib <a href="/randlib/devel.html">development</a></li>
+          <li><a href="/downloads/index.html">Downloads</a></li>
+          <li>Other <a href="/resources/index.html">resources</a></li>
+          </ul>
+          <p>Project maintained by <a href="http://github.com/lcrocker">Lee Daniel Crocker</a>
+          <br/>Lee's blog is <a href="http://www.etceterology.com">etceterology</a>.</p>
+            <img id="h2" alt="onejoker" src="/images/oj-header2.png"/><br clear="all">
+        </header>
+
+        <footer>
+          <small><a href="http://creativecommons.org/publicdomain/zero/1.0/">CC-0</a>:
+          To the extent possible under law, I, Lee Daniel Crocker waive all copyright and related
+          or neighboring rights to all creative works original to me.</small>
+        </footer>
+      </div><!--column-->
+
+      <section>
+      <h1>Using the library in your code</h1>
+<h2>Installing</h2>
+<p>You have two choices for installing the library for use in your programs. Either download a pre-compiled binary for your system, or build the library yourself. The first is simpler, the latter more flexible. See the <a href="/randlib/devel.html">development</a> documentation for how to build the library on your system. I make pre-compiled binaries available for Windows and Linux on Intel platforms.</p>
+<h3>Linux</h3>
+<p>Download this <a href="/downloads/linux-x86-0.0.1.zip">zip file</a> and unpack it. This will give you the shared library file <code>libojrand.so.0.0</code>, the C header file <code>ojrandlib.h</code>, the Python module <code>ojrandlib.py</code>, and the Java archive <code>ojrandlib.jar</code>. Which of these you will need and where you will install them will depend on your development environment.</p>
+<p>A common place to put the shared library is <code>/usr/local/lib</code>, after which you will have to run <code>sudo ldconfig</code> to rebuild the system&#8217;s shared library cache. You may instead want to place it somewhere in your private development tree, in which case you will have to update <code>/etc/ld.so.conf</code> to look for it. You may also want to create a link to it with a simpler name, like this:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">sudo ln -s /usr/local/lib/libojrand.so.0.0 /usr/local/lib/libojrand.so</code></pre></figure><p>The C header file <code>ojrandlib.h</code> can be installed in <code>/usr/local/include</code>, or somewhere in your development tree if you add a <code>-I</code> option pointing to it in your C compiler invocations.</p>
+<p>RandLib expects Python 3. If you are using Python 2.X, you can install the Python 3 package available in all major distributions and the two will get along fine. The Python module <code>ojrandlib.py</code> will have to be placed where your particular version of Python expects it (on my system, that&#8217;s <code>/usr/local/lib/python3.2/site-packages</code>), or else its location can be added to <code>sys.path</code> explicitly.</p>
+<p>I recommend <a href="http://openjdk.java.net/">openjdk</a> as a good Java for Linux. The java archive <code>ojrandlib.jar</code> must be placed in the &#8220;extensions&#8221; directory of your <span class="caps">JDK</span> (for example, <code>/usr/lib/jvm/java-1.7.0-openjdk-i386/jre/lib/ext</code>), which will vary by version, or else be added to the <code>-cp</code> option when invoking Java programs that use it (you may also want to use <code>-Djava.library.path=</code> to specify a non-standard location for the shared library).</p>
+<h3>Windows</h3>
+<p>Download this <a href="/downloads/binaries/win32-x86-0.0.1.zip">zip file</a> and unpack it. This will give you the library file <code>ojrand.dll</code>, the C header file <code>ojrandlib.h</code>, the Python module <code>ojrandlib.py</code>, and the Java archive <code>ojrandlib.jar</code>. Which of these you will need and where you will install them will depend on your development environment.</p>
+<p>Windows may not let you copy the <span class="caps">DLL</span> to the <code>System32</code> directory where other DLLs are found, so you&#8217;ll have to have this file present in the directory with your executable to use with C and C++ programs. You probably <em>will</em> be allowed to install it in your Java <span class="caps">JDK</span> or your Python directory tree for access from those languages. The exact location where the library is expected will depend on your version of Java or Python.</p>
+<p>If you are using <a href="http://www.mingw.org">MinGW</a> as I recommend, the C header file <code>ojrandlib.h</code> can be installed in <code>C:/MinGW/include</code>, or somewhere in your development tree if you add a <code>-I</code> option pointing to it in your C compiler invocations. If you&#8217;re using a different development environment you&#8217;ll have to put the header file where it expects.</p>
+<p>To use RandLib with Python, you will have to install <a href="http://www.python.org/download">Python 3</a>. The Python module <code>ojrandlib.py</code> will have to be placed where your particular version of Python expects it (for example, <code>C:/Python33/Lib</code>), or else its location can be added to <code>sys.path</code> explicitly.</p>
+<p>Likewise, you must have a Java <span class="caps">JDK</span>, and <code>ojrandlib.jar</code> must be placed in the &#8220;extensions&#8221; directory of your <span class="caps">JDK</span> (for example, <code>C:/Program Files/Java/jdk1.7.0_21/jre/lib/ext</code>), which will vary by version, or else be added to the <code>-cp</code> option when invoking Java programs that use it (you may also want to use <code>-Djava.library.path=</code> to specify a non-standard location for the shared library).</p>
+<h2>Using the library in your programs</h2>
+<h3>C, C++</h3>
+<p>C and C++ programs need only include the single header file <code>ojrandlib.h</code>, and link against the library. Further details of the functions available are in the <a href="/randlib/capi.html">C <span class="caps">API</span></a> and <a href="/randlib/cppapi.html">C++ <span class="caps">API</span></a> documents. An example in C:</p>
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+</span>
+<span class="cp">#include "ojrandlib.h"
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+    <span class="n">ojr_generator</span> <span class="o">*</span><span class="n">g</span> <span class="o">=</span> <span class="n">ojr_open</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"  %d  %d  %d  %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+        <span class="n">ojr_rand</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="n">ojr_next16</span><span class="p">(</span><span class="n">g</span><span class="p">),</span> <span class="n">ojr_next32</span><span class="p">(</span><span class="n">g</span><span class="p">),</span>
+        <span class="n">ojr_next_double</span><span class="p">(</span><span class="n">g</span><span class="p">));</span>
+
+    <span class="n">ojr_close</span><span class="p">(</span><span class="n">g</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure><p>And in C++:</p>
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#include &lt;iostream&gt;
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="cp">#include "ojrandlib.h"
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">oj</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+    <span class="n">Generator</span> <span class="n">g</span><span class="p">(</span><span class="s">"mt19937"</span><span class="p">);</span>
+
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"  "</span> <span class="o">&lt;&lt;</span> <span class="n">g</span><span class="p">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"  "</span> <span class="o">&lt;&lt;</span> <span class="n">g</span><span class="p">.</span><span class="n">next16</span><span class="p">()</span>     <span class="o">&lt;&lt;</span>
+            <span class="s">"  "</span> <span class="o">&lt;&lt;</span> <span class="n">g</span><span class="p">.</span><span class="n">next32</span><span class="p">()</span>  <span class="o">&lt;&lt;</span> <span class="s">"  "</span> <span class="o">&lt;&lt;</span> <span class="n">g</span><span class="p">.</span><span class="n">nextDouble</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure><h3>Python</h3>
+<p>As long as your Python implementation can find the library where you have installed it, programs need only import the module <code>ojrandlib</code>. Further details of the functions available are shown in the <a href="/randlib/pythonapi.html">Python <span class="caps">API</span></a> document. A short example:</p>
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">ojrandlib</span> <span class="kn">as</span> <span class="nn">rl</span>
+
+<span class="n">g</span> <span class="o">=</span> <span class="n">rl</span><span class="o">.</span><span class="n">Generator</span><span class="p">(</span><span class="s">"jkiss"</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">"  {:d}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">)),</span> <span class="s">" {:d}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">next16</span><span class="p">()),</span> <span class="n">end</span><span class="o">=</span><span class="s">""</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">" {:d}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">next32</span><span class="p">()),</span> <span class="s">" {:f}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">next_double</span><span class="p">()))</span></code></pre></figure><h3>Java</h3>
+<p>Your Java programs will have to import the classes, and also load the library. More details of the classes and functions available are in the <a href="/randlib/javaapi.html">Java <span class="caps">API</span></a> document. Here&#8217;s a short example:</p>
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kn">import</span> <span class="nn">com.onejoker.randlib.*</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Hello</span> <span class="o">{</span>
+    <span class="kd">static</span> <span class="o">{</span> <span class="n">System</span><span class="o">.</span><span class="na">loadLibrary</span><span class="o">(</span><span class="s">"ojrand"</span><span class="o">);</span> <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="n">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Generator</span> <span class="n">g</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Generator</span><span class="o">(</span><span class="s">"mt19937"</span><span class="o">);</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">20</span><span class="o">;</span> <span class="o">++</span><span class="n">i</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">"%12d "</span><span class="o">,</span> <span class="n">g</span><span class="o">.</span><span class="na">next32</span><span class="o">());</span>
+            <span class="k">if</span> <span class="o">(</span><span class="mi">4</span> <span class="o">==</span> <span class="o">(</span><span class="n">i</span> <span class="o">%</span> <span class="mi">5</span><span class="o">))</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">"\n"</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+      </section>
+    </div><!--wrapper-->
+
+    <script src="/javascripts/scale.fix.js"></script>
+  </body>
+</html>
